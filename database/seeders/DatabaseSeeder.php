@@ -43,8 +43,8 @@ class DatabaseSeeder extends Seeder
         $user = User::firstOrCreate(
             ['name' => config('app.ADMIN_EMAIL')],
             [
-                'email' => config('app.ADMIN_EMAIL'),
-                'password' => Hash::make(config('app.ADMIN_PASSWORD')),
+                'email' => "fab@gmail.com",
+                'password' => Hash::make("123456"),
                 'estado'=>'ACTIVO'
             ]
         );

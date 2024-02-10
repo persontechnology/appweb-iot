@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('breadcrumbs')
-{{ Breadcrumbs::render('categoria-gateway.index') }}
+    {{ Breadcrumbs::render('categoria-gateway.index') }}
 @endsection
 
 @section('breadcrumb_elements')
@@ -13,21 +13,28 @@
 @endsection
 
 @section('content')
-    
-<div class="card">
-    
-    <div class="card-body">
-        {{ $dataTable->table() }}
+    <div class="card">
+
+        <div class="card-body">
+            {{ $dataTable->table() }}
+        </div>
+
     </div>
-    
-</div>
-
-
 @endsection
 
 @push('scriptsHeader')
-
 @endpush
 @push('scriptsFooter')
-{{ $dataTable->scripts() }}
+    {{ $dataTable->scripts() }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            window.Echo.channel('gateway-update-channel')
+                .listen('.GatewayUpdateEvent', (data) => {
+                    if (data && data.table_id) {
+                        $('#' + data.table_id).DataTable().ajax.reload();
+                    }
+
+                });
+        });
+    </script>
 @endpush

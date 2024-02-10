@@ -2019,5 +2019,5 @@
 <script src="{{ asset('assets/demo/pages/datatables_basic.js') }}"></script>
 @endpush
 @push('scriptsFooter')
-<script>console.log('ok')</script>
+
 @endpush

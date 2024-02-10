@@ -40,14 +40,12 @@
 
 	<!-- /theme JS files -->
 
-
-
     @stack('scriptsHeader')
 	<script src="{{ asset('assets/js/app.js') }}"></script>
 	<script src="{{ asset('assets/js/page.js') }}"></script>
+	<!-- SECCTION VITE FOR ECHO SERVER --->
 	
 	
-
 </head>
 
 <body>
@@ -662,4 +660,9 @@
 	{{-- end form eliminar --}}
     @stack('scriptsFooter')
 </body>
+<script>
+	window.laravel_echo_port = '6001';
+</script>
+<script src="//{{ Request::getHost() }}:{{env('LARAVEL_ECHO_PORT')}}6001/socket.io/socket.io.js"></script>
+<script src="{{ url('/configEcho/laravel-echo-setup-Xs6Gbc2z.js') }}" type="text/javascript"></script>
 </html>

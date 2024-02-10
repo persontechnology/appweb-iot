@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\GatewayDataTable;
+use App\Events\GatewayDataUpdated;
 use App\Models\CategoriaGateway;
 use App\Models\Gateway;
 use Illuminate\Http\Request;
@@ -26,6 +27,7 @@ class GatewayController extends Controller
         $data = array(
             'categoriaGateway'=>$cg
         );
+        
         return view('gateway.create',$data);
     }
 
@@ -55,7 +57,7 @@ class GatewayController extends Controller
         $request['categoria_gateway_id']=$request->categoria_gateway;
         $request['password']=$request->contrasena;
         $gateway=Gateway::create($request->except(['categoria_gateway','contrasena']));
-        
+        event(new GatewayDataUpdated($gateway));
         return redirect()->route('gateway.index')->with('succes',$gateway->nombre.', ingresado exitosamente.!');
     }
 
@@ -89,5 +91,13 @@ class GatewayController extends Controller
     public function destroy(Gateway $gateway)
     {
         //
+    }
+
+    public function updateAction(Request $request, Gateway $gateway)
+    {
+        $gateway->conectado="NO";
+        $gateway->save();
+        event(new GatewayDataUpdated($gateway));
+        return "ok";
     }
 }

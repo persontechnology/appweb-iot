@@ -1,0 +1,7 @@
+{
+  "resources/js/laravel-echo-setup.js": {
+    "file": "configEcho/laravel-echo-setup-Xs6Gbc2z.js",
+    "isEntry": true,
+    "src": "resources/js/laravel-echo-setup.js"
+  }
+}

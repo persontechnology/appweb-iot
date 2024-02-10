@@ -36,7 +36,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
+    Route::get('/gateway/{gateway}/updateAction', [GatewayController::class, 'updateAction'])->name('profile.updateAction');
 
     // categoria de gateway
     Route::resource('categoria-gateway', CategoriaGatewayController::class);
