@@ -35,8 +35,6 @@ return [
         'host' => env('MQTT_HOST', 'tu_host'),
         'port' => env('MQTT_PORT', 'tu_puerto'),
         'username' => env('MQTT_USERNAME', 'tu_usuario'),
-        'password' => env('MQTT_PASSWORD', 'tu_contraseña'),
-        'client_id' => env('MQTT_CLIENT_ID', 'subscribe-' . mt_rand(0, 100)),
-        'protocol' => env('MQTT_PROTOCOL', 'mqtt'),
+        'password' => env('MQTT_PASSWORD', 'tu_contraseña')
     ],
 ];

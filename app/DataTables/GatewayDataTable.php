@@ -14,6 +14,7 @@ use Yajra\DataTables\Services\DataTable;
 
 class GatewayDataTable extends DataTable
 {
+    
     /**
      * Build the DataTable class.
      *
@@ -27,6 +28,9 @@ class GatewayDataTable extends DataTable
             })
             ->editColumn('conectado',function($ga){
                 return view('gateway.conectado',['ga'=>$ga])->render();
+            })
+            ->editColumn('categoria_gateway_id',function($gat){
+                return $gat->categoriaGateway->nombre;
             })
             ->setRowId('conectado')
             ->rawColumns(['action','conectado']);
@@ -62,22 +66,23 @@ class GatewayDataTable extends DataTable
                   ->exportable(false)
                   ->printable(false)
                   ->width(60)
+                  ->title('Acción')
                   ->addClass('text-center'),
             Column::make('conectado'),
             Column::make('nombre'),
             Column::make('modelo'),
             Column::make('fcc_id'),
-            Column::make('direccion_ip'),
+            Column::make('direccion_ip')->title('Direccíon Ip'),
             Column::make('usuario'),
-            Column::make('password'),
+            Column::make('password')->title('Contraseña'),
             Column::make('imei'),
             Column::make('mac'),
-            Column::make('foto'),
+            // Column::make('foto'),
             Column::make('estado'),
             // Column::make('lat'),
             // Column::make('lng'),
             // Column::make('descripcion'),
-            Column::make('categoria_gateway_id'),
+            Column::make('categoria_gateway_id')->searchable(false)->title('Categoría'),
         ];
     }
 
@@ -88,4 +93,7 @@ class GatewayDataTable extends DataTable
     {
         return 'Gateway_' . date('YmdHis');
     }
+
+
+
 }
