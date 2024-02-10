@@ -72,7 +72,12 @@ class GatewayController extends Controller
      */
     public function edit(Gateway $gateway)
     {
-        //
+        $cg=CategoriaGateway::get();
+        $data = array(
+            'categoriaGateway'=>$cg,
+            'gateway'=>$gateway
+        );
+        return view('gateway.edit',$data);
     }
 
     /**
@@ -80,7 +85,28 @@ class GatewayController extends Controller
      */
     public function update(Request $request, Gateway $gateway)
     {
-        //
+        $request->validate([
+            'nombre'=>'required',
+            'modelo'=>'required',
+            'fcc_id'=>'required',
+            'direccion_ip'=>'required',
+            'usuario'=>'required',
+            'contrasena'=>'required',
+            'imei'=>'required',
+            'mac'=>'required',
+            'foto'=>'nullable',
+            'estado'=>'required',
+            'conectado'=>'required',
+            // 'lat'=>'required',
+            // 'lng'=>'required',
+            'descripcion'=>'required',
+            'categoria_gateway'=>'required'
+        ]);
+
+        $request['categoria_gateway_id']=$request->categoria_gateway;
+        $request['password']=$request->contrasena;
+        $gateway->update($request->except(['categoria_gateway','contrasena']));
+        return redirect()->route('gateway.index')->with('succes',$gateway->nombre.', actualizado exitosamente.!');
     }
 
     /**

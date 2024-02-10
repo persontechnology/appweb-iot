@@ -26,4 +26,10 @@ class Gateway extends Model
         'descripcion',
         'categoria_gateway_id'
     ];
+
+    
+    public function categoriaGateway()
+    {
+        return $this->belongsTo(CategoriaGateway::class);
+    }
 }
