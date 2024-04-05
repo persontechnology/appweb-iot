@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Events\GatewayDataUpdated;
 use App\Events\LoRaWANGatewayEvent;
 use App\Models\Gateway;
 use App\Models\User;
@@ -24,12 +25,16 @@ class LoRaWANGatewayListener implements ShouldQueue
     public function handle(LoRaWANGatewayEvent $event): void
     {
         $data=$event->data;
+        error_log($data);
         $gateway=Gateway::where('mac',$data['mac'])->first();
         if($gateway){
-            $gateway->conectado='NO';
+            $gateway->conectado='SI';
             $gateway->save();
-            error_log('GATEWAY SI');
+            event(new GatewayDataUpdated($gateway));
         }
         
+        
+
+
     }
 }

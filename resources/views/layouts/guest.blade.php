@@ -62,10 +62,12 @@
 
 			<!-- Inner content -->
 			<div class="content-inner">
-
+				<div class="container mt-3">
+					@include('layouts.errors-alert')
+				</div>
 				<!-- Content area -->
 				<div class="content d-flex justify-content-center align-items-center">
-
+					
 					<!-- Login form -->
 					@yield('content')
 					<!-- /login form -->

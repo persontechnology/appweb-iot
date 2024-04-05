@@ -3,6 +3,7 @@
 namespace App\DataTables;
 
 use App\Models\Gateway;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -14,7 +15,6 @@ use Yajra\DataTables\Services\DataTable;
 
 class GatewayDataTable extends DataTable
 {
-    
     /**
      * Build the DataTable class.
      *
@@ -23,17 +23,20 @@ class GatewayDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('action', function($ga){
-                return view('gateway.action',['ga'=>$ga])->render();
+            ->addColumn('action', function($gw){
+                return view('gateway.action',['gw'=>$gw])->render();
             })
-            ->editColumn('conectado',function($ga){
-                return view('gateway.conectado',['ga'=>$ga])->render();
+
+            ->filterColumn('gateway_id_hex',function($query, $keyword){
+                $query->whereRaw("encode(gateway_id, 'hex') like ?", ["%{$keyword}%"]);
+           
             })
-            ->editColumn('categoria_gateway_id',function($gat){
-                return $gat->categoriaGateway->nombre;
+
+            ->editColumn('last_seen_at',function($gw){
+                return Carbon::parse($gw->last_seen_at)->format('Y-m-d H:i:s');
             })
-            ->setRowId('conectado')
-            ->rawColumns(['action','conectado']);
+
+            ->setRowId('tenant_id');
     }
 
     /**
@@ -41,7 +44,7 @@ class GatewayDataTable extends DataTable
      */
     public function query(Gateway $model): QueryBuilder
     {
-        return $model->newQuery();
+        return $model->selectRaw("encode(gateway_id, 'hex') as gateway_id_hex,name,description,last_seen_at,stats_interval_secs");
     }
 
     /**
@@ -50,7 +53,7 @@ class GatewayDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('gateway-table')
+                    ->setTableId('gateway-tablex')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
                     ->parameters($this->getBuilderParameters());
@@ -66,23 +69,14 @@ class GatewayDataTable extends DataTable
                   ->exportable(false)
                   ->printable(false)
                   ->width(60)
-                  ->title('Acción')
                   ->addClass('text-center'),
-            Column::make('conectado'),
-            Column::make('nombre'),
-            Column::make('modelo'),
-            Column::make('fcc_id'),
-            Column::make('direccion_ip')->title('Direccíon Ip'),
-            Column::make('usuario'),
-            Column::make('password')->title('Contraseña'),
-            Column::make('imei'),
-            Column::make('mac'),
-            // Column::make('foto'),
-            Column::make('estado'),
-            // Column::make('lat'),
-            // Column::make('lng'),
-            // Column::make('descripcion'),
-            Column::make('categoria_gateway_id')->searchable(false)->title('Categoría'),
+            Column::make('last_seen_at')->title('Ultima vez visto'),      
+            Column::make('gateway_id_hex')->title('Gateway Id'),      
+            Column::make('name')->title('Nombre'),
+            Column::make('description')->title('Descripción')->searchable(false),
+            Column::make('stats_interval_secs')->title('Intervalo (segundos)')->searchable(false),
+            
+
         ];
     }
 
@@ -93,7 +87,4 @@ class GatewayDataTable extends DataTable
     {
         return 'Gateway_' . date('YmdHis');
     }
-
-
-
 }

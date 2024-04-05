@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
 @section('breadcrumbs')
-    {{ Breadcrumbs::render('categoria-gateway.index') }}
+    {{ Breadcrumbs::render('dashboard') }}
 @endsection
 
 @section('breadcrumb_elements')
     <div class="d-lg-flex mb-2 mb-lg-0">
-        <a href="{{ route('gateway.create') }}" class="d-flex align-items-center text-body py-2">
+        <a href="{{ route('gateways.create') }}" class="d-flex align-items-center text-body py-2">
             <i class="ph ph-plus"></i>Nuevo
         </a>
     </div>
@@ -20,21 +20,7 @@
         </div>
 
     </div>
-@endsection
-
-@push('scriptsHeader')
-@endpush
-@push('scriptsFooter')
+    @push('scriptsFooter')
     {{ $dataTable->scripts() }}
-    <script type="text/javascript">
-        $(document).ready(function() {
-            window.Echo.channel('gateway-update-channel')
-                .listen('.GatewayUpdateEvent', (data) => {
-                    if (data && data.table_id) {
-                        $('#' + data.table_id).DataTable().ajax.reload();
-                    }
-
-                });
-        });
-    </script>
-@endpush
+    @endpush
+@endsection

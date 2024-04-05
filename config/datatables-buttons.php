@@ -54,10 +54,10 @@ return [
     ],
 
     /*
-     * Default html builder parameters. Blfrtip
+     * Default html builder parameters.
      */
     'parameters'    => [
-        'dom'     => '<"datatable-header justify-content-start"f<"ms-sm-auto"l><"ms-sm-3"B>><"datatable-scroll-wrap"t><"datatable-footer"ip>',
+        'dom'     => '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
         'sPaginationType'=> 'full_numbers',
         'autoWidth' => false,
         'lengthMenu'=> [
@@ -65,13 +65,6 @@ return [
             [ '10 filas', '25 filas', '50 filas', '100 filas' ]
         ],
         'order'   => [[0, 'desc']],
-        'buttons' => [
-            [
-              'extend'=>'reload',
-              'className'=> 'btn-sm btn-success',
-              'text'=>'<i class="fas fa-sync"></i> Actualizar'
-            ]
-        ],
         'language'=> [
             "sProcessing"=> "Procesando...",
             "sLengthMenu"=> "Mostrar _MENU_ registros",

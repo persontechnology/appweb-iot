@@ -44,7 +44,10 @@ class MQTTListener extends Command
                 error_log($rx_info['mac']);
 
                 event(new LoRaWANGatewayEvent([
-                    'mac'=>$rx_info['mac']
+                    'mac'=>$rx_info['mac'],
+                    'devEUI'=>$datos_obj['devEUI'],
+                    'deviceName'=>$datos_obj['deviceName'],
+                    
                 ]));
                 
             }, 0);

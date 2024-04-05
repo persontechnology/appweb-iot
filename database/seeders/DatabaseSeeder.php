@@ -3,8 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use App\Models\Role;
+use App\Models\Permission;
+
+use Illuminate\Support\Str;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -19,8 +21,7 @@ class DatabaseSeeder extends Seeder
     {
         
         // Deivid, crear roles
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-
+        
         $roleAdmin = Role::firstOrCreate(['name' => config('app.ROLE_ADMIN')]);
 
         $permisos = array(
@@ -40,14 +41,22 @@ class DatabaseSeeder extends Seeder
             Permission::firstOrCreate(['name' => $permiso]);
         }
 
-        $user = User::firstOrCreate(
-            ['name' => config('app.ADMIN_EMAIL')],
-            [
-                'email' => "fab@gmail.com",
-                'password' => Hash::make("123456"),
-                'estado'=>'ACTIVO'
-            ]
-        );
+
+        
+
+        $user=User::where('email',config('app.ADMIN_EMAIL'))->first();
+        if(!$user){
+            $user= new User();
+            $user->email = config('app.ADMIN_EMAIL');
+            $user->is_admin=true;
+            $user->is_active=true;
+            $user->password=Hash::make(config('app.ADMIN_EMAIL'));
+            $user->password_hash=Hash::make(config('app.ADMIN_EMAIL'));
+            $user->email_verified=false;
+            $user->note='';
+            $user->save();
+        }
+
         $user->syncRoles($roleAdmin);
         
     }

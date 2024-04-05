@@ -26,7 +26,7 @@
 	<!-- Theme JS files -->
 	<script src="{{ asset('assets/js/jquery/jquery.min.js') }}"></script>
 	<script src="{{ asset('assets/js/vendor/tables/datatables/datatables.min.js') }}"></script>
-	<script src="{{ asset('assets/js/vendor/tables/datatables/extensions/buttons.min.js') }}"></script>
+	{{-- <script src="{{ asset('assets/js/vendor/tables/datatables/extensions/buttons.min.js') }}"></script> --}}
 	
 	<script src="{{ asset('vendor/datatables/buttons.server-side.js') }}"></script>
 
@@ -45,6 +45,9 @@
 	<script src="{{ asset('assets/js/page.js') }}"></script>
 	<!-- SECCTION VITE FOR ECHO SERVER --->
 	
+
+	 @vite(['resources/css/app.css', 'resources/js/app.js']) 
+
 	
 </head>
 
@@ -436,7 +439,7 @@
 				<li class="nav-item">
 					<a href="#" class="navbar-nav-link navbar-nav-link-icon rounded-pill" data-bs-toggle="offcanvas" data-bs-target="#notifications">
 						<i class="ph-bell"></i>
-						<span class="badge bg-white text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1">2</span>
+						<span class="badge bg-white text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1" id="contador-notificacion">0</span>
 					</a>
 				</li>
 
@@ -659,10 +662,34 @@
     </form>
 	{{-- end form eliminar --}}
     @stack('scriptsFooter')
+
+	<script>
+		$(document).ready(function(){
+			
+			window.Echo.channel('lectura-guardada')
+				.listen('LecturaGuardadoEvent', function(data) {
+					var contador_notificacion = parseInt($('#contador-notificacion').html());
+					$('#contador-notificacion').html(contador_notificacion + 1)
+
+					console.log(data);
+				});
+		});
+
+		
+
+	</script>
+
+	
 </body>
-<script>
+
+
+{{-- <script>
 	window.laravel_echo_port = '6001';
-</script>
-<script src="//{{ Request::getHost() }}:{{env('LARAVEL_ECHO_PORT')}}6001/socket.io/socket.io.js"></script>
-<script src="{{ url('/configEcho/laravel-echo-setup-Xs6Gbc2z.js') }}" type="text/javascript"></script>
+</script> --}}
+{{-- <script src="//{{ Request::getHost() }}:{{env('LARAVEL_ECHO_PORT')}}/socket.io/socket.io.js"></script>
+<script src="{{ url('/configEcho/laravel-echo-setup-Xs6Gbc2z.js') }}" type="text/javascript"></script> --}}
+
+
+
+
 </html>

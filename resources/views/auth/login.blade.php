@@ -23,7 +23,7 @@
                         <div class="form-control-feedback-icon">
                             <i class="ph ph-envelope-simple"></i>
                         </div>
-                        <input type="email" name="email" value="{{ old('email') }}" class="form-control @error('email') is-invalid @enderror" autofocus placeholder="" required>
+                        <input type="text" name="email" value="{{ old('email') }}" class="form-control @error('email') is-invalid @enderror" autofocus placeholder="" required>
                         <label>Email</label>
                         @error('email')
                             <div class="invalid-feedback">{{ $message }}</div>

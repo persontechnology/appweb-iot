@@ -1,16 +1,17 @@
 @extends('layouts.app')
 @section('breadcrumbs')
-{{ Breadcrumbs::render('categoria-gateway.create') }}
+{{-- {{ Breadcrumbs::render('categoria-gateway.create') }} --}}
 @endsection
 
 @section('content')
 
-<form action="{{ route('gateway.store') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('gateways.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
     <div class="card">
         <div class="card-header">Complete datos</div>
         <div class="card-body">
             <div class="row">
+
                 <div class="col-lg-6">
                     <div class="mb-3">
                         <div class="form-floating form-control-feedback form-control-feedback-start">
@@ -23,137 +24,6 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-keyboard"></i>
-                            </div>
-                            <input type="text" name="modelo" value="{{ old('modelo') }}" class="form-control @error('modelo') is-invalid @enderror" placeholder="" required>
-                            <label>Modelo</label>
-                            @error('modelo')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-calculator"></i>
-                            </div>
-                            <input type="text" name="fcc_id" value="{{ old('fcc_id') }}" class="form-control @error('fcc_id') is-invalid @enderror" placeholder="" required>
-                            <label>Fcc id</label>
-                            @error('fcc_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-rss-simple"></i>
-                            </div>
-                            <input type="text" name="direccion_ip" value="{{ old('direccion_ip') }}" class="form-control @error('direccion_ip') is-invalid @enderror" placeholder="" required>
-                            <label>Dirección ip</label>
-                            @error('direccion_ip')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-user"></i>
-                            </div>
-                            <input type="text" name="usuario" value="{{ old('usuario') }}" class="form-control @error('usuario') is-invalid @enderror" placeholder="" required>
-                            <label>Usuario</label>
-                            @error('usuario')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-password"></i>
-                            </div>
-                            <input type="text" value="{{ old('contrasena') }}" name="contrasena" class="form-control @error('contrasena') is-invalid @enderror" placeholder="" required>
-                            <label>Contraseña</label>
-                            @error('contrasena')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="mb-3">
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-barcode"></i>
-                            </div>
-                            <input type="text" name="imei" value="{{ old('imei') }}" class="form-control @error('imei') is-invalid @enderror" placeholder="" required>
-                            <label>Imei</label>
-                            @error('imei')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="mb-3">
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-scan"></i>
-                            </div>
-                            <input type="text" name="mac" value="{{ old('mac') }}" class="form-control @error('mac') is-invalid @enderror" placeholder="" required>
-                            <label>Mac</label>
-                            @error('mac')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="mb-3">
-                        @if ($categoriaGateway->count()>0)
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-presentation-chart"></i>
-                            </div>
-                            
-                            <select class="form-select @error('categoria_gateway') is-invalid @enderror" name="categoria_gateway" required>
-                                @foreach ($categoriaGateway as $cg)
-                                <option value="{{ $cg->id }}" {{ old('categoria_gateway')==$cg->id?'selected':'' }}>{{ $cg->nombre }}</option>
-                                @endforeach
-                            </select>
-
-                            <label>Categoría de gateway</label>
-
-                            @error('categoria_gateway')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        @else
-                            @include('layouts.alert',['type'=>'danger','msg'=>'No existe Categorías de gateway, por favor crear una.'])
-                        @endif
-                        
                     </div>
                 </div>
 
@@ -171,16 +41,71 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="col-lg-6">
-                    <input type="file" name="foto" class="form-control" accept="image/*">
-					<div class="form-text">Acepta solo imágenes</div>
+                    <div class="mb-3">
+                        <div class="form-floating form-control-feedback form-control-feedback-start">
+                            <div class="form-control-feedback-icon">
+                                <i class="ph ph-keyboard"></i>
+                            </div>
+                            <input type="text" name="gateway_id" value="{{ old('gateway_id') }}" class="form-control @error('gateway_id') is-invalid @enderror" placeholder="" required>
+                            <label>Gateway ID (EUI64)</label>
+                            @error('gateway_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
+
+                <div class="col-lg-6">
+                    <div class="mb-3">
+                        <div class="form-floating form-control-feedback form-control-feedback-start">
+                            <div class="form-control-feedback-icon">
+                                <i class="ph ph-timer"></i>
+                            </div>
+                            <input type="number" name="intervalo_estadisticas" value="{{ old('intervalo_estadisticas') }}" class="form-control @error('intervalo_estadisticas') is-invalid @enderror" placeholder="" required>
+                            <label>Intervalo de estadísticas (segundos)</label>
+                            @error('intervalo_estadisticas')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-12">
+                    <div class="mb-3">
+                        @if ($tenants->count()>0)
+                        <div class="form-floating form-control-feedback form-control-feedback-start">
+                            <div class="form-control-feedback-icon">
+                                <i class="ph ph-presentation-chart"></i>
+                            </div>
+                            
+                            <select class="form-select @error('tenant_id') is-invalid @enderror" name="tenant_id" required>
+                                @foreach ($tenants as $te)
+                                <option value="{{ $te->id }}" {{ old('tenant_id')==$te->id?'selected':'' }}>{{ $te->name }}</option>
+                                @endforeach
+                            </select>
+
+                            <label>Inquilinos</label>
+
+                            @error('tenant_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        @else
+                            @include('layouts.alert',['type'=>'danger','msg'=>'No existe Inquilinos, por favor crear una.'])
+                        @endif
+                        
+                    </div>
+                </div>
+
+
 
             </div>
         </div>
         <div class="card-footer text-muted">
             <button class="btn btn-primary" type="submit">Guardar</button>
-            <a href="{{ route('gateway.index') }}" class="btn btn-danger">Cancelar</a>
+            <a href="{{ route('gateways.index') }}" class="btn btn-danger">Cancelar</a>
             
         </div>
     </div>
@@ -188,5 +113,4 @@
 </form>
         
 @endsection
-
 

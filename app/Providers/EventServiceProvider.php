@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Events\GatewayDataUpdated;
 use App\Events\LoRaWANGatewayEvent;
 use App\Listeners\LoRaWANGatewayListener;
 use Illuminate\Auth\Events\Registered;
@@ -24,7 +25,9 @@ class EventServiceProvider extends ServiceProvider
         // lorawan
         LoRaWANGatewayEvent::class=>[
             LoRaWANGatewayListener::class
-        ]
+        ],
+        
+        // 
     ];
 
     /**

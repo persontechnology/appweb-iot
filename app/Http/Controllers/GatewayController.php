@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\GatewayDataTable;
-use App\Events\GatewayDataUpdated;
-use App\Models\CategoriaGateway;
 use App\Models\Gateway;
+use App\Models\Tenant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Ramsey\Uuid\Uuid;
 
 class GatewayController extends Controller
 {
@@ -15,7 +16,8 @@ class GatewayController extends Controller
      */
     public function index(GatewayDataTable $dataTable)
     {
-         return $dataTable->render('gateway.index');
+        
+        return $dataTable->render('gateway.index');
     }
 
     /**
@@ -23,11 +25,9 @@ class GatewayController extends Controller
      */
     public function create()
     {
-        $cg=CategoriaGateway::get();
         $data = array(
-            'categoriaGateway'=>$cg
+            'tenants'=>Tenant::get()
         );
-        
         return view('gateway.create',$data);
     }
 
@@ -36,29 +36,24 @@ class GatewayController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nombre'=>'required',
-            'modelo'=>'required',
-            'fcc_id'=>'required',
-            'direccion_ip'=>'required',
-            'usuario'=>'required',
-            'contrasena'=>'required',
-            'imei'=>'required',
-            'mac'=>'required',
-            'foto'=>'nullable',
-            // 'estado'=>'required',
-            // 'conectado'=>'required',
-            // 'lat'=>'required',
-            // 'lng'=>'required',
-            'descripcion'=>'required',
-            'categoria_gateway'=>'required',
-        ]);
-
-        $request['categoria_gateway_id']=$request->categoria_gateway;
-        $request['password']=$request->contrasena;
-        $gateway=Gateway::create($request->except(['categoria_gateway','contrasena']));
-        event(new GatewayDataUpdated($gateway));
-        return redirect()->route('gateway.index')->with('succes',$gateway->nombre.', ingresado exitosamente.!');
+        try {
+            $gateway=new Gateway();
+            $gatewayIdBinary = DB::selectOne("SELECT decode(?, 'hex') as binary_value", [$request->gateway_id])->binary_value;
+            $gateway->gateway_id=$gatewayIdBinary;
+            $gateway->tenant_id = $request->tenant_id;
+            $gateway->name=$request->nombre;
+            $gateway->description=$request->descripcion;
+            $gateway->latitude=0;
+            $gateway->longitude=0;
+            $gateway->altitude=0;
+            $gateway->stats_interval_secs=$request->intervalo_estadisticas;
+            $gateway->tags=json_encode(new \stdClass);
+            $gateway->properties=json_encode(new \stdClass);
+            $gateway->save();
+            return redirect()->route('gateway.index')->with('success',$gateway->name.', ingresado exitosamente.!');
+        } catch (\Throwable $th) {
+            return back()->with('danger', 'Error.! '.$th->getMessage());
+        }
     }
 
     /**
@@ -74,12 +69,7 @@ class GatewayController extends Controller
      */
     public function edit(Gateway $gateway)
     {
-        $cg=CategoriaGateway::get();
-        $data = array(
-            'categoriaGateway'=>$cg,
-            'gateway'=>$gateway
-        );
-        return view('gateway.edit',$data);
+        //
     }
 
     /**
@@ -87,43 +77,19 @@ class GatewayController extends Controller
      */
     public function update(Request $request, Gateway $gateway)
     {
-        $request->validate([
-            'nombre'=>'required',
-            'modelo'=>'required',
-            'fcc_id'=>'required',
-            'direccion_ip'=>'required',
-            'usuario'=>'required',
-            'contrasena'=>'required',
-            'imei'=>'required',
-            'mac'=>'required',
-            'foto'=>'nullable',
-            'estado'=>'required',
-            'conectado'=>'required',
-            // 'lat'=>'required',
-            // 'lng'=>'required',
-            'descripcion'=>'required',
-            'categoria_gateway'=>'required'
-        ]);
-
-        $request['categoria_gateway_id']=$request->categoria_gateway;
-        $request['password']=$request->contrasena;
-        $gateway->update($request->except(['categoria_gateway','contrasena']));
-        return redirect()->route('gateway.index')->with('succes',$gateway->nombre.', actualizado exitosamente.!');
+        //
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Gateway $gateway)
-    {
-        //
-    }
-
-    public function updateAction(Request $request, Gateway $gateway)
-    {
-        $gateway->conectado="NO";
-        $gateway->save();
-        event(new GatewayDataUpdated($gateway));
-        return "ok";
+    public function destroy($gatewayId)
+    {       
+        try {    
+            Gateway::where('gateway_id', DB::raw("decode('$gatewayId', 'hex')"))->delete();
+            return redirect()->route('gateway.index')->with('success','Gateway eliminado.!');
+        } catch (\Throwable $th) {
+            return redirect()->route('gateway.index')->with('warning','Gateway no eliminado.!'.$th->getMessage());
+        }
     }
 }

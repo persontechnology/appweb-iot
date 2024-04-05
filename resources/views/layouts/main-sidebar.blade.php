@@ -43,26 +43,7 @@
 
 
                 <li class="nav-item">
-                    <a href="{{ route('categoria-gateway.index') }}" class="nav-link {{ Route::is('categoria-gateway.*')?'active':'' }}">
-                        <i class="ph ph-presentation-chart"></i>
-                        <span>
-                            Categoriá de gateway
-                        </span>
-                    </a>
-                </li>
-
-
-                <li class="nav-item">
-                    <a href="{{ route('categoria-nodo.index') }}" class="nav-link {{ Route::is('categoria-nodo.*')?'active':'' }}" >
-                        <i class="ph ph-browsers"></i>
-                        <span>
-                            Categoriá de nodos
-                        </span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="{{ route('gateway.index') }}" class="nav-link {{ Route::is('gateway.*')?'active':'' }}">
+                    <a href="{{ route('gateways.index') }}" class="nav-link {{ Route::is('gateways.*')?'active':'' }}">
                         <i class="ph ph-chart-bar"></i>
                         <span>
                             Gateway
@@ -71,45 +52,45 @@
                 </li>
 
 
-                
-
-
                 <li class="nav-item">
-                    <a href="{{ route('dashboard') }}" class="nav-link">
-                        <i class="ph ph-graph"></i>
+                    <a href="{{ route('applicaciones.index') }}" class="nav-link {{ Route::is('applicaciones.*')?'active':'' }}">
+                        <i class="ph ph-app-window"></i>
                         <span>
-                            Nodos
+                            Applicaciones
                         </span>
                     </a>
                 </li>
-                
-                {{-- <li class="nav-item">
-                    <a href="../../../../docs/other_changelog.html" class="nav-link">
-                        <i class="ph-list-numbers"></i>
-                        <span>Changelog</span>
-                        <span class="badge bg-primary align-self-center rounded-pill ms-auto">4.0</span>
-                    </a>
-                </li> --}}
 
-                <!-- Tables -->
-                {{-- <li class="nav-item-header">
-                    <div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">Tables</div>
-                    <i class="ph-dots-three sidebar-resize-show"></i>
-                </li>
-                
-                <li class="nav-item nav-item-submenu nav-item-expanded nav-item-open">
-                    <a href="#" class="nav-link">
-                        <i class="ph-square-half"></i>
-                        <span>Data tables</span>
+
+                <li class="nav-item">
+                    <a href="{{ route('dispositivos.index') }}" class="nav-link {{ Route::is('dispositivos.*')?'active':'' }}">
+                        <i class="ph ph-device-mobile"></i>
+                        <span>
+                            Dispositivos
+                        </span>
                     </a>
-                    <ul class="nav-group-sub collapse show">
-                        <li class="nav-item"><a href="datatable_basic.html" class="nav-link active">Basic initialization</a></li>
-                        <li class="nav-item"><a href="datatable_styling.html" class="nav-link">Basic styling</a></li>
-                        
-                    </ul>
-                </li> --}}
-            
-                <!-- /tables -->
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{ route('alertas.index') }}" class="nav-link {{ Route::is('alertas.*')?'active':'' }}">
+                        <i class="ph ph-alarm"></i>
+                        <span>
+                            Alertas
+                        </span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{ route('lecturas.index') }}" class="nav-link {{ Route::is('lecturas.*')?'active':'' }}">
+                        <i class="ph ph-notebook"></i>
+                        <span>
+                            Lecturas
+                        </span>
+                    </a>
+                </li>
+
+
+                
 
             </ul>
         </div>
