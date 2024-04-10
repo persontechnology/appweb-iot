@@ -71,6 +71,8 @@ class GatewayController extends Controller
              }else{
                 error_log('NO EXISTE HORARIO');
              }
+         }else{
+            error_log('NO EXISTE DEVICE');
          }
     }
 

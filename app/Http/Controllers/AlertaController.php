@@ -110,41 +110,41 @@ class AlertaController extends Controller
 
 
     public function actualizarHorario(Request $request)
-{
-    foreach ($request->horarios as $id => $datos) {
-        $horario = Horario::findOrFail($id);
+    {
+        foreach ($request->horarios as $id => $datos) {
+            $horario = Horario::findOrFail($id);
 
-        // Verificar si el estado está presente y es verdadero
-        if (isset($datos['estado'])) {
-            // Si $datos['estado'] es un array, convertimos su valor a booleano
-            $estado = is_array($datos['estado']) ? in_array('on', $datos['estado']) : (bool)$datos['estado'];
+            // Verificar si el estado está presente y es verdadero
+            if (isset($datos['estado'])) {
+                // Si $datos['estado'] es un array, convertimos su valor a booleano
+                $estado = is_array($datos['estado']) ? in_array('on', $datos['estado']) : (bool)$datos['estado'];
 
-            // Si el estado es verdadero, validamos las horas de apertura y cierre
-            if ($estado) {
-                $validatedData = $request->validate([
-                    "horarios.$id.hora_apertura" => 'required',
-                    "horarios.$id.hora_cierre" => 'required',
-                ]);
+                // Si el estado es verdadero, validamos las horas de apertura y cierre
+                if ($estado) {
+                    $validatedData = $request->validate([
+                        "horarios.$id.hora_apertura" => 'required',
+                        "horarios.$id.hora_cierre" => 'required',
+                    ]);
 
-                // Actualizar las horas de apertura y cierre
-                $horario->hora_apertura = $datos['hora_apertura'] ?? null;
-                $horario->hora_cierre = $datos['hora_cierre'] ?? null;
+                    // Actualizar las horas de apertura y cierre
+                    $horario->hora_apertura = $datos['hora_apertura'] ?? null;
+                    $horario->hora_cierre = $datos['hora_cierre'] ?? null;
+                }
+
+                // Actualizar el estado del horario
+                $horario->estado = $estado;
+            } else {
+                // Si el estado no está presente, establecemos el estado como false y las horas como nulas
+                $horario->estado = false;
+                $horario->hora_apertura = null;
+                $horario->hora_cierre = null;
             }
 
-            // Actualizar el estado del horario
-            $horario->estado = $estado;
-        } else {
-            // Si el estado no está presente, establecemos el estado como false y las horas como nulas
-            $horario->estado = false;
-            $horario->hora_apertura = null;
-            $horario->hora_cierre = null;
+            $horario->save();
         }
 
-        $horario->save();
+        return redirect()->route('alertas.show',$request->alerta_id)->with('success','Horario actualizado.!');
     }
-
-    return redirect()->route('alertas.show',$request->alerta_id)->with('success','Horario actualizado.!');
-}
 
 
 }

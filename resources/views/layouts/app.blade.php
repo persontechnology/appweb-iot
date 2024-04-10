@@ -26,7 +26,7 @@
 	<!-- Theme JS files -->
 	<script src="{{ asset('assets/js/jquery/jquery.min.js') }}"></script>
 	<script src="{{ asset('assets/js/vendor/tables/datatables/datatables.min.js') }}"></script>
-	{{-- <script src="{{ asset('assets/js/vendor/tables/datatables/extensions/buttons.min.js') }}"></script> --}}
+	<script src="{{ asset('assets/js/vendor/forms/selects/select2.min.js') }}"></script>
 	
 	<script src="{{ asset('vendor/datatables/buttons.server-side.js') }}"></script>
 
@@ -42,6 +42,7 @@
 
     @stack('scriptsHeader')
 	<script src="{{ asset('assets/js/app.js') }}"></script>
+	<script src="{{ asset('assets/demo/pages/navbar_components.js') }}"></script>
 	<script src="{{ asset('assets/js/page.js') }}"></script>
 	<!-- SECCTION VITE FOR ECHO SERVER --->
 	
@@ -69,14 +70,35 @@
 				</a>
 			</div>
 
+
+			<div class="d-xl-none">
+				<button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-form-select2-dark">
+					<i class="ph-list"></i>
+				</button>
+			</div>
+
+			<div class="navbar-collapse collapse" id="navbar-form-select2-dark">
+				<div class="mt-3 mt-xl-0">
+					<div class="wmin-xl-200" data-color-theme="dark">
+						<select class="form-control form-control-select2" data-container-css-class="bg-transparent">
+							<option value="">Selecionar inquilino</option>
+							@foreach (App\Models\Tenant::class::get() as $inquilino_menu)
+								<option value="{{ $inquilino_menu->id }}">{{ $inquilino_menu->name }}</option>
+							@endforeach
+						</select>
+					</div>
+				</div>
+			</div>
+
 			<ul class="nav flex-row">
-				<li class="nav-item d-lg-none">
+
+				{{-- <li class="nav-item d-lg-none">
 					<a href="#navbar_search" class="navbar-nav-link navbar-nav-link-icon rounded-pill" data-bs-toggle="collapse">
 						<i class="ph-magnifying-glass"></i>
 					</a>
-				</li>
+				</li> --}}
 
-				<li class="nav-item nav-item-dropdown-lg dropdown">
+				{{-- <li class="nav-item nav-item-dropdown-lg dropdown">
 					<a href="#" class="navbar-nav-link navbar-nav-link-icon rounded-pill" data-bs-toggle="dropdown">
 						<i class="ph-squares-four"></i>
 					</a>
@@ -132,9 +154,9 @@
 							</div>
 						</div>
 					</div>
-				</li>
+				</li> --}}
 
-				<li class="nav-item nav-item-dropdown-lg dropdown ms-lg-2">
+				{{-- <li class="nav-item nav-item-dropdown-lg dropdown ms-lg-2">
 					<a href="#" class="navbar-nav-link navbar-nav-link-icon rounded-pill" data-bs-toggle="dropdown" data-bs-auto-close="outside">
 						<i class="ph-chats"></i>
 						<span class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1">8</span>
@@ -239,10 +261,11 @@
 							</a>
 						</div>
 					</div>
-				</li>
+				</li> --}}
+
 			</ul>
 
-			<div class="navbar-collapse justify-content-center flex-lg-1 order-2 order-lg-1 collapse" id="navbar_search">
+			{{-- <div class="navbar-collapse justify-content-center flex-lg-1 order-2 order-lg-1 collapse" id="navbar_search">
 				<div class="navbar-search flex-fill position-relative mt-2 mt-lg-0 mx-lg-3">
 					<div class="form-control-feedback form-control-feedback-start flex-grow-1" data-color-theme="dark">
 						<input type="text" class="form-control bg-transparent rounded-pill" placeholder="Search" data-bs-toggle="dropdown">
@@ -432,7 +455,7 @@
 						</div>
 					</div>
 				</div>
-			</div>
+			</div> --}}
 
 			<ul class="nav flex-row justify-content-end order-1 order-lg-2">
 

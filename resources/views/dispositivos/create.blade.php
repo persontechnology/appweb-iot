@@ -137,7 +137,7 @@
                                 <i class="ph ph-timer"></i>
                             </div>
                             <input type="text" name="nwk_key" value="{{ old('nwk_key') }}" class="form-control @error('nwk_key') is-invalid @enderror" placeholder="" required>
-                            <label>Clave de aplicación</label>
+                            <label>Clave de aplicación (MSB)</label>
                             <div class="form-text">
                                 Para dispositivos LoRaWAN 1.0. En caso de que su dispositivo sea compatible con LoRaWAN 1.1, actualice primero el perfil del dispositivo.
                             </div>

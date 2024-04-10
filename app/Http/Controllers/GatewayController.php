@@ -50,7 +50,7 @@ class GatewayController extends Controller
             $gateway->tags=json_encode(new \stdClass);
             $gateway->properties=json_encode(new \stdClass);
             $gateway->save();
-            return redirect()->route('gateway.index')->with('success',$gateway->name.', ingresado exitosamente.!');
+            return redirect()->route('gateways.index')->with('success',$gateway->name.', ingresado exitosamente.!');
         } catch (\Throwable $th) {
             return back()->with('danger', 'Error.! '.$th->getMessage());
         }
@@ -87,9 +87,9 @@ class GatewayController extends Controller
     {       
         try {    
             Gateway::where('gateway_id', DB::raw("decode('$gatewayId', 'hex')"))->delete();
-            return redirect()->route('gateway.index')->with('success','Gateway eliminado.!');
+            return redirect()->route('gateways.index')->with('success','Gateway eliminado.!');
         } catch (\Throwable $th) {
-            return redirect()->route('gateway.index')->with('warning','Gateway no eliminado.!'.$th->getMessage());
+            return redirect()->route('gateways.index')->with('warning','Gateway no eliminado.!'.$th->getMessage());
         }
     }
 }

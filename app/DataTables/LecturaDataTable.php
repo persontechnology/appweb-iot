@@ -26,6 +26,9 @@ class LecturaDataTable extends DataTable
             ->editColumn('created_at',function($lec){
                 return $lec->created_at;
             })
+            ->editColumn('alerta_id',function($lec){
+                return $lec->device;
+            })
             ->setRowId('id');
     }
 
@@ -34,7 +37,7 @@ class LecturaDataTable extends DataTable
      */
     public function query(Lectura $model): QueryBuilder
     {
-        return $model->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex,alerta_id,estado,created_at");
+        return $model->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex,alerta_id,estado,created_at")->latest();
         // return $model->newQuery();
 
     }

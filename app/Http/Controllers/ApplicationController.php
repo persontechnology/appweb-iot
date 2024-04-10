@@ -8,6 +8,7 @@ use App\Models\Application;
 use App\Models\ApplicationIntegration;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ApplicationController extends Controller
 {
@@ -43,6 +44,8 @@ class ApplicationController extends Controller
             $aplication->tags=json_encode(new \stdClass);
             $aplication->mqtt_tls_cert=null;
             $aplication->save();
+
+            $this->crearIntegracionAplicacion($aplication->id);
             event(new LecturaGuardadoEvent('hola'));
 
             return redirect()->route('applicaciones.index')->with('success',$aplication->name.', ingresado exitosamente.!');
@@ -51,11 +54,8 @@ class ApplicationController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($applicationId)
-    {
+
+    public function crearIntegracionAplicacion($applicationId){
         try {
             $ai=new ApplicationIntegration();
             $ai->application_id=$applicationId;
@@ -68,10 +68,20 @@ class ApplicationController extends Controller
                 ]
             ];
             $ai->save();
-            return redirect()->route('applicaciones.index')->with('success','Integración de aplicación, ingresado exitosamente.!');
+            return true;
+            // return redirect()->route('applicaciones.index')->with('success','Integración de aplicación, ingresado exitosamente.!');
         } catch (\Throwable $th) {
-            return back()->with('danger', 'Error.! '.$th->getMessage());
+            // return back()->with('danger', 'Error.! '.$th->getMessage());
+            return false;
         }
+    }
+    /**
+     * Display the specified resource.
+     */
+    public function show($applicationId)
+    {
+        
+        return $applicationId;
     }
 
     /**
@@ -93,8 +103,13 @@ class ApplicationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Application $application)
+    public function destroy($applicationId)
     {
-        //
+        try {    
+            Application::find($applicationId)->delete();
+            return redirect()->route('applicaciones.index')->with('success','Aplicación eliminado.!');
+        } catch (\Throwable $th) {
+            return redirect()->route('applicaciones.index')->with('warning','Aplicación no eliminado.!'.$th->getMessage());
+        }
     }
 }

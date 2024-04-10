@@ -39,7 +39,7 @@ class DispositivoDataTable extends DataTable
     public function query(Dispositivo $model): QueryBuilder
     {
         // return $model->newQuery();
-        return $model->selectRaw("encode(dev_eui, 'hex') as device_id_hex,encode(join_eui, 'hex') as join_eui_hex,name,description,application_id,battery_level");
+        return $model->selectRaw("encode(dev_eui, 'hex') as device_id_hex,encode(join_eui, 'hex') as join_eui_hex,name,description,application_id,battery_level,is_disabled");
 
 
     }
@@ -68,6 +68,7 @@ class DispositivoDataTable extends DataTable
                   ->width(60)
                   ->addClass('text-center'),
             Column::make('device_id_hex'),
+            Column::make('is_disabled'),
             Column::make('name'),
             Column::make('join_eui_hex'),
             Column::make('battery_level')->title('%Batería'),

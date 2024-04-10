@@ -15,7 +15,8 @@ class Lectura extends Model
     // una lectura pertenece a  un dispositivo
     public function device()
     {
-        return $this->belongsTo(Dispositivo::class, 'dev_eui', 'dev_eui');
+        return $this->belongsTo(Dispositivo::class, 'dev_eui');
+
     }
 
 

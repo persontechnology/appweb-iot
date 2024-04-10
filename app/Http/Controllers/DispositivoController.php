@@ -59,7 +59,7 @@ class DispositivoController extends Controller
             $dis->variables=json_encode(new \stdClass);
             $dis->join_eui=$joinUuiBinary;
             $dis->save();
-
+            $this->crearClaveApplicacion($request->dev_eui,$request->nwk_key);
             return redirect()->route('dispositivos.index')->with('success',$dis->name.', ingresado exitosamente.!');
         } catch (\Throwable $th) {
             return back()->with('danger', 'Error.! '.$th->getMessage())->withInput();
@@ -72,10 +72,16 @@ class DispositivoController extends Controller
      */
     public function show($dispositivoId)
     {
+      return $dispositivoId;
+
+    }
+
+    public function crearClaveApplicacion($dispositivoId,$nwk_key)
+    {
         
         try {
             $deviceIdBinary = DB::selectOne("SELECT decode(?, 'hex') as binary_value", [$dispositivoId])->binary_value;
-            $nwk_keyBinary=DB::selectOne("SELECT decode(?, 'hex') as binary_value", ['5572404c696e6b4c6f52613230313823'])->binary_value;
+            $nwk_keyBinary=DB::selectOne("SELECT decode(?, 'hex') as binary_value", [$nwk_key])->binary_value;
             $app_keyBinary=DB::selectOne("SELECT decode(?, 'hex') as binary_value", ['00000000000000000000000000000000'])->binary_value;
             $d_k=new DeviceKeys();
             $d_k->dev_eui=$deviceIdBinary;
@@ -84,13 +90,12 @@ class DispositivoController extends Controller
             $d_k->dev_nonces=json_encode(new \stdClass);
             $d_k->join_nonce=1;
             $d_k->save();
-            return redirect()->route('dispositivos.index')->with('success','Clave, ingresado exitosamente.!');
+            return true;
         } catch (\Throwable $th) {
-            return back()->with('danger', 'Error.! '.$th->getMessage())->withInput();
+            return false;
         }
 
     }
-
     /**
      * Show the form for editing the specified resource.
      */
