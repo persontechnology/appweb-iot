@@ -4,11 +4,11 @@
     </a>
 
     <div class="dropdown-menu">
-        <a href="{{ route('gateways.edit',$gw->gateway_id) }}" class="dropdown-item">
+        <a href="{{ route('usuarios.edit',$user->id) }}" class="dropdown-item">
             <i class="ph ph-pencil-simple me-2"></i>
             Editar
         </a>
-        <a href="{{ route('gateways.destroy',$gw->gateway_id) }}" data-msg="{{ $gw->name }}" onclick="event.preventDefault(); eliminar(this)" class="dropdown-item">
+        <a href="{{ route('usuarios.destroy',$user->id) }}" data-msg="{{ $user->email }}" onclick="event.preventDefault(); eliminar(this)" class="dropdown-item">
             <i class="ph ph-trash me-2"></i>
             Eliminar
         </a>

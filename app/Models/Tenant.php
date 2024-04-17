@@ -4,14 +4,36 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Tenant extends Model
 {
     use HasFactory;
 
     protected $table='tenant';
-    // protected $primaryKey = 'id'; // Nombre del campo UUID en la base de datos
-    // public $incrementing = false; // Desactivar la autoincrementación
-    protected $keyType = 'string'; // Tipo de dato del campo UUID
+    protected $primaryKey = 'id';
+    protected $keyType = 'string'; 
+    public $incrementing = false;
+
+    protected static function booted()
+    {
+        static::creating(function ($user) {
+            $user->id=Str::uuid();
+        });
+    }
+
+    // una entidad tiene varios tenantUser
+    public function tenantUsers()
+    {
+        return $this->hasMany(TenantUser::class, 'tenant_id', 'id');
+    }
+
+
+    // una entidad tienen varios usuarios
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'tenant_user', 'tenant_id', 'user_id')
+        ->withTimestamps();
+    }
     
 }

@@ -12,7 +12,9 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\NodoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SensorDataController;
+use App\Http\Controllers\TenantController;
 use App\Http\Controllers\TestMqttController;
+use App\Http\Controllers\UserController;
 use App\Models\Alerta;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -45,10 +47,21 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
+    Route::resource('usuarios', UserController::class);
+
+
+    Route::resource('inquilinos', TenantController::class);
+    Route::get('inquilinos-usuarios/{tenantId}',[TenantController::class,'usuarios'])->name('inquilinos.usuarios');
+    Route::post('inquilinos-usuarios-asignar',[TenantController::class,'usuariosAsignar'])->name('inquilinos.usuarios.asignar');
+    Route::delete('inquilinos-usuarios-eliminar/{tenantId}/{userId}',[TenantController::class,'usuariosEliminar'])->name('inquilinos.usuarios.eliminar');
+
+    
+    
+
     Route::resource('gateways', GatewayController::class);
     Route::resource('applicaciones', ApplicationController::class);
     Route::resource('dispositivos', DispositivoController::class);
-
+    
     Route::resource('alertas', AlertaController::class);
     Route::post('alertas/actualizarHorario', [AlertaController::class,'actualizarHorario'])->name('alertas.actualizarHorario');
 

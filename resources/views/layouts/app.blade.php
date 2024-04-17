@@ -38,6 +38,10 @@
 	<link rel="stylesheet" href="{{ asset('assets/js/vendor/jquery-confirm/jquery-confirm.min.css') }}">
 	<script src="{{ asset('assets/js/vendor/jquery-confirm/jquery-confirm.min.js') }}"></script>
 
+	{{-- mapa --}}
+	<link rel="stylesheet" href="{{ asset('assets/js/vendor/leaflet/leaflet.css') }}">
+	<script src="{{ asset('assets/js/vendor/leaflet/leaflet.js') }}"></script>
+	
 	<!-- /theme JS files -->
 
     @stack('scriptsHeader')
@@ -47,7 +51,10 @@
 	<!-- SECCTION VITE FOR ECHO SERVER --->
 	
 
-	 @vite(['resources/css/app.css', 'resources/js/app.js']) 
+	@vite(['resources/css/app.css', 'resources/js/app.js']) 
+
+	
+	
 
 	
 </head>

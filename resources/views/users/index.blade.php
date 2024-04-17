@@ -6,7 +6,7 @@
 
 @section('breadcrumb_elements')
     <div class="d-lg-flex mb-2 mb-lg-0">
-        <a href="{{ route('gateways.create') }}" class="d-flex align-items-center text-body py-2">
+        <a href="{{ route('usuarios.create') }}" class="d-flex align-items-center text-body py-2">
             <i class="ph ph-plus"></i>Nuevo
         </a>
     </div>
@@ -16,12 +16,13 @@
     <div class="card">
 
         <div class="card-body">
-            {{ $dataTable->table() }}
+            <div class="table-responsive">
+                {{ $dataTable->table() }}
+            </div>
         </div>
 
     </div>
-  
+    @push('scriptsFooter')
+    {{ $dataTable->scripts() }}
+    @endpush
 @endsection
-@push('scriptsFooter')
-{{ $dataTable->scripts() }}
-@endpush

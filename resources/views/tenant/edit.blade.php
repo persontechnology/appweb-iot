@@ -5,7 +5,7 @@
 
 @section('content')
 
-<form action="{{ route('gateways.store') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('inquilinos.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
     <div class="card">
         <div class="card-header">Complete datos</div>
@@ -48,9 +48,10 @@
                             <div class="form-control-feedback-icon">
                                 <i class="ph ph-keyboard"></i>
                             </div>
-                            <input type="text" name="gateway_id" value="{{ old('gateway_id') }}" class="form-control @error('gateway_id') is-invalid @enderror" placeholder="" required>
-                            <label>Gateway ID (EUI64)</label>
-                            @error('gateway_id')
+                            <input type="number" name="max_gateway_permitidos" value="{{ old('max_gateway_permitidos',0) }}" class="form-control @error('max_gateway_permitidos') is-invalid @enderror" placeholder="" required>
+                            <label>Máximo número de gateways permitidos</label>
+                            <div class="form-text">El número máximo de gateway que esta entidad puede agregar (0 = ilimitado).</div>
+                            @error('max_gateway_permitidos')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -63,48 +64,17 @@
                             <div class="form-control-feedback-icon">
                                 <i class="ph ph-timer"></i>
                             </div>
-                            <input type="number" name="intervalo_estadisticas" value="{{ old('intervalo_estadisticas') }}" class="form-control @error('intervalo_estadisticas') is-invalid @enderror" placeholder="" required>
-                            <label>Intervalo de estadísticas (segundos)</label>
-                            @error('intervalo_estadisticas')
+                            <input type="number" name="maximo_dispositivos_permitidos" value="{{ old('maximo_dispositivos_permitidos',0) }}" class="form-control @error('maximo_dispositivos_permitidos') is-invalid @enderror" placeholder="" required>
+                            <label>Máximo número de dispositivos permitidos</label>
+                            <div class="form-text">La cantidad máxima de dispositivos que esta entidad puede agregar (0 = ilimitado).</div>
+                            @error('maximo_dispositivos_permitidos')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
                 </div>
 
-                <div class="col-lg-12">
-                    <div class="mb-3">
-                        @if ($tenants->count()>0)
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-presentation-chart"></i>
-                            </div>
-                            
-                            <select class="form-select @error('tenant_id') is-invalid @enderror" name="tenant_id" required>
-                                @foreach ($tenants as $te)
-                                <option value="{{ $te->id }}" {{ old('tenant_id')==$te->id?'selected':'' }}>{{ $te->name }}</option>
-                                @endforeach
-                            </select>
 
-                            <label>Inquilinos</label>
-
-                            @error('tenant_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        @else
-                            @include('layouts.alert',['type'=>'danger','msg'=>'No existe Inquilinos, por favor crear una.'])
-                        @endif
-                        
-                    </div>
-                </div>
-
-                <div class="col-lg-12">
-                    <h2>Ubicación del gateway</h2>
-                    <div id="map"></div>
-                    <input type="hidden" name="latitude" id="latitude">
-                    <input type="hidden" name="longitude" id="longitude">
-                </div>
 
 
             </div>
@@ -119,35 +89,4 @@
 </form>
         
 @endsection
-
-@push('scriptsHeader')
-<style>
-    #map { height: 480px; }
-</style>
-@endpush
-@push('scriptsFooter')
-<script>
-    $(document).ready(function () {
- 
-         var coordenadas=[-0.9447814006873896, -78.62915039062501];
- 
-         var map = L.map('map').setView(coordenadas, 8);
- 
-         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
- 
-         var market=L.marker(coordenadas,{
-             title:'Ubicación de gateway',
-             draggable:true
-         }).addTo(map);
- 
-         market.on('dragend', function(event) {
-             var marker = event.target;
-             var position = marker.getLatLng();
-             $('#latitude').val(position.lat);
-             $('#longitude').val(position.lng);
-             
-         });
-     });
- </script>
-@endpush
 

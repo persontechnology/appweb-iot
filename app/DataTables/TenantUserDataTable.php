@@ -2,6 +2,8 @@
 
 namespace App\DataTables;
 
+use App\Models\Tenant;
+use App\Models\TenantUser;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
@@ -12,7 +14,7 @@ use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
-class UserDataTable extends DataTable
+class TenantUserDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -22,31 +24,18 @@ class UserDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('action', function($user){
-                return view('users.action',['user'=>$user]);
+            ->addColumn('action', function($tu){
+                return view('tenant.usuarios.action',['tu'=>$tu])->render();
             })
-            ->addColumn('entidades', function($user){
-                $tenantLinks = '<ul class="">' . 
-                $user->tenants->map(function($tenant) {
-                    return '<li><a href="' . route('entidades.show', $tenant->id) . '">' . $tenant->name . '</a></li>';
-                })->implode('') . 
-                '</ul>';
-
-                return $tenantLinks;
-            })
-            ->editColumn('is_active',function($user){
-                return $user->is_active?'SI':'NO';
-            })
-            ->rawColumns(['action','entidades'])
             ->setRowId('id');
     }
 
     /**
      * Get the query source of dataTable.
      */
-    public function query(User $model): QueryBuilder
+    public function query(TenantUser $model): QueryBuilder
     {
-        return $model->newQuery();
+        return $model->where('tenant_id',$this->tenantId)->with('user');
     }
 
     /**
@@ -55,9 +44,10 @@ class UserDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('user-table')
+                    ->setTableId('tenantuser-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
+                    ->ajax(['data' => 'function(d) { d.table = "tenantUserDatatable"; }'])
                     ->parameters($this->getBuilderParameters());
     }
 
@@ -71,16 +61,13 @@ class UserDataTable extends DataTable
                   ->exportable(false)
                   ->printable(false)
                   ->width(60)
-                  ->title('Acción')
                   ->addClass('text-center'),
-            Column::make('email'),
-            Column::make('apellidos'),
-            Column::make('nombres'),
-            Column::make('identificacion')->title('Identificación'),
-            Column::make('is_active')->title('Activo'),
-            Column::make('is_admin')->title('Admin'),
-            Column::computed('entidades')->searchable(false)
-
+            Column::make('user.email')->title('Email'),
+            Column::make('user.apellidos')->title('Apellidos'),
+            Column::make('user.nombres')->title('Nombres'),
+            Column::make('user.identificacion')->title('Identificación'),
+            Column::make('user.is_active')->title('Activo'),
+            Column::make('is_admin')->title('Admin')
         ];
     }
 
@@ -89,6 +76,6 @@ class UserDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'User_' . date('YmdHis');
+        return 'TenantUser_' . date('YmdHis');
     }
 }

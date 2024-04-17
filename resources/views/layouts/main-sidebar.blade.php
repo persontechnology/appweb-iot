@@ -41,6 +41,27 @@
                     </a>
                 </li>
 
+               
+
+                <li class="nav-item">
+                    <a href="{{ route('usuarios.index') }}" class="nav-link {{ Route::is('usuarios.*')?'active':'' }}">
+                        <i class="ph ph-users"></i>
+                        <span>
+                            Usuarios
+                        </span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{ route('inquilinos.index') }}" class="nav-link {{ Route::is('inquilinos.*')?'active':'' }}">
+                        <i class="ph ph-hard-drives"></i>
+                        <span>
+                            Inquilinos
+                        </span>
+                    </a>
+                </li>
+
+
 
                 <li class="nav-item">
                     <a href="{{ route('gateways.index') }}" class="nav-link {{ Route::is('gateways.*')?'active':'' }}">

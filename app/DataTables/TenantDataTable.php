@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\User;
+use App\Models\Tenant;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -12,7 +12,7 @@ use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
-class UserDataTable extends DataTable
+class TenantDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -22,29 +22,28 @@ class UserDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('action', function($user){
-                return view('users.action',['user'=>$user]);
+            ->addColumn('action', function($tena){
+                return view('tenant.action',['tena'=>$tena])->render();
             })
-            ->addColumn('entidades', function($user){
-                $tenantLinks = '<ul class="">' . 
-                $user->tenants->map(function($tenant) {
-                    return '<li><a href="' . route('entidades.show', $tenant->id) . '">' . $tenant->name . '</a></li>';
-                })->implode('') . 
-                '</ul>';
-
-                return $tenantLinks;
+            ->editColumn('can_have_gateways',function($tena){
+                return $tena->can_have_gateways?'SI':'NO';
             })
-            ->editColumn('is_active',function($user){
-                return $user->is_active?'SI':'NO';
+            ->editColumn('max_device_count',function($tena){
+                return $tena->max_device_count==0?'Ilimitado':$tena->max_device_count;
             })
-            ->rawColumns(['action','entidades'])
+            ->editColumn('max_gateway_count',function($tena){
+                return $tena->max_gateway_count==0?'Ilimitado':$tena->max_gateway_count;
+            })
+            ->editColumn('id',function($tena){
+                return $tena->users->count();
+            })
             ->setRowId('id');
     }
 
     /**
      * Get the query source of dataTable.
      */
-    public function query(User $model): QueryBuilder
+    public function query(Tenant $model): QueryBuilder
     {
         return $model->newQuery();
     }
@@ -55,7 +54,7 @@ class UserDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('user-table')
+                    ->setTableId('tenant-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
                     ->parameters($this->getBuilderParameters());
@@ -73,14 +72,12 @@ class UserDataTable extends DataTable
                   ->width(60)
                   ->title('Acción')
                   ->addClass('text-center'),
-            Column::make('email'),
-            Column::make('apellidos'),
-            Column::make('nombres'),
-            Column::make('identificacion')->title('Identificación'),
-            Column::make('is_active')->title('Activo'),
-            Column::make('is_admin')->title('Admin'),
-            Column::computed('entidades')->searchable(false)
-
+            
+            Column::make('name')->title('Nombre'),
+            Column::make('description')->title('Descripción'),
+            Column::make('max_device_count')->title('Max. dispositivos'),
+            Column::make('max_gateway_count')->title('Max. gateways'),
+            Column::make('id')->title('Cantidad Usuarios')->searchable(false)
         ];
     }
 
@@ -89,6 +86,6 @@ class UserDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'User_' . date('YmdHis');
+        return 'Tenant_' . date('YmdHis');
     }
 }

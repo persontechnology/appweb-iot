@@ -44,7 +44,7 @@ class GatewayDataTable extends DataTable
      */
     public function query(Gateway $model): QueryBuilder
     {
-        return $model->selectRaw("encode(gateway_id, 'hex') as gateway_id_hex,name,description,last_seen_at,stats_interval_secs");
+        return $model->newQuery()->with('tenant');
     }
 
     /**
@@ -69,12 +69,14 @@ class GatewayDataTable extends DataTable
                   ->exportable(false)
                   ->printable(false)
                   ->width(60)
+                  ->title('Acción')
                   ->addClass('text-center'),
             Column::make('last_seen_at')->title('Ultima vez visto'),      
-            Column::make('gateway_id_hex')->title('Gateway Id'),      
+            Column::make('gateway_id')->title('Gateway Id'),      
             Column::make('name')->title('Nombre'),
             Column::make('description')->title('Descripción')->searchable(false),
             Column::make('stats_interval_secs')->title('Intervalo (segundos)')->searchable(false),
+            Column::make('tenant.name')->title('Inquilino')->searchable(false),
             
 
         ];

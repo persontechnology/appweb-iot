@@ -1,8 +1,10 @@
 <?php
 
-namespace App\DataTables;
+namespace App\DataTables\tenant;
 
+use App\Models\Tenant;
 use App\Models\User;
+use App\Models\UserTenantNoAsignado;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -12,7 +14,7 @@ use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
-class UserDataTable extends DataTable
+class UserTenantNoAsignadosDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -23,21 +25,8 @@ class UserDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function($user){
-                return view('users.action',['user'=>$user]);
+                return view('tenant.usuarios.selecionar',['user'=>$user])->render();
             })
-            ->addColumn('entidades', function($user){
-                $tenantLinks = '<ul class="">' . 
-                $user->tenants->map(function($tenant) {
-                    return '<li><a href="' . route('entidades.show', $tenant->id) . '">' . $tenant->name . '</a></li>';
-                })->implode('') . 
-                '</ul>';
-
-                return $tenantLinks;
-            })
-            ->editColumn('is_active',function($user){
-                return $user->is_active?'SI':'NO';
-            })
-            ->rawColumns(['action','entidades'])
             ->setRowId('id');
     }
 
@@ -46,7 +35,20 @@ class UserDataTable extends DataTable
      */
     public function query(User $model): QueryBuilder
     {
-        return $model->newQuery();
+
+
+        $tenantWithUsers = Tenant::with('users')->findOrFail($this->tenantId);
+    
+        // Obtener los IDs de los usuarios relacionados con el Tenant
+        $relatedUserIds = $tenantWithUsers->users->pluck('id')->toArray();
+        
+        // Crear una consulta Eloquent a partir del modelo User
+        $query = $model->newQuery();
+    
+        // Filtrar la consulta para incluir solo los usuarios relacionados con el Tenant
+        $query->whereNotIn('id', $relatedUserIds);
+    
+        return $query;
     }
 
     /**
@@ -55,7 +57,7 @@ class UserDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('user-table')
+                    ->setTableId('usertenantnoasignados-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
                     ->parameters($this->getBuilderParameters());
@@ -71,16 +73,13 @@ class UserDataTable extends DataTable
                   ->exportable(false)
                   ->printable(false)
                   ->width(60)
-                  ->title('Acción')
+                  ->title('Selecionar')
                   ->addClass('text-center'),
             Column::make('email'),
             Column::make('apellidos'),
             Column::make('nombres'),
             Column::make('identificacion')->title('Identificación'),
-            Column::make('is_active')->title('Activo'),
-            Column::make('is_admin')->title('Admin'),
-            Column::computed('entidades')->searchable(false)
-
+            Column::make('is_active')->title('Activo')
         ];
     }
 
@@ -89,6 +88,6 @@ class UserDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'User_' . date('YmdHis');
+        return 'UserTenantNoAsignados_' . date('YmdHis');
     }
 }

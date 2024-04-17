@@ -7,7 +7,6 @@ use App\Models\Gateway;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Ramsey\Uuid\Uuid;
 
 class GatewayController extends Controller
 {
@@ -16,7 +15,6 @@ class GatewayController extends Controller
      */
     public function index(GatewayDataTable $dataTable)
     {
-        
         return $dataTable->render('gateway.index');
     }
 
@@ -36,15 +34,38 @@ class GatewayController extends Controller
      */
     public function store(Request $request)
     {
+        
+        $request->validate([
+            'gateway_id' => [
+                'required',
+                'regex:/^[0-9a-fA-F]{16}$/',
+                function ($attribute, $value, $fail) {
+                    $binaryValue = DB::selectOne("SELECT decode(?, 'hex') as binary_value", [$value])->binary_value;
+                    $exists = Gateway::where('gateway_id', $binaryValue)->exists();
+                    if ($exists) {
+                        $fail("El gateway ID (EUI64) ya existe en la tabla gateways.");
+                    }
+                }
+            ],
+            'latitude' => 'required',
+            'longitude' => 'required'
+        ], [
+            'gateway_id.required' => 'El EUI64 es obligatorio.',
+            'gateway_id.regex' => 'El EUI64 debe ser un valor hexadecimal de 16 caracteres.',
+            'latitude.required' => 'Debe seleccionar la ubicación del gateway en el mapa.',
+            'longitude.required' => 'Debe seleccionar la ubicación del gateway en el mapa.',
+        ]);
+    
+
+
         try {
             $gateway=new Gateway();
-            $gatewayIdBinary = DB::selectOne("SELECT decode(?, 'hex') as binary_value", [$request->gateway_id])->binary_value;
-            $gateway->gateway_id=$gatewayIdBinary;
+            $gateway->gateway_id=$request->gateway_id;
             $gateway->tenant_id = $request->tenant_id;
             $gateway->name=$request->nombre;
             $gateway->description=$request->descripcion;
-            $gateway->latitude=0;
-            $gateway->longitude=0;
+            $gateway->latitude=$request->latitude;
+            $gateway->longitude=$request->longitude;
             $gateway->altitude=0;
             $gateway->stats_interval_secs=$request->intervalo_estadisticas;
             $gateway->tags=json_encode(new \stdClass);
@@ -52,7 +73,7 @@ class GatewayController extends Controller
             $gateway->save();
             return redirect()->route('gateways.index')->with('success',$gateway->name.', ingresado exitosamente.!');
         } catch (\Throwable $th) {
-            return back()->with('danger', 'Error.! '.$th->getMessage());
+            return back()->with('danger', 'Error.! '.$th->getMessage())->withInput();
         }
     }
 
@@ -67,17 +88,38 @@ class GatewayController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Gateway $gateway)
+    public function edit($gatewayId)
     {
-        //
+        $gateway=Gateway::where('gateway_id', DB::raw("decode('$gatewayId', 'hex')"))->first();
+        $tenants=Tenant::get();
+        
+        $data = array(
+            'gateway'=>$gateway,
+            'tenants'=>$tenants,
+            'gateway_id_text'=>$gateway->gateway_id
+        );
+        return view('gateway.edit',$data);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Gateway $gateway)
+    public function update(Request $request, $gatewayId)
     {
-        //
+        
+        try {
+            $gateway = Gateway::where('gateway_id', DB::raw("decode('$gatewayId', 'hex')"))->firstOrFail();
+            $gateway->tenant_id = $request->tenant_id;
+            $gateway->name=$request->nombre;
+            $gateway->description=$request->descripcion;
+            $gateway->stats_interval_secs=$request->intervalo_estadisticas;
+             $gateway->latitude=$request->latitude;
+            $gateway->longitude=$request->longitude;
+            $gateway->save();
+            return redirect()->route('gateways.index')->with('success','Gateway actualizado.!');
+        } catch (\Throwable $th) {
+            return $th->getMessage();
+        }
     }
 
     /**

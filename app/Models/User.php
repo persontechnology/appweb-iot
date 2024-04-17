@@ -56,5 +56,21 @@ class User extends Authenticatable
             $user->id=Str::uuid();
         });
     }
+
+
+
+    // un usuario tiene varios tenanuser
+    public function tenantUsers()
+    {
+        return $this->hasMany(TenantUser::class, 'user_id', 'id');
+    }
+
+
+    // un usuario tiene varios entidades
+    public function tenants()
+    {
+        return $this->belongsToMany(Tenant::class, 'tenant_user', 'user_id', 'tenant_id')
+                    ->withTimestamps();
+    }
     
 }

@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Permission;
-
+use App\Models\Tenant;
 use Illuminate\Support\Str;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -41,8 +41,8 @@ class DatabaseSeeder extends Seeder
             Permission::firstOrCreate(['name' => $permiso]);
         }
 
-
         
+        $tenant_id=Tenant::first()->id;
 
         $user=User::where('email',config('app.ADMIN_EMAIL'))->first();
         if(!$user){
@@ -54,6 +54,7 @@ class DatabaseSeeder extends Seeder
             $user->password_hash=Hash::make(config('app.ADMIN_EMAIL'));
             $user->email_verified=false;
             $user->note='';
+            $user->tenant_id=$tenant_id;
             $user->save();
         }
 
