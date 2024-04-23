@@ -87,12 +87,14 @@
 			<div class="navbar-collapse collapse" id="navbar-form-select2-dark">
 				<div class="mt-3 mt-xl-0">
 					<div class="wmin-xl-200" data-color-theme="dark">
-						<select class="form-control form-control-select2" data-container-css-class="bg-transparent">
-							<option value="">Selecionar inquilino</option>
-							@foreach (App\Models\Tenant::class::get() as $inquilino_menu)
-								<option value="{{ $inquilino_menu->id }}">{{ $inquilino_menu->name }}</option>
-							@endforeach
-						</select>
+						<form id="seleccionarInquilinoForm" action="{{ route('profile.seleccionarInquilino') }}" method="POST">
+							@csrf
+							<select class="form-control form-control-select2" name="inquilinoId" id="selectInquilino" data-container-css-class="bg-transparent" onchange="submitForm(this)">
+								@foreach (Auth::user()->tenants as $inquilino_menu)
+									<option  value="{{ $inquilino_menu->id }}" {{ Auth::user()->tenant_id==$inquilino_menu->id?'selected':'' }}>{{ $inquilino_menu->name }}</option>
+								@endforeach
+							</select>
+						</form>
 					</div>
 				</div>
 			</div>
@@ -705,8 +707,11 @@
 				});
 		});
 
-		
 
+		
+		$('#selectInquilino').on('change', function() {
+			$('#seleccionarInquilinoForm').submit();
+		});
 	</script>
 
 	

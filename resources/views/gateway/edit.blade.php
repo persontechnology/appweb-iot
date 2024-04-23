@@ -50,7 +50,7 @@
                                 <i class="ph ph-keyboard"></i>
                             </div>
                             
-                            <input type="text"  name="gateway_id" value="{{ old('gateway_id',$gateway_id_text) }}" class="form-control @error('gateway_id') is-invalid @enderror" placeholder="" required>
+                            <input type="text" disabled name="gateway_id" value="{{ old('gateway_id',$gateway_id_text) }}" class="form-control @error('gateway_id') is-invalid @enderror" placeholder="" required>
                             <label>Gateway ID (EUI64)</label>
                             @error('gateway_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -74,7 +74,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-12">
+                {{-- <div class="col-lg-12">
                     <div class="mb-3">
                         @if ($tenants->count()>0)
                         <div class="form-floating form-control-feedback form-control-feedback-start">
@@ -99,7 +99,7 @@
                         @endif
                         
                     </div>
-                </div>
+                </div> --}}
 
                 <div class="col-lg-12">
                     <h2>Ubicación del gateway</h2>

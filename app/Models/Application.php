@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 
 class Application extends Model
 {
@@ -15,12 +18,12 @@ class Application extends Model
     protected $keyType = 'string';
     public $incrementing = false;
 
-
+    protected $casts = [
+        'created_at' => 'datetime',
+    ];
 
     protected $fillable=[
         'tenant_id',
-        // 'created_at',
-        // 'updated_at',
         'name',
         'description',
         'mqtt_tls_cert',
@@ -34,5 +37,16 @@ class Application extends Model
         });
     }
 
+     // una aplicacion esta en un tenant
+     public function tenant(): BelongsTo
+     {
+         return $this->belongsTo(Tenant::class, 'tenant_id');
+     }
+
+    // formateando fecha
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->format('Y-m-d H:i:s');
+    }
 
 }

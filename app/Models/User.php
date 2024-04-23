@@ -72,5 +72,10 @@ class User extends Authenticatable
         return $this->belongsToMany(Tenant::class, 'tenant_user', 'user_id', 'tenant_id')
                     ->withTimestamps();
     }
+
+    public function hasTenant($tenantId)
+    {
+        return $this->tenants()->where('tenant_id', $tenantId)->exists();
+    }
     
 }

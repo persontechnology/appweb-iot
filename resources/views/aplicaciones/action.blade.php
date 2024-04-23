@@ -4,7 +4,7 @@
     </a>
 
     <div class="dropdown-menu">
-        <a href="{{ route('applicaciones.show',$app->id) }}" class="dropdown-item">
+        <a href="{{ route('applicaciones.edit',$app->id) }}" class="dropdown-item">
             <i class="ph ph-pencil-simple me-2"></i>
             Editar
         </a>

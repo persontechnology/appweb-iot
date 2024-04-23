@@ -5,8 +5,9 @@
 
 @section('content')
 
-<form action="{{ route('applicaciones.store') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('applicaciones.update',$application->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
+    @method('PUT')
     <div class="card">
         <div class="card-header">Complete datos</div>
         <div class="card-body">
@@ -18,7 +19,7 @@
                             <div class="form-control-feedback-icon">
                                 <i class="ph ph-file-text"></i>
                             </div>
-                            <input type="text" name="nombre" value="{{ old('nombre') }}" class="form-control @error('nombre') is-invalid @enderror" autofocus placeholder="" required>
+                            <input type="text" name="nombre" value="{{ old('nombre',$application->name) }}" class="form-control @error('nombre') is-invalid @enderror" autofocus placeholder="" required>
                             <label>Nombre</label>
                             @error('nombre')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -33,7 +34,7 @@
                             <div class="form-control-feedback-icon">
                                 <i class="ph ph-chat-text"></i>
                             </div>
-                            <textarea name="descripcion" class="form-control @error('descripcion') is-invalid @enderror" placeholder="" required>{{ old('descripcion') }}</textarea>
+                            <textarea name="descripcion" class="form-control @error('descripcion') is-invalid @enderror" placeholder="" required>{{ old('descripcion',$application->description) }}</textarea>
                             <label>Descripción</label>
                             @error('descripcion')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -54,7 +55,7 @@
                             
                             <select class="form-select @error('tenant_id') is-invalid @enderror" name="tenant_id" required>
                                 @foreach ($tenants as $te)
-                                <option value="{{ $te->id }}" {{ old('tenant_id')==$te->id?'selected':'' }}>{{ $te->name }}</option>
+                                <option value="{{ $te->id }}" {{ old('tenant_id',$application->tenant_id)==$te->id?'selected':'' }}>{{ $te->name }}</option>
                                 @endforeach
                             </select>
 

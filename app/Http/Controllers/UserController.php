@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware(['role:ADMINISTRADOR']);
+    }
+    
     /**
      * Display a listing of the resource.
      */
@@ -50,7 +56,9 @@ class UserController extends Controller
             $user->identificacion=$request->identificacion;
             $user->save();
             
-            
+            if($request->es_administrador){
+                $user->assignRole('ADMINISTRADOR');
+            }
 
             return redirect()->route('usuarios.index')->with('success',$user->nombres.', ingresado exitosamente.!');
         } catch (\Throwable $th) {
@@ -99,10 +107,17 @@ class UserController extends Controller
             if($request->password){
                 $user->password=Hash::make($request->contrasena);
             }
+            
             $user->apellidos=$request->apellidos;
             $user->nombres=$request->nombres;
             $user->identificacion=$request->identificacion;
             $user->save();
+
+            if($request->es_administrador){
+                $user->syncRoles('ADMINISTRADOR');
+            }else{
+                $user->removeRole('ADMINISTRADOR');
+            }
 
             return redirect()->route('usuarios.index')->with('success',$user->nombres.', actualizado exitosamente.!');
         } catch (\Throwable $th) {

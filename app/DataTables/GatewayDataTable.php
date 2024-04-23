@@ -3,8 +3,10 @@
 namespace App\DataTables;
 
 use App\Models\Gateway;
+use App\Models\Tenant;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
@@ -26,12 +28,6 @@ class GatewayDataTable extends DataTable
             ->addColumn('action', function($gw){
                 return view('gateway.action',['gw'=>$gw])->render();
             })
-
-            ->filterColumn('gateway_id_hex',function($query, $keyword){
-                $query->whereRaw("encode(gateway_id, 'hex') like ?", ["%{$keyword}%"]);
-           
-            })
-
             ->editColumn('last_seen_at',function($gw){
                 return Carbon::parse($gw->last_seen_at)->format('Y-m-d H:i:s');
             })
@@ -44,7 +40,14 @@ class GatewayDataTable extends DataTable
      */
     public function query(Gateway $model): QueryBuilder
     {
-        return $model->newQuery()->with('tenant');
+        $tenantId = Auth::user()->tenant_id;
+
+        return $model->newQuery()
+            ->whereHas('tenant', function ($query) use ($tenantId) {
+                $query->where('id', $tenantId);
+            })
+            ->selectRaw("encode(gateway_id, 'hex') as gateway_id_hex, *")
+            ->with('tenant');
     }
 
     /**
@@ -69,14 +72,13 @@ class GatewayDataTable extends DataTable
                   ->exportable(false)
                   ->printable(false)
                   ->width(60)
-                  ->title('Acción')
                   ->addClass('text-center'),
             Column::make('last_seen_at')->title('Ultima vez visto'),      
             Column::make('gateway_id')->title('Gateway Id'),      
             Column::make('name')->title('Nombre'),
             Column::make('description')->title('Descripción')->searchable(false),
             Column::make('stats_interval_secs')->title('Intervalo (segundos)')->searchable(false),
-            Column::make('tenant.name')->title('Inquilino')->searchable(false),
+            Column::make('tenant.name')->title('Inquilino')
             
 
         ];

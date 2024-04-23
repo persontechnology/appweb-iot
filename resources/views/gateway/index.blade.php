@@ -16,7 +16,10 @@
     <div class="card">
 
         <div class="card-body">
-            {{ $dataTable->table() }}
+            <div class="table-responsive">
+                {{ $dataTable->table() }}
+            </div>
+            
         </div>
 
     </div>

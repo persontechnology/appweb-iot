@@ -41,7 +41,6 @@ class DispositivoDataTable extends DataTable
         // return $model->newQuery();
         return $model->selectRaw("encode(dev_eui, 'hex') as device_id_hex,encode(join_eui, 'hex') as join_eui_hex,name,description,application_id,battery_level,is_disabled");
 
-
     }
 
     /**

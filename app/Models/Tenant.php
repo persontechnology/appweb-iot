@@ -35,5 +35,16 @@ class Tenant extends Model
         return $this->belongsToMany(User::class, 'tenant_user', 'tenant_id', 'user_id')
         ->withTimestamps();
     }
+
+    public function gateways()
+    {
+        return $this->hasMany(Gateway::class, 'tenant_id');
+    }
+
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class, 'tenant_id');
+    }
     
 }

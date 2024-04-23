@@ -58,6 +58,8 @@ class Gateway extends Model
         // Convierte el valor binario a hexadecimal
         return bin2hex(stream_get_contents($value));
     }
+    
+   
 
 
     // un gateway esta en un tenant

@@ -3,7 +3,9 @@
 namespace App\DataTables;
 
 use App\Models\Application;
+use App\Models\Tenant;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
@@ -33,7 +35,14 @@ class ApplicationDataTable extends DataTable
      */
     public function query(Application $model): QueryBuilder
     {
-        return $model->newQuery();
+
+        $tenantId = Auth::user()->tenant_id;
+
+        return $model->newQuery()
+            ->whereHas('tenant', function ($query) use ($tenantId) {
+                $query->where('id', $tenantId);
+            })
+            ->with('tenant');
 
     }
 
@@ -59,11 +68,11 @@ class ApplicationDataTable extends DataTable
                   ->exportable(false)
                   ->printable(false)
                   ->width(60)
+                  ->title('Acción')
                   ->addClass('text-center'),
-            // Column::make('id'),
-            Column::make('name'),
-            Column::make('tenant_id'),
-            Column::make('created_at'),
+            Column::make('name')->title('Nombre'),
+            Column::make('tenant.name')->title('Inquilino'),
+            Column::make('created_at')->title('Creado el'),
             
         ];
     }

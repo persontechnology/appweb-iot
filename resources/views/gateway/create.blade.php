@@ -71,7 +71,7 @@
                         </div>
                     </div>
                 </div>
-
+{{-- 
                 <div class="col-lg-12">
                     <div class="mb-3">
                         @if ($tenants->count()>0)
@@ -97,13 +97,13 @@
                         @endif
                         
                     </div>
-                </div>
+                </div> --}}
 
                 <div class="col-lg-12">
                     <h2>Ubicación del gateway</h2>
                     <div id="map"></div>
-                    <input type="hidden" name="latitude" id="latitude">
-                    <input type="hidden" name="longitude" id="longitude">
+                    <input type="hidden" name="latitude" value="-0.9447814006873896" id="latitude">
+                    <input type="hidden" name="longitude" value="-78.62915039062501" id="longitude">
                 </div>
 
 
@@ -128,26 +128,27 @@
 @push('scriptsFooter')
 <script>
     $(document).ready(function () {
- 
-         var coordenadas=[-0.9447814006873896, -78.62915039062501];
- 
-         var map = L.map('map').setView(coordenadas, 8);
- 
-         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
- 
-         var market=L.marker(coordenadas,{
-             title:'Ubicación de gateway',
-             draggable:true
-         }).addTo(map);
- 
-         market.on('dragend', function(event) {
-             var marker = event.target;
-             var position = marker.getLatLng();
-             $('#latitude').val(position.lat);
-             $('#longitude').val(position.lng);
-             
-         });
-     });
+
+        
+        var coordenadas=[$('#latitude').val(), $('#longitude').val()];
+
+        var map = L.map('map').setView(coordenadas, 8);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        var market=L.marker(coordenadas,{
+            title:'Ubicación de gateway',
+            draggable:true
+        }).addTo(map);
+
+        market.on('dragend', function(event) {
+            var marker = event.target;
+            var position = marker.getLatLng();
+            $('#latitude').val(position.lat);
+            $('#longitude').val(position.lng);
+            
+        });
+    });
  </script>
 @endpush
 

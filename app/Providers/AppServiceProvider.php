@@ -2,7 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\Application;
+use App\Models\Gateway;
+use App\Models\Tenant;
+use App\Policies\ApplicationPolicy;
+use App\Policies\GatewayPolicy;
+use App\Policies\TenantPolicy;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +26,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::policy(Tenant::class, TenantPolicy::class);
+        Gate::policy(Gateway::class, GatewayPolicy::class);
+        Gate::policy(Application::class, ApplicationPolicy::class);
     }
 }

@@ -97,7 +97,7 @@
                             <div class="form-control-feedback-icon">
                                 <i class="ph ph-chat-text"></i>
                             </div>
-                            <textarea name="descripcion"  class="form-control @error('descripcion') is-invalid @enderror" placeholder="" required>{{ old('descripcion') }}</textarea>
+                            <textarea name="descripcion"  class="form-control @error('descripcion') is-invalid @enderror" placeholder="" required>{{ old('descripcion',$user->note) }}</textarea>
                             <label>Descripción</label>
                             @error('descripcion')
                                 <div class="invalid-feedback">{{ $message }}</div>

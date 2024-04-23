@@ -13,6 +13,12 @@ use Illuminate\Http\Request;
 
 class TenantController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware(['role:ADMINISTRADOR']);
+    }
+    
     /**
      * Display a listing of the resource.
      */
@@ -27,6 +33,7 @@ class TenantController extends Controller
      */
     public function create()
     {
+        
         return view('tenant.create');
     }
 

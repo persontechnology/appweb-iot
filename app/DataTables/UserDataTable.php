@@ -28,7 +28,7 @@ class UserDataTable extends DataTable
             ->addColumn('entidades', function($user){
                 $tenantLinks = '<ul class="">' . 
                 $user->tenants->map(function($tenant) {
-                    return '<li><a href="' . route('entidades.show', $tenant->id) . '">' . $tenant->name . '</a></li>';
+                    return '<li><a href="' . route('inquilinos.show', $tenant->id) . '">' . $tenant->name . '</a></li>';
                 })->implode('') . 
                 '</ul>';
 

@@ -7,7 +7,9 @@ use App\Models\Application;
 use App\Models\DeviceKeys;
 use App\Models\DeviceProfile;
 use App\Models\Dispositivo;
+use App\Models\Tenant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class DispositivoController extends Controller
@@ -27,8 +29,10 @@ class DispositivoController extends Controller
      */
     public function create()
     {
+        $tenant=Tenant::find(Auth::user()->tenant_id);
+
         $data = array(
-            'aplicaciones'=>Application::get(),
+            'aplicaciones'=>$tenant->applications,
             'perfil_dispositivos'=>DeviceProfile::get()
         );
         return view('dispositivos.create',$data);
@@ -40,15 +44,25 @@ class DispositivoController extends Controller
     public function store(Request $request)
     {
         
+        // 1 consultar solo mis aplication id
+        // 2 consultar solo mis device profile_id
+        // validar los que ingresan con los que tengo
+        $tenant=Tenant::find(Auth::user()->tenant_id);
+        $misApplicationsIds = $tenant->applications->pluck('id')->toArray();
+        $request->validate([
+            'application_id' => 'required|in:' . implode(',', $misApplicationsIds),
+        ]);
+
         try {
             $deviceIdBinary = DB::selectOne("SELECT decode(?, 'hex') as binary_value", [$request->dev_eui])->binary_value;
             $joinUuiBinary = DB::selectOne("SELECT decode(?, 'hex') as binary_value", [$request->join_eui])->binary_value;
            
-            
             $dis=new Dispositivo();
             $dis->dev_eui=$deviceIdBinary;
+            
             $dis->application_id=$request->application_id;
             $dis->device_profile_id=$request->device_profile_id;
+
             $dis->name=$request->nombre;
             $dis->description=$request->descripcion;
             $dis->external_power_source=false;

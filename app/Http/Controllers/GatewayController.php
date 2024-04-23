@@ -6,7 +6,9 @@ use App\DataTables\GatewayDataTable;
 use App\Models\Gateway;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class GatewayController extends Controller
 {
@@ -15,6 +17,8 @@ class GatewayController extends Controller
      */
     public function index(GatewayDataTable $dataTable)
     {
+        //  $tenant=Tenant::find(Auth::user()->tenant_id);
+        //  return $tenant->gateways->count();
         return $dataTable->render('gateway.index');
     }
 
@@ -61,7 +65,7 @@ class GatewayController extends Controller
         try {
             $gateway=new Gateway();
             $gateway->gateway_id=$request->gateway_id;
-            $gateway->tenant_id = $request->tenant_id;
+            $gateway->tenant_id = Auth::user()->tenant_id;
             $gateway->name=$request->nombre;
             $gateway->description=$request->descripcion;
             $gateway->latitude=$request->latitude;
@@ -92,10 +96,10 @@ class GatewayController extends Controller
     {
         $gateway=Gateway::where('gateway_id', DB::raw("decode('$gatewayId', 'hex')"))->first();
         $tenants=Tenant::get();
-        
+        Gate ::authorize('actualizar', $gateway);
         $data = array(
             'gateway'=>$gateway,
-            'tenants'=>$tenants,
+            // 'tenants'=>$tenants,
             'gateway_id_text'=>$gateway->gateway_id
         );
         return view('gateway.edit',$data);
@@ -107,9 +111,11 @@ class GatewayController extends Controller
     public function update(Request $request, $gatewayId)
     {
         
+        
         try {
             $gateway = Gateway::where('gateway_id', DB::raw("decode('$gatewayId', 'hex')"))->firstOrFail();
-            $gateway->tenant_id = $request->tenant_id;
+            Gate ::authorize('actualizar', $gateway);
+            // $gateway->tenant_id = $request->tenant_id;
             $gateway->name=$request->nombre;
             $gateway->description=$request->descripcion;
             $gateway->stats_interval_secs=$request->intervalo_estadisticas;
@@ -128,6 +134,8 @@ class GatewayController extends Controller
     public function destroy($gatewayId)
     {       
         try {    
+            $gateway = Gateway::where('gateway_id', DB::raw("decode('$gatewayId', 'hex')"))->firstOrFail();
+            Gate ::authorize('eliminar', $gateway);
             Gateway::where('gateway_id', DB::raw("decode('$gatewayId', 'hex')"))->delete();
             return redirect()->route('gateways.index')->with('success','Gateway eliminado.!');
         } catch (\Throwable $th) {

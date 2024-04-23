@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Tenant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -56,5 +58,14 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    public function seleccionarInquilino(Request $request) {
+        $tenant=Tenant::find($request->inquilinoId);
+        Gate::authorize('asignarTenant', $tenant);
+        $user= Auth::user();
+        $user->tenant_id=$tenant->id;
+        $user->save();
+        return redirect()->route('dashboard')->with('success','Ahora interactuas con '.$tenant->name);
     }
 }

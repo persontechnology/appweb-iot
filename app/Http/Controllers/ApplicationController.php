@@ -8,7 +8,12 @@ use App\Models\Application;
 use App\Models\ApplicationIntegration;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
+
+
 
 class ApplicationController extends Controller
 {
@@ -36,17 +41,28 @@ class ApplicationController extends Controller
      */
     public function store(Request $request)
     {
+
+        $request->validate([
+            'nombre' => [
+                'required',
+                Rule::unique('application','name')->where(function ($query) use ($request) {
+                    return $query->where('tenant_id', Auth::user()->tenant_id);
+                }),
+            ]
+        ]);
+        
+
         try {
             $aplication=new Application();
             $aplication->name=$request->nombre;
             $aplication->description=$request->descripcion;
-            $aplication->tenant_id=$request->tenant_id;
+            $aplication->tenant_id=Auth::user()->tenant_id;
             $aplication->tags=json_encode(new \stdClass);
             $aplication->mqtt_tls_cert=null;
             $aplication->save();
 
             $this->crearIntegracionAplicacion($aplication->id);
-            event(new LecturaGuardadoEvent('hola'));
+            
 
             return redirect()->route('applicaciones.index')->with('success',$aplication->name.', ingresado exitosamente.!');
         } catch (\Throwable $th) {
@@ -87,17 +103,46 @@ class ApplicationController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Application $application)
+    public function edit($applicationId)
     {
-        //
+        $application= Application::find($applicationId);
+        Gate ::authorize('editar', $application);
+        $data = array(
+            'application'=>$application,
+            'tenants'=>Tenant::get()
+        );
+
+        return view('aplicaciones.edit',$data);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Application $application)
+    public function update(Request $request, $applicationId)
     {
-        //
+        $request->validate([
+            // 'tenant_id' => 'required',
+            'nombre' => [
+                'required',
+                Rule::unique('application', 'name')->ignore($applicationId)->where(function ($query) use ($request) {
+                    return $query->where('tenant_id', Auth::user()->tenant_id);
+                }),
+            ],
+        ]);
+
+        
+        $aplication= Application::find($applicationId);
+        Gate ::authorize('editar', $aplication);
+        try {
+            $aplication->name=$request->nombre;
+            $aplication->description=$request->descripcion;
+            // $aplication->tenant_id=$request->tenant_id;
+            $aplication->save();
+
+            return redirect()->route('applicaciones.index')->with('success',$aplication->name.', actualizado exitosamente.!');
+        } catch (\Throwable $th) {
+            return back()->with('danger', 'Error.! '.$th->getMessage());
+        }
     }
 
     /**
@@ -106,6 +151,8 @@ class ApplicationController extends Controller
     public function destroy($applicationId)
     {
         try {    
+            $aplication= Application::find($applicationId);
+            Gate ::authorize('eliminar', $aplication);
             Application::find($applicationId)->delete();
             return redirect()->route('applicaciones.index')->with('success','Aplicación eliminado.!');
         } catch (\Throwable $th) {

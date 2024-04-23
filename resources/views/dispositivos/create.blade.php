@@ -148,13 +148,21 @@
                     </div>
                 </div>
 
-
-                <div class="border p-3 rounded">
-                    <div class="form-check form-switch mb-2">
-                        <input type="checkbox" class="form-check-input" name="is_disabled" id="sc_ls_c">
-                        <label class="form-check-label" for="sc_ls_c" >El dispositivo está deshabilitado</label>
-                        <div class="form-text">Se ignorarán las tramas de enlace ascendente recibidas y las solicitudes de unión.</div>
+                <div class="col-lg-12">
+                    <div class="border p-3 rounded">
+                        <div class="form-check form-switch mb-2">
+                            <input type="checkbox" class="form-check-input" name="is_disabled" id="sc_ls_c">
+                            <label class="form-check-label" for="sc_ls_c" >El dispositivo está deshabilitado</label>
+                            <div class="form-text">Se ignorarán las tramas de enlace ascendente recibidas y las solicitudes de unión.</div>
+                        </div>
                     </div>
+                </div>
+
+                <div class="col-lg-12">
+                    <h2>Ubicación del dispositivo</h2>
+                    <div id="map"></div>
+                    <input type="hidden" name="latitude" value="-0.9447814006873896" id="latitude">
+                    <input type="hidden" name="longitude" value="-78.62915039062501" id="longitude">
                 </div>
 
 
@@ -171,3 +179,34 @@
         
 @endsection
 
+
+@push('scriptsHeader')
+<style>
+    #map { height: 480px; }
+</style>
+@endpush
+@push('scriptsFooter')
+<script>
+    $(document).ready(function () {
+
+        var coordenadas=[$('#latitude').val(), $('#longitude').val()];
+
+        var map = L.map('map').setView(coordenadas, 8);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        var market=L.marker(coordenadas,{
+            title:'Ubicación de gateway',
+            draggable:true
+        }).addTo(map);
+
+        market.on('dragend', function(event) {
+            var marker = event.target;
+            var position = marker.getLatLng();
+            $('#latitude').val(position.lat);
+            $('#longitude').val(position.lng);
+            
+        });
+    });
+ </script>
+@endpush

@@ -32,6 +32,7 @@
                     <i class="ph-dots-three sidebar-resize-show"></i>
                 </li>
 
+
                 <li class="nav-item">
                     <a href="{{ route('dashboard') }}" class="nav-link {{ Route::is('dashboard')?'active':'' }}">
                         <i class="ph-house"></i>
@@ -43,6 +44,13 @@
 
                
 
+
+                {{-- ROLE: ADMINISTRADOR --}}
+
+
+                @role('ADMINISTRADOR')
+                    
+                
                 <li class="nav-item">
                     <a href="{{ route('usuarios.index') }}" class="nav-link {{ Route::is('usuarios.*')?'active':'' }}">
                         <i class="ph ph-users"></i>
@@ -51,6 +59,8 @@
                         </span>
                     </a>
                 </li>
+
+
 
                 <li class="nav-item">
                     <a href="{{ route('inquilinos.index') }}" class="nav-link {{ Route::is('inquilinos.*')?'active':'' }}">
@@ -62,6 +72,7 @@
                 </li>
 
 
+                @endrole
 
                 <li class="nav-item">
                     <a href="{{ route('gateways.index') }}" class="nav-link {{ Route::is('gateways.*')?'active':'' }}">
@@ -81,6 +92,7 @@
                         </span>
                     </a>
                 </li>
+
 
 
                 <li class="nav-item">
