@@ -65,6 +65,7 @@
                             </div>
                             <input type="number" name="intervalo_estadisticas" value="{{ old('intervalo_estadisticas') }}" class="form-control @error('intervalo_estadisticas') is-invalid @enderror" placeholder="" required>
                             <label>Intervalo de estadísticas (segundos)</label>
+                            <div class="form-text">El intervalo esperado en segundos en el que la puerta de enlace envía sus estadísticas.</div>
                             @error('intervalo_estadisticas')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

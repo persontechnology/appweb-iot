@@ -46,5 +46,10 @@ class Tenant extends Model
     {
         return $this->hasMany(Application::class, 'tenant_id');
     }
+
+    public function deviceProfiles()
+    {
+        return $this->hasMany(DeviceProfile::class, 'tenant_id');
+    }
     
 }

@@ -75,6 +75,16 @@
                 @endrole
 
                 <li class="nav-item">
+                    <a href="{{ route('perfil-dispositivos.index') }}" class="nav-link {{ Route::is('perfil-dispositivos.*')?'active':'' }}">
+                        <i class="ph ph-grid-four"></i>
+                        <span>
+                            Perfil de dispositivo
+                        </span>
+                    </a>
+                </li>
+
+
+                <li class="nav-item">
                     <a href="{{ route('gateways.index') }}" class="nav-link {{ Route::is('gateways.*')?'active':'' }}">
                         <i class="ph ph-chart-bar"></i>
                         <span>

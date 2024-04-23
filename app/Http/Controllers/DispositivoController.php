@@ -19,8 +19,6 @@ class DispositivoController extends Controller
      */
     public function index(DispositivoDataTable $dataTable)
     {
-        // return DeviceKeys::where('dev_eui', DB::raw("decode('24e124535d387374', 'hex')"))->selectRaw("encode(nwk_key, 'hex') as device_id_hex")->first();
-
         return $dataTable->render('dispositivos.index');
     }
 
@@ -30,10 +28,9 @@ class DispositivoController extends Controller
     public function create()
     {
         $tenant=Tenant::find(Auth::user()->tenant_id);
-
         $data = array(
             'aplicaciones'=>$tenant->applications,
-            'perfil_dispositivos'=>DeviceProfile::get()
+            'perfil_dispositivos'=>$tenant->deviceProfiles
         );
         return view('dispositivos.create',$data);
     }
@@ -44,25 +41,20 @@ class DispositivoController extends Controller
     public function store(Request $request)
     {
         
-        // 1 consultar solo mis aplication id
-        // 2 consultar solo mis device profile_id
-        // validar los que ingresan con los que tengo
+        
         $tenant=Tenant::find(Auth::user()->tenant_id);
         $misApplicationsIds = $tenant->applications->pluck('id')->toArray();
+        $misDeviceProfileIds = $tenant->deviceProfiles->pluck('id')->toArray();
         $request->validate([
             'application_id' => 'required|in:' . implode(',', $misApplicationsIds),
+            'device_profile_id' => 'required|in:' . implode(',', $misDeviceProfileIds)
         ]);
 
         try {
-            $deviceIdBinary = DB::selectOne("SELECT decode(?, 'hex') as binary_value", [$request->dev_eui])->binary_value;
-            $joinUuiBinary = DB::selectOne("SELECT decode(?, 'hex') as binary_value", [$request->join_eui])->binary_value;
-           
             $dis=new Dispositivo();
-            $dis->dev_eui=$deviceIdBinary;
-            
+            $dis->dev_eui=$request->dev_eui;
             $dis->application_id=$request->application_id;
             $dis->device_profile_id=$request->device_profile_id;
-
             $dis->name=$request->nombre;
             $dis->description=$request->descripcion;
             $dis->external_power_source=false;
@@ -71,7 +63,7 @@ class DispositivoController extends Controller
             $dis->is_disabled=$request->is_disabled?1:0;
             $dis->tags=json_encode(new \stdClass);
             $dis->variables=json_encode(new \stdClass);
-            $dis->join_eui=$joinUuiBinary;
+            $dis->join_eui=$request->join_eui;
             $dis->save();
             $this->crearClaveApplicacion($request->dev_eui,$request->nwk_key);
             return redirect()->route('dispositivos.index')->with('success',$dis->name.', ingresado exitosamente.!');
@@ -113,9 +105,20 @@ class DispositivoController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Dispositivo $dispositivo)
+    public function edit($dispositivoId)
     {
-        //
+        $dispositivo=Dispositivo::where('dev_eui', DB::raw("decode('$dispositivoId', 'hex')"))->first();
+
+        $dk=DeviceKeys::where('dev_eui', DB::raw("decode('$dispositivoId', 'hex')"))->first();
+        
+        $tenant=Tenant::find(Auth::user()->tenant_id);
+        $data = array(
+            'aplicaciones'=>$tenant->applications,
+            'perfil_dispositivos'=>$tenant->deviceProfiles,
+            'dis'=>$dispositivo,
+            'nwk_key'=>$dk->nwk_key
+        );
+        return view('dispositivos.edit',$data);
     }
 
     /**

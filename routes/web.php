@@ -5,6 +5,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\CategoriaGatewayController;
 use App\Http\Controllers\CategoriaNodoController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DeviceProfileController;
 use App\Http\Controllers\DispositivoController;
 use App\Http\Controllers\GatewayController;
 use App\Http\Controllers\LecturaController;
@@ -61,7 +62,7 @@ Route::middleware('auth')->group(function () {
 
     
     
-
+    Route::resource('perfil-dispositivos', DeviceProfileController::class);
     Route::resource('gateways', GatewayController::class);
     Route::resource('applicaciones', ApplicationController::class);
     Route::resource('dispositivos', DispositivoController::class);

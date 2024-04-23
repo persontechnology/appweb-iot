@@ -2,9 +2,9 @@
 
 namespace App\DataTables;
 
-use App\Models\Dispositivo;
+use App\Models\DeviceProfile;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
@@ -13,7 +13,7 @@ use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
-class DispositivoDataTable extends DataTable
+class DeviceProfileDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -23,23 +23,24 @@ class DispositivoDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('action', function($dis){
-                
-                return view('dispositivos.action',['dis'=>$dis])->render();
+            ->addColumn('action', function($dp){
+                return view('device-profile.action',['dp'=>$dp])->render();
             })
-            
-            ->setRowId('name');
+            ->setRowId('id');
     }
 
     /**
      * Get the query source of dataTable.
      */
-    public function query(Dispositivo $model): QueryBuilder
+    public function query(DeviceProfile $model): QueryBuilder
     {
+        $tenantId = Auth::user()->tenant_id;
+
         return $model->newQuery()
-        ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *")
-        ->with('deviceprofile')
-        ->with('application');
+            ->whereHas('tenant', function ($query) use ($tenantId) {
+                $query->where('id', $tenantId);
+            })
+            ->with('tenant');
     }
 
     /**
@@ -48,7 +49,7 @@ class DispositivoDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('dispositivo-table')
+                    ->setTableId('deviceprofile-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
                     ->parameters($this->getBuilderParameters());
@@ -67,13 +68,12 @@ class DispositivoDataTable extends DataTable
                   ->title('Acción')
                   ->addClass('text-center'),
             Column::make('name')->title('Nombre'),
-            Column::make('join_eui'),
-            Column::make('battery_level')->title('%Batería'),
-            Column::make('deviceprofile.name')->title('Perfil dispositivo'),
-            Column::make('application.name')->title('Aplicación'),
-            
-            
-            
+            Column::make('region')->title('Región'),
+            Column::make('mac_version')->title('Mac versión'),
+            Column::make('reg_params_revision')->title('Revisión'),
+            Column::make('tenant.name')->title('Inquilino'),
+            Column::make('uplink_interval')->title('Intervalo de enlace'),
+            Column::make('description')->title('Descripción'),
             
         ];
     }
@@ -83,6 +83,6 @@ class DispositivoDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Dispositivo_' . date('YmdHis');
+        return 'DeviceProfile_' . date('YmdHis');
     }
 }
