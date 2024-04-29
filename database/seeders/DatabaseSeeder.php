@@ -58,6 +58,11 @@ class DatabaseSeeder extends Seeder
             $user->save();
         }
 
+
+        if(!$user->tenant_id){
+            $user->tenant_id=$tenant_id;
+            $user->save();
+        }
         $user->syncRoles($roleAdmin);
         
     }
