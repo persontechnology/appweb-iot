@@ -4,6 +4,7 @@ namespace App\DataTables;
 
 use App\Models\Alerta;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
@@ -33,7 +34,13 @@ class AlertaDataTable extends DataTable
      */
     public function query(Alerta $model): QueryBuilder
     {
-        return $model->newQuery();
+        return $model->newQuery()
+        ->whereHas('application', function ($query) {
+            $query->whereHas('tenant', function ($query) {
+                $query->where('id', Auth::user()->tenant_id);
+            });
+        })
+        ->with('application');
     }
 
     /**
@@ -59,11 +66,10 @@ class AlertaDataTable extends DataTable
                   ->printable(false)
                   ->width(60)
                   ->addClass('text-center'),
-            Column::make('id'),
             Column::make('nombre'),
+            Column::make('application.name')->title('Applicación'),
             Column::make('estado'),
-            Column::make('application_id'),
-            Column::make('device_profile_id'),
+            
         ];
     }
 

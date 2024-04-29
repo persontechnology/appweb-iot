@@ -5,8 +5,9 @@
 
 @section('content')
 
-<form action="{{ route('dispositivos.store') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('dispositivos.update',$dev_eui) }}" method="POST" enctype="multipart/form-data">
     @csrf
+    @method('PUT')
     <div class="card">
         <div class="card-header">Complete datos</div>
         <div class="card-body">
@@ -105,7 +106,7 @@
                             <div class="form-control-feedback-icon">
                                 <i class="ph ph-keyboard"></i>
                             </div>
-                            <input type="text" disabled name="dev_eui" value="{{ old('dev_eui',$dis->dev_eui) }}" class="form-control @error('dev_eui') is-invalid @enderror" placeholder="" required>
+                            <input type="text" disabled name="dev_eui" value="{{ old('dev_eui',$dev_eui) }}" class="form-control @error('dev_eui') is-invalid @enderror" placeholder="" required>
                             <label>Dispositivo EUI (EUI64)</label>
                             @error('dev_eui')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -161,8 +162,8 @@
                 <div class="col-lg-12">
                     <h2>Ubicación del dispositivo</h2>
                     <div id="map"></div>
-                    <input type="hidden" name="latitude" value="-0.9447814006873896" id="latitude">
-                    <input type="hidden" name="longitude" value="-78.62915039062501" id="longitude">
+                    <input type="hidden" name="latitude" value="{{ $dis->latitude }}" id="latitude">
+                    <input type="hidden" name="longitude" value="{{ $dis->longitude }}" id="longitude">
                 </div>
 
 

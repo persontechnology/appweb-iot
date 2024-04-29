@@ -2,22 +2,16 @@
 
 use App\Http\Controllers\AlertaController;
 use App\Http\Controllers\ApplicationController;
-use App\Http\Controllers\CategoriaGatewayController;
-use App\Http\Controllers\CategoriaNodoController;
+use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceProfileController;
 use App\Http\Controllers\DispositivoController;
 use App\Http\Controllers\GatewayController;
 use App\Http\Controllers\LecturaController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\NodoController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SensorDataController;
 use App\Http\Controllers\TenantController;
-use App\Http\Controllers\TestMqttController;
-use App\Http\Controllers\UserController;
-use App\Models\Alerta;
-use App\Models\User;
+use App\Http\Controllers\UsuariosController;
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,19 +25,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    // Artisan::call('cache:clear');
-    // Artisan::call('config:clear');
-    // Artisan::call('config:cache');
-    // Artisan::call('storage:link');
-    // Artisan::call('key:generate');
-    // Artisan::call('migrate:fresh --seed');
-    return view('welcome');
-});
+Route::get('/', [WelcomeController::class,'welcome'])->name('welcome');
+Route::get('/no-tiene-inquilino', [WelcomeController::class,'noTieneInquilino'])->name('no-tiene-inquilino');
+Route::get('/cuenta-inactiva',[WelcomeController::class,'cuentaInactiva'])->name('cuenta-inactiva');
 
-Route::get('/dashboard', [DashboardController::class,'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+
+
+
+
+Route::middleware(['auth','check.tenant_id','verified'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class,'index'])->name('dashboard');
+    
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -52,16 +45,14 @@ Route::middleware('auth')->group(function () {
     
 
     
-    Route::resource('usuarios', UserController::class);
-
-
+    Route::resource('clientes', ClienteController::class);
     Route::resource('inquilinos', TenantController::class);
-    Route::get('inquilinos-usuarios/{tenantId}',[TenantController::class,'usuarios'])->name('inquilinos.usuarios');
-    Route::post('inquilinos-usuarios-asignar',[TenantController::class,'usuariosAsignar'])->name('inquilinos.usuarios.asignar');
-    Route::delete('inquilinos-usuarios-eliminar/{tenantId}/{userId}',[TenantController::class,'usuariosEliminar'])->name('inquilinos.usuarios.eliminar');
+    Route::get('inquilinos-clientes/{tenantId}',[TenantController::class,'clientes'])->name('inquilinos.clientes');
+    Route::post('inquilinos-clientes-asignar',[TenantController::class,'clientesAsignar'])->name('inquilinos.clientes.asignar');
+    Route::delete('inquilinos-clientes-eliminar/{tenantId}/{userId}',[TenantController::class,'clientesEliminar'])->name('inquilinos.clientes.eliminar');
 
     
-    
+    Route::resource('usuarios', UsuariosController::class);
     Route::resource('perfil-dispositivos', DeviceProfileController::class);
     Route::resource('gateways', GatewayController::class);
     Route::resource('applicaciones', ApplicationController::class);

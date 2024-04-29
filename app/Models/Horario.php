@@ -16,6 +16,7 @@ class Horario extends Model
         'hora_apertura',
         'hora_cierre',
         'estado',
+        'alerta_id'
     ];
 
     public function alerta(): BelongsTo

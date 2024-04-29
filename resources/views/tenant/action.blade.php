@@ -5,9 +5,9 @@
 
     <div class="dropdown-menu">
         
-        <a href="{{ route('inquilinos.usuarios',$tena->id) }}" class="dropdown-item">
+        <a href="{{ route('inquilinos.clientes',$tena->id) }}" class="dropdown-item">
             <i class="ph ph-users me-2"></i>
-            Usuarios
+            Clientes
         </a>
 
         <a href="{{ route('inquilinos.edit',$tena->id) }}" class="dropdown-item">

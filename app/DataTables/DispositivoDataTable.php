@@ -3,7 +3,9 @@
 namespace App\DataTables;
 
 use App\Models\Dispositivo;
+use App\Models\Tenant;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -36,10 +38,17 @@ class DispositivoDataTable extends DataTable
      */
     public function query(Dispositivo $model): QueryBuilder
     {
+        
         return $model->newQuery()
+        ->whereHas('application', function ($query) {
+            $query->whereHas('tenant', function ($query) {
+                $query->where('id', Auth::user()->tenant_id);
+            });
+        })
         ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *")
         ->with('deviceprofile')
         ->with('application');
+
     }
 
     /**
@@ -66,11 +75,13 @@ class DispositivoDataTable extends DataTable
                   ->width(60)
                   ->title('Acción')
                   ->addClass('text-center'),
+            Column::make('dev_eui'),      
             Column::make('name')->title('Nombre'),
             Column::make('join_eui'),
             Column::make('battery_level')->title('%Batería'),
             Column::make('deviceprofile.name')->title('Perfil dispositivo'),
             Column::make('application.name')->title('Aplicación'),
+            Column::make('description')->title('Descripción'),
             
             
             

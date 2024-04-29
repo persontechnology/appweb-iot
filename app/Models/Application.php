@@ -38,15 +38,21 @@ class Application extends Model
     }
 
      // una aplicacion esta en un tenant
-     public function tenant(): BelongsTo
-     {
-         return $this->belongsTo(Tenant::class, 'tenant_id');
-     }
+    public function tenant(): BelongsTo
+    {
+    return $this->belongsTo(Tenant::class, 'tenant_id');
+    }
 
     // formateando fecha
     public function getCreatedAtAttribute($value)
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');
+    }
+
+    // application -> device
+    public function dispositivos()
+    {
+        return $this->hasMany(Dispositivo::class, 'application_id');
     }
 
 }

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Alerta extends Model
 {
@@ -14,19 +14,56 @@ class Alerta extends Model
     protected $fillable=[
         'nombre',
         'estado',
-        'application_id',
-        'device_profile_id',
+        'application_id'
     ];
-    
 
+    protected static function booted()
+    {
+        static::created(function ($alerta) {
+            $alerta->crearHorarios();
+        });
+    }
+
+
+    // crear horario automaticamente
+    public function crearHorarios()
+    {
+        $dias = [
+            'Lunes' => 1,
+            'Martes' => 2,
+            'Miércoles' => 3,
+            'Jueves' => 4,
+            'Viernes' => 5,
+            'Sábado' => 6,
+            'Domingo' => 7
+        ];
+        $existentes = Horario::where('alerta_id', $this->id)->pluck('dia')->toArray();
+        foreach ($dias as $dia => $numero) {
+            if (!in_array($dia, $existentes)) {
+                Horario::create([
+                    'dia' => $dia,
+                    'numero_dia' => $numero,
+                    'alerta_id' => $this->id
+                ]);
+            }
+        }
+    }
+
+    // alerta -> horarios
     public function horarios(): HasMany
     {
         return $this->hasMany(Horario::class);
     }
 
-    // una alerta tiene varias lecturas.
+    // alerta -> lecturas
     public function lecturas()
     {
         return $this->hasMany(Lectura::class);
+    }
+
+    // application <- alerta
+    public function application(): BelongsTo
+    {
+    return $this->belongsTo(Application::class, 'application_id');
     }
 }

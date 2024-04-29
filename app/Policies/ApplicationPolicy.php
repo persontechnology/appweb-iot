@@ -26,6 +26,15 @@ class ApplicationPolicy
         return false;
     }
 
+    
+    public function crearAlerta(User $user, Application $application): bool
+    {
+        if ($user->hasTenant($application->tenant_id)) {
+            return true;
+        } 
+        return false;
+    }
+
    
 
    

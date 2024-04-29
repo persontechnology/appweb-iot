@@ -24,7 +24,7 @@
     </div>
 
     <!-- Full width modal -->
-    <form action="{{ route('inquilinos.usuarios.asignar') }}" method="POST">
+    <form action="{{ route('inquilinos.clientes.asignar') }}" method="POST">
         @csrf
         <input type="hidden" name="tenant_id" value="{{ $tenant->id }}">
         <div id="modal_full_user_no_tenant" class="modal fade" tabindex="-1">

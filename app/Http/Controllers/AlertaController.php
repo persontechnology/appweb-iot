@@ -7,8 +7,13 @@ use App\Models\Alerta;
 use App\Models\Application;
 use App\Models\DeviceProfile;
 use App\Models\Horario;
+use App\Models\Tenant;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class AlertaController extends Controller
 {
@@ -25,9 +30,9 @@ class AlertaController extends Controller
      */
     public function create()
     {
+        $tenant=Tenant::find(Auth::user()->tenant_id);
         $data = array(
-            'aplicaciones'=>Application::get(),
-            'perfil_dispositivos'=>DeviceProfile::get()
+            'aplicaciones'=>$tenant->applications
         );
         return view('alertas.create',$data);
     }
@@ -37,13 +42,28 @@ class AlertaController extends Controller
      */
     public function store(Request $request)
     {
-       
+        
+        $request->validate([
+            'application_id'=>'required',
+            'nombre' => [
+                'required',
+                Rule::unique('alertas','nombre')->where(function ($query) use ($request) {
+                    return $query->where('application_id', $request->application_id);
+                }),
+            ]
+        ]);
+        
+        $application=Application::find($request->application_id);
+        Gate::authorize('crearAlerta',$application);
 
         try {
+            DB::beginTransaction();
             $request['estado']=$request->estado?1:0;
             $alerta=Alerta::create($request->all());
+            DB::commit();
             return redirect()->route('alertas.show',$alerta)->with('success',$alerta->nombre.', ingresado exitosamente.!');
         } catch (\Throwable $th) {
+            DB::rollback();
             return back()->with('danger', 'Error.! '.$th->getMessage())->withInput();
         }
     }
@@ -53,29 +73,6 @@ class AlertaController extends Controller
      */
     public function show(Alerta $alerta)
     {
-        
-
-        $dias = array(
-            'Lunes'=>1,
-            'Martes'=>2,
-            'Miércoles'=>3,
-            'Jueves'=>4,
-            'Viernes'=>5,
-            'Sábado'=>6,
-            'Domingo'=>7
-        );
-
-        foreach ($dias as $dia => $numero) {
-            $horario=Horario::where(['dia'=>$dia,'alerta_id'=>$alerta->id])->first();
-            if(!$horario){
-                $horario=new Horario();
-                $horario->dia=$dia;
-                $horario->numero_dia=$numero;
-                $horario->alerta_id=$alerta->id;
-                $horario->save();
-            }
-        }
-
         $data = array(
             'alerta'=>$alerta,
             'horarios'=>$alerta->horarios()->orderBy('id')->get()
@@ -105,12 +102,19 @@ class AlertaController extends Controller
      */
     public function destroy(Alerta $alerta)
     {
-        //
+        try {
+            $alerta->delete();
+            return redirect()->route('alertas.index')->with('success','Alerta eliminado');
+        } catch (\Throwable $th) {
+            return redirect()->route('alertas.index')->with('danger','Alerta no eliminado '.$th->getMessage());
+        }
     }
 
 
     public function actualizarHorario(Request $request)
     {
+        $alerta=Alerta::find($request->alerta_id);
+        Gate::authorize('editarHorario',$alerta);
         foreach ($request->horarios as $id => $datos) {
             $horario = Horario::findOrFail($id);
 
@@ -121,11 +125,12 @@ class AlertaController extends Controller
 
                 // Si el estado es verdadero, validamos las horas de apertura y cierre
                 if ($estado) {
-                    $validatedData = $request->validate([
+                    
+                    $request->validate([
                         "horarios.$id.hora_apertura" => 'required',
                         "horarios.$id.hora_cierre" => 'required',
                     ]);
-
+                    
                     // Actualizar las horas de apertura y cierre
                     $horario->hora_apertura = $datos['hora_apertura'] ?? null;
                     $horario->hora_cierre = $datos['hora_cierre'] ?? null;

@@ -22,34 +22,40 @@ class Tenant extends Model
         });
     }
 
-    // una entidad tiene varios tenantUser
+    // tenant -> tenant_user
     public function tenantUsers()
     {
         return $this->hasMany(TenantUser::class, 'tenant_id', 'id');
     }
 
 
-    // una entidad tienen varios usuarios
+    // tenant -> tenant_user -> user
     public function users()
     {
         return $this->belongsToMany(User::class, 'tenant_user', 'tenant_id', 'user_id')
         ->withTimestamps();
     }
 
+    // tenant -> gateway
     public function gateways()
     {
         return $this->hasMany(Gateway::class, 'tenant_id');
     }
 
 
+    // tenant -> aplication
     public function applications()
     {
         return $this->hasMany(Application::class, 'tenant_id');
     }
 
+    // tenant -> device_profile
     public function deviceProfiles()
     {
         return $this->hasMany(DeviceProfile::class, 'tenant_id');
     }
+
+    // tenant -> application -> device
+    
     
 }

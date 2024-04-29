@@ -16,6 +16,7 @@ class DeviceProfile extends Model
     protected $primaryKey = 'id';
     protected $keyType = 'string';
     public $incrementing = false;
+    
 
 
     protected static function booted()

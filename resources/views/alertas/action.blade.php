@@ -8,9 +8,9 @@
             <i class="ph ph-calendar me-2"></i>
             Horario
         </a>
-        {{-- <a href="{{ route('dispositivos.destroy',$dis->device_id_hex) }}" data-msg="{{ $dis->name }}" onclick="event.preventDefault(); eliminar(this)" class="dropdown-item">
+        <a href="{{ route('alertas.destroy',$al->id) }}" data-msg="{{ $al->nombre }}" onclick="event.preventDefault(); eliminar(this)" class="dropdown-item">
             <i class="ph ph-trash me-2"></i>
             Eliminar
-        </a> --}}
+        </a>
     </div>
 </div>

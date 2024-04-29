@@ -11,19 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('alertas', function (Blueprint $table) {
+        Schema::create('objetos', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-
-            $table->string('nombre');
-            $table->boolean('estado')->default(0);
-
-            $table->uuid('application_id');
-            $table->foreign('application_id')->references('id')->on('application')->onDelete('cascade');
             
-
-
-
         });
     }
 
@@ -32,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('alertas');
+        Schema::dropIfExists('objetos');
     }
 };

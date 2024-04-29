@@ -5,11 +5,13 @@
 
 @section('content')
 
-<form action="{{ route('inquilinos.store') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('inquilinos.update',$tenant->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
+    @method('PUT')
     <div class="card">
         <div class="card-header">Complete datos</div>
         <div class="card-body">
+            
             <div class="row">
 
                 <div class="col-lg-6">
@@ -18,7 +20,7 @@
                             <div class="form-control-feedback-icon">
                                 <i class="ph ph-file-text"></i>
                             </div>
-                            <input type="text" name="nombre" value="{{ old('nombre') }}" class="form-control @error('nombre') is-invalid @enderror" autofocus placeholder="" required>
+                            <input type="text" name="nombre" value="{{ old('nombre',$tenant->name) }}" class="form-control @error('nombre') is-invalid @enderror" autofocus placeholder="" required>
                             <label>Nombre</label>
                             @error('nombre')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -33,7 +35,7 @@
                             <div class="form-control-feedback-icon">
                                 <i class="ph ph-chat-text"></i>
                             </div>
-                            <textarea name="descripcion" class="form-control @error('descripcion') is-invalid @enderror" placeholder="" required>{{ old('descripcion') }}</textarea>
+                            <textarea name="descripcion" class="form-control @error('descripcion') is-invalid @enderror" placeholder="" required>{{ old('descripcion',$tenant->description) }}</textarea>
                             <label>Descripción</label>
                             @error('descripcion')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -48,7 +50,8 @@
                             <div class="form-control-feedback-icon">
                                 <i class="ph ph-keyboard"></i>
                             </div>
-                            <input type="number" name="max_gateway_permitidos" value="{{ old('max_gateway_permitidos',0) }}" class="form-control @error('max_gateway_permitidos') is-invalid @enderror" placeholder="" required>
+                            
+                            <input type="number" name="max_gateway_permitidos" value="{{ old('max_gateway_permitidos',$tenant->max_gateway_count) }}" class="form-control @error('max_gateway_permitidos') is-invalid @enderror" placeholder="" required>
                             <label>Máximo número de gateways permitidos</label>
                             <div class="form-text">El número máximo de gateway que esta entidad puede agregar (0 = ilimitado).</div>
                             @error('max_gateway_permitidos')
@@ -64,7 +67,7 @@
                             <div class="form-control-feedback-icon">
                                 <i class="ph ph-timer"></i>
                             </div>
-                            <input type="number" name="maximo_dispositivos_permitidos" value="{{ old('maximo_dispositivos_permitidos',0) }}" class="form-control @error('maximo_dispositivos_permitidos') is-invalid @enderror" placeholder="" required>
+                            <input type="number" name="maximo_dispositivos_permitidos" value="{{ old('maximo_dispositivos_permitidos',$tenant->max_device_count) }}" class="form-control @error('maximo_dispositivos_permitidos') is-invalid @enderror" placeholder="" required>
                             <label>Máximo número de dispositivos permitidos</label>
                             <div class="form-text">La cantidad máxima de dispositivos que esta entidad puede agregar (0 = ilimitado).</div>
                             @error('maximo_dispositivos_permitidos')

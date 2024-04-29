@@ -25,7 +25,7 @@ class UserTenantNoAsignadosDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function($user){
-                return view('tenant.usuarios.selecionar',['user'=>$user])->render();
+                return view('tenant.clientes.selecionar',['user'=>$user])->render();
             })
             ->setRowId('id');
     }

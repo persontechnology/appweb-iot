@@ -31,7 +31,7 @@
 
                
 
-                <div class="col-lg-6">
+                <div class="col-lg-12">
                     <div class="mb-3">
                         @if ($aplicaciones->count()>0)
                         <div class="form-floating form-control-feedback form-control-feedback-start">
@@ -58,32 +58,6 @@
                     </div>
                 </div>
 
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        @if ($perfil_dispositivos->count()>0)
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-device-tablet"></i>
-                            </div>
-                            
-                            <select class="form-select @error('device_profile_id') is-invalid @enderror" name="device_profile_id" required>
-                                @foreach ($perfil_dispositivos as $pd)
-                                <option value="{{ $pd->id }}" {{ old('device_profile_id')==$pd->id?'selected':'' }}>{{ $pd->name }}</option>
-                                @endforeach
-                            </select>
-
-                            <label>Perfil de dispositivo</label>
-
-                            @error('device_profile_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        @else
-                            @include('layouts.alert',['type'=>'danger','msg'=>'No existe perfil de sispositivos, por favor crear una.'])
-                        @endif
-                        
-                    </div>
-                </div>
 
                 <div class="col-lg-12">
                     <div class="border p-3 rounded">

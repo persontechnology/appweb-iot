@@ -26,22 +26,10 @@
         <div class="sidebar-section">
             <ul class="nav nav-sidebar" data-nav-type="accordion">
 
-                <!-- Main -->
-                <li class="nav-item-header pt-0">
-                    <div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">Principal</div>
-                    <i class="ph-dots-three sidebar-resize-show"></i>
-                </li>
+               
 
 
-                <li class="nav-item">
-                    <a href="{{ route('dashboard') }}" class="nav-link {{ Route::is('dashboard')?'active':'' }}">
-                        <i class="ph-house"></i>
-                        <span>
-                            Dashboard
-                        </span>
-                    </a>
-                </li>
-
+               
                
 
 
@@ -50,12 +38,17 @@
 
                 @role('ADMINISTRADOR')
                     
-                
+                 <!-- Main -->
+                 <li class="nav-item-header pt-0">
+                    <div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">ADMINISTRADOR</div>
+                    <i class="ph-dots-three sidebar-resize-show"></i>
+                </li>
+
                 <li class="nav-item">
-                    <a href="{{ route('usuarios.index') }}" class="nav-link {{ Route::is('usuarios.*')?'active':'' }}">
+                    <a href="{{ route('clientes.index') }}" class="nav-link {{ Route::is('clientes.*')?'active':'' }}">
                         <i class="ph ph-users"></i>
                         <span>
-                            Usuarios
+                            Clientes
                         </span>
                     </a>
                 </li>
@@ -73,6 +66,30 @@
 
 
                 @endrole
+
+                <li class="nav-item-header pt-0">
+                    <div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">Menu</div>
+                    <i class="ph-dots-three sidebar-resize-show"></i>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('dashboard') }}" class="nav-link {{ Route::is('dashboard')?'active':'' }}">
+                        <i class="ph-house"></i>
+                        <span>
+                            Dashboard
+                        </span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{ route('usuarios.index') }}" class="nav-link {{ Route::is('usuarios.*')?'active':'' }}">
+                        <i class="ph ph-users"></i>
+                        <span>
+                            Usuarios
+                        </span>
+                    </a>
+                </li>
+
+
 
                 <li class="nav-item">
                     <a href="{{ route('perfil-dispositivos.index') }}" class="nav-link {{ Route::is('perfil-dispositivos.*')?'active':'' }}">

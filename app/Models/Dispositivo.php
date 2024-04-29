@@ -14,6 +14,7 @@ class Dispositivo extends Model
     protected $primaryKey = 'dev_eui';
     protected $keyType = 'string';
     public $incrementing = false;
+    
     // Conversión de tipos para los atributos del modelo
     protected $casts = [
         'dev_eui' => 'string',  // Convierte 'gateway_id' a tipo 'string'

@@ -64,7 +64,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(TenantUser::class, 'user_id', 'id');
     }
-
+    
 
     // un usuario tiene varios entidades
     public function tenants()

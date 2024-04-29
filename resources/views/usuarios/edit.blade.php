@@ -108,10 +108,10 @@
                 
                 <div class="col-lg-6">
                     <div class="border p-3 rounded">
-                        <div class="d-inline-flex align-items-center me-3">
+                        {{-- <div class="d-inline-flex align-items-center me-3">
                             <input type="checkbox" name="es_administrador" id="dc_li_c" {{ old('es_administrador',$user->is_admin) ? 'checked' : '' }}>
                             <label class="ms-2" for="dc_li_c">Es administrador</label>
-                        </div>
+                        </div> --}}
                 
                         <div class="d-inline-flex align-items-center">
                             <input type="checkbox" name="esta_activo" id="dc_li_u" {{ old('esta_activo',$user->is_active) ? 'checked' : '' }}>

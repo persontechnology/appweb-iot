@@ -10,6 +10,7 @@ class TenantUser extends Model
     use HasFactory;
 
     protected $table = 'tenant_user'; // Nombre de la tabla pivote
+    protected $primaryKey = ['tenant_id', 'user_id'];
     public $incrementing = false; // Si tus claves primarias son UUID
     protected $keyType = 'string'; // Tipo de clave primaria
 

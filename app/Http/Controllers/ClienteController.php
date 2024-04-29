@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTables\UserDataTable;
+use App\DataTables\ClienteDataTable;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-class UserController extends Controller
+class ClienteController extends Controller
 {
 
     public function __construct()
@@ -18,10 +18,10 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(UserDataTable $dataTable)
+    public function index(ClienteDataTable $dataTable)
     {
         
-        return $dataTable->render('users.index');
+        return $dataTable->render('clientes.index');
     }
 
     /**
@@ -30,7 +30,7 @@ class UserController extends Controller
     public function create()
     {
         
-        return view('users.create');
+        return view('clientes.create');
     }
 
     /**
@@ -60,7 +60,7 @@ class UserController extends Controller
                 $user->assignRole('ADMINISTRADOR');
             }
 
-            return redirect()->route('usuarios.index')->with('success',$user->nombres.', ingresado exitosamente.!');
+            return redirect()->route('clientes.index')->with('success',$user->nombres.', ingresado exitosamente.!');
         } catch (\Throwable $th) {
             return back()->with('danger', 'Error.! '.$th->getMessage())->withInput();
         }
@@ -82,7 +82,7 @@ class UserController extends Controller
         $data = array(
             'user'=>User::find($userId)
         );
-        return view('users.edit',$data);
+        return view('clientes.edit',$data);
     }
 
     /**
@@ -104,7 +104,8 @@ class UserController extends Controller
             // $user->email_verified=true;
             // $user->password_hash=Hash::make($request->contrasena);
             $user->note=$request->descripcion;
-            if($request->password){
+
+            if($request->contrasena){
                 $user->password=Hash::make($request->contrasena);
             }
             
@@ -119,7 +120,7 @@ class UserController extends Controller
                 $user->removeRole('ADMINISTRADOR');
             }
 
-            return redirect()->route('usuarios.index')->with('success',$user->nombres.', actualizado exitosamente.!');
+            return redirect()->route('clientes.index')->with('success',$user->nombres.', actualizado exitosamente.!');
         } catch (\Throwable $th) {
             return back()->with('danger', 'Error.! '.$th->getMessage())->withInput();
         }
@@ -133,7 +134,7 @@ class UserController extends Controller
     {
         try {
             $user=User::destroy($userId);
-            return redirect()->route('usuarios.index')->with('success','Usuario eliminado exitosamente');
+            return redirect()->route('clientes.index')->with('success','Usuario eliminado exitosamente');
         } catch (\Throwable $th) {
             return back()->with('danger','Usuario no eliminado, '.$th->getMessage());
         }
