@@ -12,6 +12,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\WelcomeController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,7 +30,14 @@ Route::get('/', [WelcomeController::class,'welcome'])->name('welcome');
 Route::get('/no-tiene-inquilino', [WelcomeController::class,'noTieneInquilino'])->name('no-tiene-inquilino');
 Route::get('/cuenta-inactiva',[WelcomeController::class,'cuentaInactiva'])->name('cuenta-inactiva');
 
-
+Route::get('/l-c',function(){
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('config:cache');
+    // Artisan::call('storage:link');
+    // Artisan::call('key:generate');
+    // Artisan::call('migrate --seed');
+});
 
 
 
