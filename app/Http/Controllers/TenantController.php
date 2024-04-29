@@ -152,6 +152,9 @@ class TenantController extends Controller
                 $tu->is_device_admin=false;
                 $tu->is_gateway_admin=false;
                 $tu->save();
+                $tu->user->tenant_id=$tu->tenant_id;
+                $tu->user->save();
+
             }
 
             return redirect()->route('inquilinos.clientes',$request->tenant_id)->with('success','Cliente asignados exisosamente');
