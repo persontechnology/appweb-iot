@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('nombres')->nullable();
             $table->string('identificacion')->nullable();
 
-            $table->string('tenant_id')->nullable();
+            // $table->string('tenant_id')->nullable();
 
         });
     }
@@ -31,7 +31,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('user', function (Blueprint $table) {
-            $table->dropColumn(['password','apellidos','nombres','identificacion','email_verified_at','remember_token','tenant_id']);
+            $table->dropColumn(['password','apellidos','nombres','identificacion','email_verified_at','remember_token']);
         });
     }
 };
