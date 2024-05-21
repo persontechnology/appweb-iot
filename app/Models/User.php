@@ -77,5 +77,18 @@ class User extends Authenticatable
     {
         return $this->tenants()->where('tenant_id', $tenantId)->exists();
     }
+
+    // user -> alerta_user
+
+    public function alertaUser()
+    {
+        return $this->hasMany(AlertaUser::class, 'user_id', 'id');
+    }
+
+    // verificar si el usuario tiene un alerta:
+    public function tieneAlerta($alertaId)
+    {
+        return $this->alertaUser()->where('alerta_id', $alertaId)->exists();
+    }
     
 }

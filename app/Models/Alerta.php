@@ -14,7 +14,8 @@ class Alerta extends Model
     protected $fillable=[
         'nombre',
         'estado',
-        'application_id'
+        'application_id',
+        'puede_enviar_email'
     ];
 
     protected static function booted()
@@ -65,5 +66,33 @@ class Alerta extends Model
     public function application(): BelongsTo
     {
     return $this->belongsTo(Application::class, 'application_id');
+    }
+
+     // usuarios asignados en alertas para enviar correos
+     public function alertaUsers(){
+        return $this->hasMany(AlertaUser::class, 'alerta_id', 'id');
+
+    }
+
+
+    // una alerta tiene varios tipos de alertas
+
+    public function alertasTipos(): HasMany
+    {
+        return $this->hasMany(AlertaTipo::class);
+    }
+
+
+    // Define la relación uno a uno
+    public function alertaTipo()
+    {
+        return $this->hasOne(AlertaTipo::class);
+    }
+
+    // Método para obtener alertaTipo por alerta_id
+    public static function getAlertaTipoByAlertaId($alertaId)
+    {
+        $alerta = self::find($alertaId);
+        return $alerta ? $alerta->alertaTipo : null;
     }
 }

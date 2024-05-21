@@ -62,10 +62,18 @@
                 <div class="col-lg-12">
                     <div class="border p-3 rounded">
                         <div class="form-check form-switch mb-2">
-                            <input type="checkbox" class="form-check-input" name="estado" id="sc_ls_c">
-                            <label class="form-check-label" for="sc_ls_c" >El alerta está deshabilitado</label>
+                            <input type="checkbox" class="form-check-input" name="estado" id="sc_ls_c" {{ old('estado') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="sc_ls_c" >La alerta está deshabilitado</label>
                             <div class="form-text">Se ignorarán las tramas de enlace ascendente recibidas y las solicitudes de unión.</div>
                         </div>
+
+                        <div class="form-check form-switch mb-2">
+                            <input type="checkbox" class="form-check-input" name="puede_enviar_email" id="puede_enviar_email" {{ old('puede_enviar_email') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="puede_enviar_email" >La alerta puede enviar emails a usuarios</label>
+                            <div class="form-text">Se enviara un email de los usuarios asignados en está alerta.</div>
+                        </div>
+
+
                     </div>
                 </div>
 

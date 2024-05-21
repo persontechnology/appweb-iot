@@ -17,11 +17,11 @@ return new class extends Migration
 
             $table->string('nombre');
             $table->boolean('estado')->default(0);
+            $table->boolean('puede_enviar_email')->default(0);
 
             $table->uuid('application_id');
             $table->foreign('application_id')->references('id')->on('application')->onDelete('cascade');
-            
-
+        
 
 
         });

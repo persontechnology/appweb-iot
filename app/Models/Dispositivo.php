@@ -40,11 +40,13 @@ class Dispositivo extends Model
         // Asigna el valor binario al atributo 'join_eui'
         $this->attributes['join_eui'] = $gatewayIdBinary;
     }
+    
     public function getDevEuiAttribute($value)
     {
         // Convierte el valor binario a hexadecimal
         return bin2hex(stream_get_contents($value));
     }
+
     public function getJoinEuiAttribute($value)
     {
         // Convierte el valor binario a hexadecimal

@@ -8,6 +8,7 @@ use App\Http\Controllers\DeviceProfileController;
 use App\Http\Controllers\DispositivoController;
 use App\Http\Controllers\GatewayController;
 use App\Http\Controllers\LecturaController;
+use App\Http\Controllers\ObjetoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UsuariosController;
@@ -51,7 +52,7 @@ Route::middleware(['auth','check.tenant_id','verified'])->group(function () {
     // actualizar inquilino
     Route::post('/seleccionar-inquilino', [ProfileController::class, 'seleccionarInquilino'])->name('profile.seleccionarInquilino');
     
-
+    
     
     Route::resource('clientes', ClienteController::class);
     Route::resource('inquilinos', TenantController::class);
@@ -68,8 +69,17 @@ Route::middleware(['auth','check.tenant_id','verified'])->group(function () {
     
     Route::resource('alertas', AlertaController::class);
     Route::post('alertas/actualizarHorario', [AlertaController::class,'actualizarHorario'])->name('alertas.actualizarHorario');
+    Route::post('alertas/actualizarEstado', [AlertaController::class,'actualizarEstado'])->name('alertas.actualizarEstado');
+    Route::post('alertas/actualizarUsuarios', [AlertaController::class,'actualizarUsuarios'])->name('alertas.actualizarUsuarios');
+    Route::delete('alertas/eliminarUsuario/{alertaId}/{userId}',[AlertaController::class,'eliminarUsuario'])->name('alertas.eliminarUsuario');
+    Route::post('alertas/guardarTipo',[AlertaController::class,'guardarTipo'])->name('alertas.guardarTipo');
+    Route::delete('alertas/eliminarTipo/{id}',[AlertaController::class,'eliminarTipo'])->name('alertas.eliminarTipo');
+    Route::delete('alertas/eliminarLectura/{id}',[AlertaController::class,'eliminarLectura'])->name('alertas.eliminarLectura');
+    
+    
+    Route::get('alertas/configuracion/{id}/{op}', [AlertaController::class,'inicio'])->name('alertas.configuracion');
 
-    Route::resource('lecturas', LecturaController::class);
+    
     
 
 

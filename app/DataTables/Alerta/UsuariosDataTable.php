@@ -1,8 +1,8 @@
 <?php
 
-namespace App\DataTables;
+namespace App\DataTables\Alerta;
 
-use App\Models\Alerta;
+use App\Models\TenantUser;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\EloquentDataTable;
@@ -13,7 +13,7 @@ use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
-class AlertaDataTable extends DataTable
+class UsuariosDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -23,8 +23,8 @@ class AlertaDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('action', function($al){
-                return view('alertas.action',['al'=>$al])->render();
+            ->addColumn('action', function($tu){
+                return view('alertas.usuarios.action',['tu'=>$tu,'alertaId'=>$this->alertaId])->render();
             })
             ->setRowId('id');
     }
@@ -32,15 +32,9 @@ class AlertaDataTable extends DataTable
     /**
      * Get the query source of dataTable.
      */
-    public function query(Alerta $model): QueryBuilder
+    public function query(TenantUser $model): QueryBuilder
     {
-        return $model->newQuery()
-        ->whereHas('application', function ($query) {
-            $query->whereHas('tenant', function ($query) {
-                $query->where('id', Auth::user()->tenant_id);
-            });
-        })
-        ->with('application');
+        return $model->newQuery()->where('tenant_id',Auth::user()->tenant_id)->with('user');
     }
 
     /**
@@ -49,7 +43,7 @@ class AlertaDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('alerta-table')
+                    ->setTableId('usuarios-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
                     ->parameters($this->getBuilderParameters());
@@ -65,12 +59,13 @@ class AlertaDataTable extends DataTable
                   ->exportable(false)
                   ->printable(false)
                   ->width(60)
+                  ->title('Selecionar')
                   ->addClass('text-center'),
-            Column::make('nombre'),
-            Column::make('application.name')->title('Applicación'),
-            Column::make('estado'),
-            Column::make('puede_enviar_email'),
-            
+            Column::make('user.email')->title('Email'),
+            Column::make('user.apellidos')->title('Apellidos'),
+            Column::make('user.nombres')->title('Nombres'),
+            Column::make('user.identificacion')->title('Identificación'),
+            Column::make('user.is_active')->title('Activo')
         ];
     }
 
@@ -79,6 +74,6 @@ class AlertaDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Alerta_' . date('YmdHis');
+        return 'Usuarios_' . date('YmdHis');
     }
 }

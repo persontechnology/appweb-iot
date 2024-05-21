@@ -1,9 +1,10 @@
 <?php
 
-namespace App\DataTables;
+namespace App\DataTables\Alerta;
 
 use App\Models\Lectura;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
@@ -22,14 +23,24 @@ class LecturaDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('action', 'lectura.action')
-            ->editColumn('created_at',function($lec){
-                return $lec->created_at;
+            ->addColumn('action', function($lectura){
+                return view('alertas.configuracion.lecturas-action',['lectura'=>$lectura])->render();
+                
             })
-            ->editColumn('alerta_id',function($lec){
-                return $lec->device;
+            ->addColumn('nombre',function($lectura){
+                // acceder a la lectura por id y obtener el dev_eui
+                $dev_eui= $lectura->xId($lectura->id)->dev_eui;
+                // buscar dispositivo por dev_eui 
+                return $lectura->buscarDispositivoDevEui($dev_eui)->name;
             })
-            ->setRowId('id');
+            ->addColumn('mapa',function($lectura){
+                $dev_eui= $lectura->xId($lectura->id)->dev_eui;
+
+                 $link='<a href="#" data-lat="23" data-long="23551" title="Ver mapa" onclick="event.preventDefault(); verMapa(this);" ><i class="ph ph-map-pin"></i></a>';
+                return $link;
+            })
+            ->setRowId('id')
+            ->rawColumns(['mapa','action']);
     }
 
     /**
@@ -37,9 +48,14 @@ class LecturaDataTable extends DataTable
      */
     public function query(Lectura $model): QueryBuilder
     {
-        return $model->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex,alerta_id,estado,created_at")->latest();
-        // return $model->newQuery();
-
+        return $model->newQuery()
+        ->whereHas('alerta',function($query){
+            $query->whereHas('application', function ($query) {
+                $query->whereHas('tenant', function ($query) {
+                    $query->where('id', Auth::user()->tenant_id);
+                });
+            });
+        })->latest();
     }
 
     /**
@@ -64,11 +80,14 @@ class LecturaDataTable extends DataTable
                   ->exportable(false)
                   ->printable(false)
                   ->width(60)
+                  ->title('Acción')
                   ->addClass('text-center'),
-            Column::make('dev_eui_hex'),
-            Column::make('alerta_id'),
+            Column::computed('dev_eui'),
+            Column::computed('nombre'),
+            Column::computed('mapa'),
             Column::make('estado'),
-            Column::make('created_at'),
+            Column::make('data'),
+            Column::make('created_at')->title('Fecha')
         ];
     }
 

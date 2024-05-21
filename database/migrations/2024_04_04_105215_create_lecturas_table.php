@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->boolean('estado')->default(0);
-            
+            $table->json('data')->nullable();
+            $table->json('lat')->nullable();
+            $table->json('long')->nullable();
             $table->binary('dev_eui');
             $table->unsignedBigInteger('alerta_id');
             $table->foreign('dev_eui')->references('dev_eui')->on('device')->onDelete('cascade');

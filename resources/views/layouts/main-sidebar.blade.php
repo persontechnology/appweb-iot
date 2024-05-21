@@ -26,13 +26,6 @@
         <div class="sidebar-section">
             <ul class="nav nav-sidebar" data-nav-type="accordion">
 
-               
-
-
-               
-               
-
-
                 {{-- ROLE: ADMINISTRADOR --}}
 
 
@@ -64,6 +57,7 @@
                     </a>
                 </li>
 
+                
 
                 @endrole
 
@@ -139,18 +133,6 @@
                         </span>
                     </a>
                 </li>
-
-                <li class="nav-item">
-                    <a href="{{ route('lecturas.index') }}" class="nav-link {{ Route::is('lecturas.*')?'active':'' }}">
-                        <i class="ph ph-notebook"></i>
-                        <span>
-                            Lecturas
-                        </span>
-                    </a>
-                </li>
-
-
-                
 
             </ul>
         </div>

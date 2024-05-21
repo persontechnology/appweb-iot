@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\Alerta\LecturaDataTable;
+use App\DataTables\Alerta\UsuariosDataTable;
 use App\DataTables\AlertaDataTable;
 use App\Models\Alerta;
+use App\Models\AlertaTipo;
+use App\Models\AlertaUser;
 use App\Models\Application;
 use App\Models\DeviceProfile;
 use App\Models\Horario;
@@ -59,9 +63,10 @@ class AlertaController extends Controller
         try {
             DB::beginTransaction();
             $request['estado']=$request->estado?1:0;
+            $request['puede_enviar_email']=$request->puede_enviar_email?1:0;
             $alerta=Alerta::create($request->all());
             DB::commit();
-            return redirect()->route('alertas.show',$alerta)->with('success',$alerta->nombre.', ingresado exitosamente.!');
+            return redirect()->route('alertas.configuracion',['id'=>$alerta->id,'op'=>'inicio'])->with('success',$alerta->nombre.', ingresado exitosamente.!');
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('danger', 'Error.! '.$th->getMessage())->withInput();
@@ -148,7 +153,116 @@ class AlertaController extends Controller
             $horario->save();
         }
 
-        return redirect()->route('alertas.show',$request->alerta_id)->with('success','Horario actualizado.!');
+        return redirect()->route('alertas.configuracion',['id'=>$alerta->id,'op'=>'horario'])->with('success','Horario actualizado.!');
+    }
+
+
+    public function inicio(UsuariosDataTable $usuariosDataTable,LecturaDataTable $lecturaDatatable, $id,$op) {
+        
+        $alerta=Alerta::findOrFail($id);
+        $data = array(
+            'alerta'=>$alerta,
+            'horarios'=>$alerta->horarios()->orderBy('numero_dia')->get(),
+            'opcion'=>$op
+        );
+
+        switch ($op) {
+            case 'inicio':
+                return view('alertas.configuracion.inicio',$data);
+                break;
+            case 'horario':
+                return view('alertas.configuracion.horario',$data);
+                break;
+            case 'tipo':
+                return view('alertas.configuracion.tipo',$data);
+                break;
+            case 'usuarios':
+                return $usuariosDataTable->with('alertaId',$id)->render('alertas.configuracion.usuarios',$data);
+                break;
+            case 'lecturas':
+                return $lecturaDatatable->with('alertaId',$id)->render('alertas.configuracion.lecturas',$data);
+                break;
+            
+            default:
+                return abort(404);
+                break;
+        }
+    }
+
+
+
+    public function actualizarEstado(Request $request) {
+        $alerta=Alerta::find($request->alerta_id);
+        $alerta->estado=$request->estado?1:0;
+        $alerta->puede_enviar_email=$request->puede_enviar_email?1:0;
+        $alerta->save();
+        return redirect()->route('alertas.configuracion',['id'=>$alerta->id,'op'=>'inicio'])->with('success','Estado de alerta actualizado.!');
+    }
+
+
+    public function actualizarUsuarios(Request $request)  {
+        $request->validate([
+            'usuarios' => 'nullable|array', // La entrada de usuarios puede ser un array o null
+            'usuarios.*' => 'exists:user,id', // Verifica que cada usuario exista en la tabla usuarios
+        ]);
+
+        
+        $alertaId = $request->input('alerta_id');
+
+        $usuarios = $request->input('usuarios', []);
+        foreach ($usuarios as $usuarioId) {
+            // Verificar si ya existe un registro para este usuario y alerta_id en alerta_user
+            $registroExistente = AlertaUser::where('user_id', $usuarioId)
+                                            ->where('alerta_id', $alertaId)
+                                            ->exists();
+    
+            // Si no existe, crear un nuevo registro
+            if (!$registroExistente) {
+                $alertaUser = new AlertaUser();
+                $alertaUser->user_id = $usuarioId;
+                $alertaUser->alerta_id = $alertaId;
+                $alertaUser->save();
+            }
+        }
+
+        return redirect()->route('alertas.configuracion',['id'=>$alertaId,'op'=>'usuarios'])->with('success','Usuarios actualizado.!');
+    }
+
+
+    public function eliminarUsuario($alertaId,$userId)  {
+        $mensaje='Usuario eliminado.!';
+        try {
+            $alertaUser=AlertaUser::where(['alerta_id'=>$alertaId,'user_id'=>$userId])->first();
+            $alertaUser->delete();
+        } catch (\Throwable $th) {
+            $mensaje=$th->getMessage();
+        }
+        return redirect()->route('alertas.configuracion',['id'=>$alertaId,'op'=>'usuarios'])->with('success',$mensaje);
+    }
+
+
+    public function guardarTipo(Request $request) {
+        $alerta=Alerta::find($request->alerta_id);
+        $alertaTipo=new AlertaTipo();
+        $parametroSeparado = explode("=====", $request->parametro);
+        $alertaTipo->titulo=$parametroSeparado[1];
+        $alertaTipo->parametro=$parametroSeparado[0];
+        $alertaTipo->condicion=$request->condicion;
+        $alertaTipo->valor=$request->valor;
+        $alertaTipo->alerta_id=$request->alerta_id;
+        $alertaTipo->mensaje=$request->mensaje;
+        $alertaTipo->save();
+        return redirect()->route('alertas.configuracion',['id'=>$request->alerta_id,'op'=>'tipo'])->with('success','Tipo de alerta creado exitosamente.!');
+    }
+
+    public function eliminarTipo($idAlertaTipo){
+        $at=AlertaTipo::find($idAlertaTipo);
+        try {
+            $at->delete();
+            return redirect()->route('alertas.configuracion',['id'=>$at->alerta_id,'op'=>'tipo'])->with('success','Alerta Tipo eliminado.!');
+        } catch (\Throwable $th) {
+            return redirect()->route('alertas.configuracion',['id'=>$at->alerta_id,'op'=>'tipo'])->with('danger','Alerta Tipo no eliminado '.$th->getMessage());
+        }
     }
 
 
