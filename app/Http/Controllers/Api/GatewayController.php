@@ -38,8 +38,13 @@ class GatewayController extends Controller
                 throw new \Exception('NO EXISTE HORARIO PARA LA APLICACIÓN ' . $applicationId);
             }
             
+            // object{
+            //     'distance':152,
+            //     'press':'short'
+            // }
+
             // Verificar si las alertas se activan con los datos del objeto
-            if ($this->verificarAlertas($object, $horario->alerta)) {
+            if ($this->verificarAlertas($object, $horario->alerta)=='si') {
                 // Crear una nueva lectura
                 $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $object);
                 
@@ -63,10 +68,10 @@ class GatewayController extends Controller
         foreach ($alerta->alertasTipos as $alertaTipo) {
             // Verificar si alguna condición coincide con los datos del objeto
             if ($this->verificarCondicion($object, $alertaTipo)) {
-                return true;
+                return 'si';
             }
         }
-        return false;
+        return 'no';
     }
 
     private function verificarCondicion($object, $alertaTipo)
@@ -80,9 +85,9 @@ class GatewayController extends Controller
         // Convertir el valor del objeto a numérico si es posible
         $valorObjeto = is_numeric($object[$parametro]) ? (float) $object[$parametro] : $object[$parametro];
 
-        // if($parametro=='distance' && is_numeric($valorObjeto)){
-        //     $valorObjeto=$valorObjeto/1000;
-        // }
+        if($parametro=='distance' && is_numeric($valorObjeto)){
+            $valorObjeto=$valorObjeto/1000;
+        }
         
         
         // Verificar si la condición coincide con los datos del objeto
