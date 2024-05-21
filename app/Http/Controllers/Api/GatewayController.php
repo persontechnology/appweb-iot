@@ -85,7 +85,7 @@ class GatewayController extends Controller
         // Convertir el valor del objeto a numérico si es posible
         $valorObjeto = is_numeric($object[$parametro]) ? (float) $object[$parametro] : $object[$parametro];
 
-        if($parametro=='distance' && is_numeric($valorObjeto)){
+        if($parametro==='distance' && is_numeric($valorObjeto)){
             $valorObjeto=$valorObjeto/1000;
         }
         
