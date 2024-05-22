@@ -50,13 +50,14 @@ class DatabaseSeeder extends Seeder
             $user->email = config('app.ADMIN_EMAIL');
             $user->is_admin=true;
             $user->is_active=true;
-            $user->password=Hash::make(config('app.ADMIN_EMAIL'));
             $user->password_hash=Hash::make(config('app.ADMIN_EMAIL'));
             $user->email_verified=false;
             $user->note='';
             $user->tenant_id=$tenant_id;
-            $user->save();
+            
         }
+        $user->password=Hash::make(config('app.ADMIN_EMAIL'));
+        $user->save();
 
 
         if(!$user->tenant_id){
