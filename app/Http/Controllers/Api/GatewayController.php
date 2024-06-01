@@ -10,6 +10,7 @@ use App\Notifications\EnviarEmailUsuariosAsignadosLectura;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 
 class GatewayController extends Controller
@@ -52,12 +53,14 @@ class GatewayController extends Controller
                 if ($lectura->alerta->puede_enviar_email) {
                     $this->enviarEmailUsuariosAsignadosLectura($lectura);
                 }
-                
+                $lecturaCreada=Lectura::find($lectura->id);
+                $dispositivo=Lectura::buscarDispositivoUsoDevEui($lecturaCreada->dev_eui);
                 // Emitir un evento para notificar la lectura guardada en tiempo real
-                event(new LecturaGuardadoEvent('PERFECTO FUNCIONO NOTIFICACION EN TEIMPO REAL'));
+                event(new LecturaGuardadoEvent($lecturaCreada));
             }
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             // Capturar cualquier excepción y registrarla en los registros de errores
+            Log::error('error',[$th->getMessage()]);
             error_log('OCURRIO UN ERROR: ' . $th->getMessage());
         }
     }

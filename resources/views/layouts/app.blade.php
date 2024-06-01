@@ -34,6 +34,9 @@
 	<script src="{{ asset('assets/js/vendor/validate/jquery.validate.min.js') }}"></script>
 	<script src="{{ asset('assets/js/vendor/validate/messages_es.min.js') }}"></script>
 	
+	{{-- notify --}}
+	<script src="{{ asset('assets/js/notify/notify.js') }}"></script>
+		
 	{{-- jquery confirm --}}
 	<link rel="stylesheet" href="{{ asset('assets/js/vendor/jquery-confirm/jquery-confirm.min.css') }}">
 	<script src="{{ asset('assets/js/vendor/jquery-confirm/jquery-confirm.min.js') }}"></script>
@@ -708,9 +711,10 @@
 			window.Echo.channel('lectura-guardada')
 				.listen('LecturaGuardadoEvent', function(data) {
 					var contador_notificacion = parseInt($('#contador-notificacion').html());
-					$('#contador-notificacion').html(contador_notificacion + 1)
-
-					console.log(data);
+					$('#contador-notificacion').html(contador_notificacion + 1)			
+					console.log("dasdsa",data);
+		
+					
 				});
 		});
 
@@ -719,6 +723,11 @@
 		$('#selectInquilino').on('change', function() {
 			$('#seleccionarInquilinoForm').submit();
 		});
+
+		function envioNotificaciones(dispositivo){
+			var host = window.location.origin;
+			$.notify("Access granted", "success");
+		}
 	</script>
 
 	

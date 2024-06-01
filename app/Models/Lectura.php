@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\LecturaGuardadoEvent;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +14,6 @@ class Lectura extends Model
 
 
     // protected $hidden = ['dev_eui'];
-
     protected $casts = [
         'birthday'  => 'date:Y-m-d',
         'created_at' => 'datetime:Y-m-d H:00',
@@ -42,8 +42,10 @@ class Lectura extends Model
         return [$dispositivo->latitude??'',$dispositivo->longitude ?? ''];
     }
 
-
-
+    // buscar dispositivo por dev_eui fabian
+    static function buscarDispositivoUsoDevEui($dev_eui) {
+        return Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+    }
     // una lectura pertenece a  una alerta
     public function alerta()
     {

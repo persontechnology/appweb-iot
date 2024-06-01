@@ -5,7 +5,7 @@
 @endsection
 
 @section('breadcrumb_elements')
-    <div class="d-lg-flex mb-2 mb-lg-0">
+    {{-- <div class="d-lg-flex mb-2 mb-lg-0">
         <a href="#" class="d-flex align-items-center text-body py-2">
             <i class="ph-lifebuoy me-2"></i>
             Support
@@ -37,7 +37,7 @@
                 </a>
             </div>
         </div>
-    </div>
+    </div> --}}
 @endsection
 
 
@@ -53,6 +53,8 @@
 </div>
 
 <div id="map"></div>
+
+
 <div class="modal fade" id="markerModal" tabindex="-1" aria-labelledby="markerModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -73,6 +75,9 @@
         </div>
     </div>
 </div>
+
+
+
 @endsection
 
 
@@ -154,6 +159,7 @@
         }).on('click',function(){
             abrirModalDispositivo(dispositivo);
         });
+
         markerCluster.addLayer(marker);
 
         // Asignar un ID único al marcador
@@ -229,6 +235,9 @@
     }
 
 </script>
+
+
+
 
 
 

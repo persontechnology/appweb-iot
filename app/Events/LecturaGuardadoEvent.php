@@ -33,4 +33,15 @@ class LecturaGuardadoEvent implements ShouldBroadcast
     {
         return new Channel('lectura-guardada');
     }
+     /**
+     * Get the data to broadcast.
+     *
+     * @return array
+     */
+    public function broadcastWith()
+    {
+        return [
+            'lectura' => $this->lectura,
+        ];
+    }
 }
