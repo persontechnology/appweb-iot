@@ -42,14 +42,21 @@
 	<link rel="stylesheet" href="{{ asset('assets/js/vendor/leaflet/leaflet.css') }}">
 	<script src="{{ asset('assets/js/vendor/leaflet/leaflet.js') }}"></script>
 	
+	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+	<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+	
 	<!-- /theme JS files -->
 
     @stack('scriptsHeader')
 	<script src="{{ asset('assets/js/app.js') }}"></script>
 	<script src="{{ asset('assets/demo/pages/navbar_components.js') }}"></script>
 	<script src="{{ asset('assets/js/page.js') }}"></script>
-	<!-- SECCTION VITE FOR ECHO SERVER --->
 	
+	
+	
+	<!-- SECCTION VITE FOR ECHO SERVER --->
 
 	@vite(['resources/css/app.css', 'resources/js/app.js']) 
 

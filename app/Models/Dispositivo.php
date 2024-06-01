@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
+
 class Dispositivo extends Model
 {
     use HasFactory;
@@ -21,10 +23,11 @@ class Dispositivo extends Model
         'join_eui' => 'string',
         'dev_addr'=>'string',
         'secondary_dev_addr'=>'string',
-        'device_session'=>'string'
+        'device_session'=>'string',
+        'last_seen_at' => 'datetime:Y-m-d H:i',
     ];
 
-   
+    
 
     public function setDevEuiAttribute($value)
     {
@@ -71,5 +74,7 @@ class Dispositivo extends Model
     {
         return $this->belongsTo(DeviceProfile::class, 'device_profile_id');
     }
+
+    
 
 }
