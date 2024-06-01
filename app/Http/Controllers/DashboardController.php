@@ -18,8 +18,8 @@ class DashboardController extends Controller
         ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *")
         ->get();
         
-        return $dispositivos;
-        // $data = array('dispositivos'=>$dispositivos);
+        // return $dispositivos;
+        $data = array('dispositivos'=>$dispositivos);
         return view('dashboard',$data);
     }
 
