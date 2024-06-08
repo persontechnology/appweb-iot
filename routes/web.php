@@ -44,7 +44,14 @@ Route::get('/l-c',function(){
 
 
 Route::middleware(['auth','check.tenant_id','verified'])->group(function () {
+
+
     Route::get('/dashboard', [DashboardController::class,'index'])->name('dashboard');
+    // buscra dispositivo
+    Route::get('/buscar-dispositivos', [DashboardController::class,'buscarDispositivo'])->name('buscar.dispositivos');
+
+
+
     
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -55,7 +55,7 @@
 
             <!-- Header -->
             <div class="sidebar-section sidebar-section-body d-flex align-items-center pb-0">
-                <h5 class="mb-0">Sidebar</h5>
+                <h5 class="mb-0">Dispositivos</h5>
                 <div class="ms-auto">
                     <button type="button" class="btn btn-light border-transparent btn-icon rounded-pill btn-sm sidebar-control sidebar-secondary-toggle d-none d-lg-inline-flex">
                         <i class="ph-arrows-left-right"></i>
@@ -68,88 +68,40 @@
             </div>
             <!-- /header -->
 
-
-            <!-- Sidebar search -->
+            <!-- Online users -->
             <div class="sidebar-section">
                 <div class="sidebar-section-header border-bottom">
-                    <span class="fw-semibold">Sidebar search</span>
-                    <div class="ms-auto">
-                        <a href="#sidebar_secondary_search" class="text-reset" data-bs-toggle="collapse">
-                            <i class="ph-caret-down collapsible-indicator"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="collapse show" id="sidebar_secondary_search">
-                    <div class="sidebar-section-body">
-                        <div class="form-control-feedback form-control-feedback-end">
-                            <input type="search" class="form-control" placeholder="Search">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph-magnifying-glass opacity-50"></i>
-                            </div>
+                    <div class="form-control-feedback form-control-feedback-end">
+                        <input id="searchInput" type="search" class="form-control" placeholder="Buscar dispositivo..." onkeyup="buscarDispositivos()">
+                        <div class="form-control-feedback-icon">
+                            <i class="ph-magnifying-glass opacity-50"></i>
                         </div>
-                    </div>
+                    </div>                    
                 </div>
-            </div>
-            <!-- /sidebar search -->
 
-
-            <!-- Sub navigation -->
-            <div class="sidebar-section">
-                <div class="sidebar-section-header border-bottom">
-                    <span class="fw-semibold">Navigation</span>
-                    <div class="ms-auto">
-                        <a href="#sidebar_secondary_navigation" class="text-reset" data-bs-toggle="collapse">
-                            <i class="ph-caret-down collapsible-indicator"></i>
+                <div class="collapse show">
+                    <div class="sidebar-section-body" id="sidebar-users">
+                        {{-- @foreach ($dispositivos as $dispositivo)
+                        <a href="#" style="color: inherit; text-decoration: none;" onclick="event.preventDefault(); buscarYcentrarMarketPorDevEuiHex('{{ $dispositivo->dev_eui_hex}}')">
+                            <div class="d-flex mb-0 border-bottom">
+                                <div class="flex-fill">
+                                    <span class="fw-semibold">{{ $dispositivo->dev_eui_hex }}</span>
+                                    <div class="fs-sm opacity-10">{{ $dispositivo->name }}</div>
+                                </div>
+                                <div class="ms-3 align-self-center">
+                                    @if ($dispositivo->use_tracking)
+                                    <i class="ph ph-truck"></i>
+                                    @else
+                                        <i class="ph ph-bell"></i>
+                                    @endif
+                                </div>
+                            </div>    
                         </a>
+                        @endforeach --}}
                     </div>
                 </div>
-
-                <div class="collapse show" id="sidebar_secondary_navigation">
-                    <ul class="nav nav-sidebar my-2" data-nav-type="accordion">
-                        <li class="nav-item-header opacity-50">Header</li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="ph-plus-circle me-2"></i>
-                                Nav item 1
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="ph-circles-three-plus me-2"></i>
-                                Nav item 2
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="ph-user-plus me-2"></i>
-                                Nav item 3
-                                <span class="badge bg-primary rounded-pill ms-auto">Badge</span>
-                            </a>
-                        </li>
-                        <li class="nav-item-header opacity-50">Header</li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="ph-kanban me-2"></i>
-                                Nav item 4
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="ph-file-plus me-2"></i>
-                                Nav item 5
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link disabled">
-                                <i class="ph-file-x me-2"></i>
-                                Nav item 6
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </div>
-            <!-- /sub navigation -->
+            <!-- /online users -->
 
         </div>
         <!-- /sidebar content -->
@@ -201,9 +153,9 @@
 
     // Añade marcadores al mapa
     dispositivos.forEach(function(dispositivo) {
-        if (dispositivo.latitude && dispositivo.longitude) {
-            var lat = parseFloat(dispositivo.latitude);
-            var lng = parseFloat(dispositivo.longitude);
+        
+            var lat = parseFloat(dispositivo.latitude??0);
+            var lng = parseFloat(dispositivo.longitude??0);
 
             // Añadir coordenadas a bounds
             bounds.push([lat, lng]);
@@ -230,7 +182,7 @@
             //     permanent: true, // Hace que la etiqueta sea siempre visible
             //     direction: 'top' // Posiciona la etiqueta sobre el marcador
             // });
-        }
+        
     });
 
     // Si hay coordenadas, ajusta el mapa para mostrar todos los marcadores
@@ -252,7 +204,54 @@
         }
     }
 
+
     
+    
+</script>
+
+<script>
+
+    function buscarDispositivos() {
+        var query = document.getElementById('searchInput').value;
+
+        $.ajax({
+            type: 'GET',
+            url: "{{ route('buscar.dispositivos') }}",
+            data: { query: query },
+            success: function (response) {
+                console.log(response)
+                // Actualiza la lista de dispositivos en la barra lateral
+                actualizarListaDispositivos(response);
+            },
+            error: function (xhr, status, error) {
+                console.error(xhr.responseText);
+            }
+        });
+    }
+
+    function actualizarListaDispositivos(dispositivos) {
+        var listaDispositivos = $('#sidebar-users');
+        listaDispositivos.empty();
+
+        dispositivos.forEach(function(dispositivo) {
+            var item = `
+                
+                <a href="#" style="color: inherit; text-decoration: none;" onclick="event.preventDefault(); buscarYcentrarMarketPorDevEuiHex('${dispositivo.dev_eui_hex}')">
+                    <div class="d-flex mb-0 border-bottom">
+                        <div class="flex-fill">
+                            <span class="fw-semibold">${dispositivo.dev_eui_hex}</span>
+                            <div class="fs-sm opacity-10">${dispositivo.name}</div>
+                        </div>
+                        <div class="ms-3 align-self-center">
+                            ${dispositivo.use_tracking ? '<i class="ph ph-truck"></i>' : '<i class="ph ph-bell"></i>'}
+                        </div>
+                    </div>
+                </a>
+            `;
+            listaDispositivos.append(item);
+        });
+    }
+    buscarDispositivos()
 </script>
 
 

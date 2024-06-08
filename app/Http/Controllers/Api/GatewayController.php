@@ -83,17 +83,24 @@ class GatewayController extends Controller
 
     // crear putos de localizacion para el gps o dispositivoa que tengan atributo tracking
     public function crearPuntosLocalizacion($dev_eui,$object) {
-        $puntosLocalizacion= new PuntosLocalizacion();
-        $puntosLocalizacion->estado=1;
-        $puntosLocalizacion->tipo='LOCALIZACION';
-        $puntosLocalizacion->dato='TEST';
-        $puntosLocalizacion->error='';
-        $puntosLocalizacion->latitud=$object['latitude'];
-        $puntosLocalizacion->longitud=$object['longitude'];
-        $puntosLocalizacion->exactitud='1';
-        $puntosLocalizacion->dev_eui=$dev_eui;
-        $puntosLocalizacion->save();
-        return $puntosLocalizacion;
+
+
+        if (isset($object['latitude']) && isset($object['longitude'])) {
+            $puntosLocalizacion= new PuntosLocalizacion();
+            $puntosLocalizacion->estado=1;
+            $puntosLocalizacion->tipo='LOCALIZACION';
+            $puntosLocalizacion->dato='TEST';
+            $puntosLocalizacion->error='';
+            $puntosLocalizacion->latitud=$object['latitude'];
+            $puntosLocalizacion->longitud=$object['longitude'];
+            $puntosLocalizacion->exactitud='1';
+            $puntosLocalizacion->dev_eui=$dev_eui;
+            $puntosLocalizacion->save();
+            return $puntosLocalizacion;
+        }
+        return null;
+
+        
     }
 
 
