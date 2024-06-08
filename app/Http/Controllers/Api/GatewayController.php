@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Events\LecturaGuardadoEvent;
 use App\Http\Controllers\Controller;
+use App\Models\Dispositivo;
 use App\Models\Horario;
 use App\Models\Lectura;
+use App\Models\PuntosLocalizacion;
 use App\Notifications\EnviarEmailUsuariosAsignadosLectura;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
@@ -39,25 +42,37 @@ class GatewayController extends Controller
                 throw new \Exception('NO EXISTE HORARIO PARA LA APLICACIÓN ' . $applicationId);
             }
             
-            // object{
-            //     'distance':152,
-            //     'press':'short'
-            // }
 
-            // Verificar si las alertas se activan con los datos del objeto
-            if ($this->verificarAlertas($object, $horario->alerta)=='si') {
-                // Crear una nueva lectura
-                $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $object);
+
+            // consultar si el dispositivo tiene y tracking, si tiene tracking guadar PuntoLocalizacion.
+            // caso contrario generamos lectura para los otros dispositivos
+            $dev_eui=$deviceInfo['devEui'];
+            $dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+
+            if ($dispositivoTracking && $dispositivoTracking->use_tracking) {
+                    $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object);
+            } else {
                 
-                // Enviar correos electrónicos a los usuarios asignados a la alerta si es necesario
-                if ($lectura->alerta->puede_enviar_email) {
-                    $this->enviarEmailUsuariosAsignadosLectura($lectura);
+                // Verificar si las alertas se activan con los datos del objeto
+                if ($this->verificarAlertas($object, $horario->alerta)) {
+                    // Crear una nueva lectura
+                    $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $object);
+                    
+                    // Enviar correos electrónicos a los usuarios asignados a la alerta si es necesario
+                    if ($lectura->alerta->puede_enviar_email) {
+                        $this->enviarEmailUsuariosAsignadosLectura($lectura);
+                    }
+                    $lecturaCreada=Lectura::find($lectura->id);
+
+                    // Emitir un evento para notificar la lectura guardada en tiempo real
+                    event(new LecturaGuardadoEvent($lecturaCreada));
                 }
-                $lecturaCreada=Lectura::find($lectura->id);
-                $dispositivo=Lectura::buscarDispositivoUsoDevEui($lecturaCreada->dev_eui);
-                // Emitir un evento para notificar la lectura guardada en tiempo real
-                event(new LecturaGuardadoEvent($lecturaCreada));
+
+
             }
+            
+        
+            
         } catch (\Exception $th) {
             // Capturar cualquier excepción y registrarla en los registros de errores
             Log::error('error',[$th->getMessage()]);
@@ -65,44 +80,67 @@ class GatewayController extends Controller
         }
     }
 
+
+    // crear putos de localizacion para el gps o dispositivoa que tengan atributo tracking
+    public function crearPuntosLocalizacion($dev_eui,$object) {
+        $puntosLocalizacion= new PuntosLocalizacion();
+        $puntosLocalizacion->estado=1;
+        $puntosLocalizacion->tipo='LOCALIZACION';
+        $puntosLocalizacion->dato='TEST';
+        $puntosLocalizacion->error='';
+        $puntosLocalizacion->latitud=$object['latitude'];
+        $puntosLocalizacion->longitud=$object['longitude'];
+        $puntosLocalizacion->exactitud='1';
+        $puntosLocalizacion->dev_eui=$dev_eui;
+        $puntosLocalizacion->save();
+        return $puntosLocalizacion;
+    }
+
+
     private function verificarAlertas($object, $alerta)
     {
+        
+        
         // Recorrer todos los tipos de alerta asociados a la alerta actual
         foreach ($alerta->alertasTipos as $alertaTipo) {
             // Verificar si alguna condición coincide con los datos del objeto
             if ($this->verificarCondicion($object, $alertaTipo)) {
-                return 'si';
+                return true;
             }
         }
-        return 'no';
+        return false;
     }
 
     private function verificarCondicion($object, $alertaTipo)
     {
+        
         // Obtener el parámetro, la condición y el valor de la alertaTipo actual
         $parametro = $alertaTipo->parametro;
         $condicion = $alertaTipo->condicion;
         $valor = $alertaTipo->valor;
         
+        if (!isset($object[$parametro])) {
+            return false;
+        }
 
         // Convertir el valor del objeto a numérico si es posible
         $valorObjeto = is_numeric($object[$parametro]) ? (float) $object[$parametro] : $object[$parametro];
-
-        if($parametro=='distance' && is_numeric($valorObjeto)){
-            $valorObjeto=$valorObjeto/1000;
-        }
+        
+        // if($parametro=='distance' && is_numeric($valorObjeto)){
+        //     $valorObjeto=$valorObjeto/1000;
+        // }
         
         
         // Verificar si la condición coincide con los datos del objeto
         switch ($condicion) {
             case '=':
-                return isset($object[$parametro]) && $valorObjeto == $valor;
+                return $valorObjeto == $valor;
             case '!=':
-                return isset($object[$parametro]) && $valorObjeto != $valor;
+                return $valorObjeto != $valor;
             case '>':
-                return isset($object[$parametro]) && $valorObjeto > $valor;
+                return $valorObjeto > $valor;
             case '<':
-                return isset($object[$parametro]) && $valorObjeto < $valor;
+                return $valorObjeto < $valor;
             default:
                 return false;
         }
@@ -127,6 +165,7 @@ class GatewayController extends Controller
         $lectura->dev_eui =$dev_eui;
         $lectura->alerta_id = $alerta_id;
         $lectura->data = json_encode($object);
+        $lectura->tenant_id=$lectura->alerta->application->tenant_id;
         $lectura->save();
         return $lectura;
     }

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->uuid('application_id');
             $table->foreign('application_id')->references('id')->on('application')->onDelete('cascade');
         
-
+            
 
         });
     }

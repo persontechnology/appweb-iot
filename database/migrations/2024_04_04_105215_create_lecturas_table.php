@@ -22,6 +22,8 @@ return new class extends Migration
             $table->unsignedBigInteger('alerta_id');
             $table->foreign('dev_eui')->references('dev_eui')->on('device')->onDelete('cascade');
             $table->foreign('alerta_id')->references('id')->on('alertas')->onDelete('cascade');
+            $table->uuid('tenant_id');
+            $table->foreign('tenant_id')->references('id')->on('tenant')->onDelete('cascade');
 
         });
     }

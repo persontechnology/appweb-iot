@@ -1,4 +1,7 @@
-<div class="sidebar sidebar-dark sidebar-main sidebar-expand-lg">
+{{-- sidebar-main-resized : aplicamos esa clase soslo pa el dashborad para que se minimise --}}
+
+
+<div class="sidebar sidebar-dark sidebar-main sidebar-expand-lg @hasSection('secondary-sidebar') sidebar-main-resized @endif">
 
     <!-- Sidebar content -->
     <div class="sidebar-content">

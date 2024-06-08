@@ -541,6 +541,14 @@
 		@include('layouts.main-sidebar')
 		<!-- /main sidebar -->
 
+		<!-- Secondary sidebar -->
+		@hasSection ('secondary-sidebar')
+			@yield('secondary-sidebar')
+		@else
+			
+		@endif
+		<!-- /secondary sidebar -->
+
 
 		<!-- Main content -->
 		<div class="content-wrapper">
@@ -710,11 +718,13 @@
 			
 			window.Echo.channel('lectura-guardada')
 				.listen('LecturaGuardadoEvent', function(data) {
-					var contador_notificacion = parseInt($('#contador-notificacion').html());
-					$('#contador-notificacion').html(contador_notificacion + 1)			
-					console.log("dasdsa",data);
-		
-					
+
+					console.log(data.lectura);
+
+					// Ejemplo de uso de la función
+					console.log('llego')
+    				buscarYcentrarMarketPorDevEuiHex(data.lectura.dev_eui);
+			
 				});
 		});
 
@@ -724,23 +734,10 @@
 			$('#seleccionarInquilinoForm').submit();
 		});
 
-		function envioNotificaciones(dispositivo){
-			var host = window.location.origin;
-			$.notify("Access granted", "success");
-		}
+		
 	</script>
 
 	
 </body>
-
-
-{{-- <script>
-	window.laravel_echo_port = '6001';
-</script> --}}
-{{-- <script src="//{{ Request::getHost() }}:{{env('LARAVEL_ECHO_PORT')}}/socket.io/socket.io.js"></script>
-<script src="{{ url('/configEcho/laravel-echo-setup-Xs6Gbc2z.js') }}" type="text/javascript"></script> --}}
-
-
-
 
 </html>

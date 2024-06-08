@@ -27,6 +27,7 @@ class LecturaDataTable extends DataTable
                 return view('alertas.configuracion.lecturas-action',['lectura'=>$lectura])->render();
                 
             })
+            
             ->addColumn('nombre',function($lectura){
                 // acceder a la lectura por id y obtener el dev_eui
                 $dev_eui= $lectura->xId($lectura->id)->dev_eui;
@@ -38,6 +39,10 @@ class LecturaDataTable extends DataTable
 
                  $link='<a href="#" data-lat="23" data-long="23551" title="Ver mapa" onclick="event.preventDefault(); verMapa(this);" ><i class="ph ph-map-pin"></i></a>';
                 return $link;
+            })
+
+            ->editColumn('created_at',function($lectura){
+                return $lectura->created_at;
             })
             ->setRowId('id')
             ->rawColumns(['mapa','action']);

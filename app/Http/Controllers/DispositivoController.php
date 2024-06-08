@@ -80,6 +80,7 @@ class DispositivoController extends Controller
             $dis->enabled_class='A';
             $dis->skip_fcnt_check=false;
             $dis->is_disabled=$request->is_disabled?1:0;
+            $dis->use_tracking=$request->use_tracking?1:0;
             $dis->tags=json_encode(new \stdClass);
             $dis->variables=json_encode(new \stdClass);
             $dis->join_eui=$request->join_eui;
@@ -172,6 +173,7 @@ class DispositivoController extends Controller
             $dis->name=$request->nombre;
             $dis->description=$request->descripcion;
             $dis->is_disabled=$request->is_disabled?1:0;
+            $dis->use_tracking=$request->use_tracking?1:0;
             $dis->join_eui=$request->join_eui;
             $dis->latitude=$request->latitude;
             $dis->longitude=$request->longitude;

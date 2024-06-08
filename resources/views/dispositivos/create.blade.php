@@ -129,6 +129,15 @@
                     </div>
                 </div>
 
+                <div class="col-lg-6">
+                    <div class="border p-3 rounded mb-3">
+                        <div class="form-check form-switch mb-2">
+                            <input type="checkbox" class="form-check-input" name="use_tracking" id="use_tracking">
+                            <label class="form-check-label" for="use_tracking" >Activar seguimiento (Tracking) del dispositivo.</label>
+                            <div class="form-text">Al activar esta opción el sistema almacenara la ubicación del dispositivo.</div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="col-lg-12">
                     <div class="mb-3">

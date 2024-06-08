@@ -46,7 +46,7 @@ class AlertaController extends Controller
      */
     public function store(Request $request)
     {
-        
+         
         $request->validate([
             'application_id'=>'required',
             'nombre' => [
@@ -64,6 +64,7 @@ class AlertaController extends Controller
             DB::beginTransaction();
             $request['estado']=$request->estado?1:0;
             $request['puede_enviar_email']=$request->puede_enviar_email?1:0;
+            
             $alerta=Alerta::create($request->all());
             DB::commit();
             return redirect()->route('alertas.configuracion',['id'=>$alerta->id,'op'=>'inicio'])->with('success',$alerta->nombre.', ingresado exitosamente.!');
