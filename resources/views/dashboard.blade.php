@@ -234,31 +234,37 @@
         const listaDispositivos = $('#sidebar-dispositivos');
         listaDispositivos.empty();
 
-        dispositivos.forEach(dispositivo => {
-            const { dev_eui_hex, name, use_tracking } = dispositivo;
-            const item = `
-                <a href="#" id="dispositivo-item-${dev_eui_hex}" style="color: inherit; text-decoration: none;">
-                    <div class="d-flex mb-0 border-bottom">
-                        <div class="flex-fill">
-                            <span class="fw-semibold">${dev_eui_hex}</span>
-                            <div class="fs-sm opacity-10">${name}</div>
+        if (dispositivos.length === 0) {
+            const mensaje = '<div class="text-center py-3">No se encontró resultados o dispositivos.</div>';
+            listaDispositivos.append(mensaje);
+        } else {
+            dispositivos.forEach(dispositivo => {
+                const { dev_eui_hex, name, use_tracking } = dispositivo;
+                const item = `
+                    <a href="#" id="dispositivo-item-${dev_eui_hex}" style="color: inherit; text-decoration: none;">
+                        <div class="d-flex mb-0 border-bottom">
+                            <div class="flex-fill">
+                                <span class="fw-semibold">${dev_eui_hex}</span>
+                                <div class="fs-sm opacity-10">${name}</div>
+                            </div>
+                            <div class="ms-3 align-self-center">
+                                ${use_tracking ? '<i class="ph ph-truck"></i>' : '<i class="ph ph-bell"></i>'}
+                            </div>
                         </div>
-                        <div class="ms-3 align-self-center">
-                            ${use_tracking ? '<i class="ph ph-truck"></i>' : '<i class="ph ph-bell"></i>'}
-                        </div>
-                    </div>
-                </a>
-            `;
-            listaDispositivos.append(item);
+                    </a>
+                `;
+                listaDispositivos.append(item);
 
-            // Asigna evento de clic para buscar y centrar el marcador por dispositivo completo
-            const dispositivoItem = document.getElementById(`dispositivo-item-${dev_eui_hex}`);
-            dispositivoItem.addEventListener('click', function(event) {
-                event.preventDefault();
-                buscarYcentrarMarketPorDispositivo(dispositivo);
+                // Asigna evento de clic para buscar y centrar el marcador por dispositivo completo
+                const dispositivoItem = document.getElementById(`dispositivo-item-${dev_eui_hex}`);
+                dispositivoItem.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    buscarYcentrarMarketPorDispositivo(dispositivo);
+                });
             });
-        });
+        }
     }
+
 
    
     function pintarDispositivo(dispositivo){

@@ -49,6 +49,10 @@ class ComposerStaticInit7dc29c83ba0722a20030e4ad50fc268f
         array (
             'voku\\' => 5,
         ),
+        'h' => 
+        array (
+            'h4cc\\WKHTMLToPDF\\' => 17,
+        ),
         'Y' => 
         array (
             'Yajra\\DataTables\\' => 17,
@@ -147,6 +151,10 @@ class ComposerStaticInit7dc29c83ba0722a20030e4ad50fc268f
             'Laravel\\Prompts\\' => 16,
             'Laravel\\Breeze\\' => 15,
         ),
+        'K' => 
+        array (
+            'Knp\\Snappy\\' => 11,
+        ),
         'I' => 
         array (
             'Illuminate\\Support\\' => 19,
@@ -192,6 +200,7 @@ class ComposerStaticInit7dc29c83ba0722a20030e4ad50fc268f
         array (
             'Brick\\Math\\' => 11,
             'Bluerhinos\\' => 11,
+            'Barryvdh\\Snappy\\' => 16,
             'Barryvdh\\Debugbar\\' => 18,
         ),
         'A' => 
@@ -204,6 +213,10 @@ class ComposerStaticInit7dc29c83ba0722a20030e4ad50fc268f
         'voku\\' => 
         array (
             0 => __DIR__ . '/..' . '/voku/portable-ascii/src/voku',
+        ),
+        'h4cc\\WKHTMLToPDF\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/h4cc/wkhtmltopdf-amd64',
         ),
         'Yajra\\DataTables\\' => 
         array (
@@ -494,6 +507,10 @@ class ComposerStaticInit7dc29c83ba0722a20030e4ad50fc268f
         array (
             0 => __DIR__ . '/..' . '/laravel/breeze/src',
         ),
+        'Knp\\Snappy\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/knplabs/knp-snappy/src/Knp/Snappy',
+        ),
         'Illuminate\\Support\\' => 
         array (
             0 => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Macroable',
@@ -598,6 +615,10 @@ class ComposerStaticInit7dc29c83ba0722a20030e4ad50fc268f
         array (
             0 => __DIR__ . '/..' . '/bluerhinos/phpmqtt',
         ),
+        'Barryvdh\\Snappy\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/barryvdh/laravel-snappy/src',
+        ),
         'Barryvdh\\Debugbar\\' => 
         array (
             0 => __DIR__ . '/..' . '/barryvdh/laravel-debugbar/src',
@@ -620,13 +641,12 @@ class ComposerStaticInit7dc29c83ba0722a20030e4ad50fc268f
         'App\\DataTables\\DeviceProfileDataTable' => __DIR__ . '/../..' . '/app/DataTables/DeviceProfileDataTable.php',
         'App\\DataTables\\DispositivoDataTable' => __DIR__ . '/../..' . '/app/DataTables/DispositivoDataTable.php',
         'App\\DataTables\\GatewayDataTable' => __DIR__ . '/../..' . '/app/DataTables/GatewayDataTable.php',
+        'App\\DataTables\\LecturaDataTable' => __DIR__ . '/../..' . '/app/DataTables/LecturaDataTable.php',
         'App\\DataTables\\TenantDataTable' => __DIR__ . '/../..' . '/app/DataTables/TenantDataTable.php',
         'App\\DataTables\\TenantUserDataTable' => __DIR__ . '/../..' . '/app/DataTables/TenantUserDataTable.php',
         'App\\DataTables\\UsuariosDataTable' => __DIR__ . '/../..' . '/app/DataTables/UsuariosDataTable.php',
         'App\\DataTables\\tenant\\UserTenantNoAsignadosDataTable' => __DIR__ . '/../..' . '/app/DataTables/tenant/UserTenantNoAsignadosDataTable.php',
-        'App\\Events\\GatewayDataUpdated' => __DIR__ . '/../..' . '/app/Events/GatewayDataUpdated.php',
-        'App\\Events\\LecturaGuardadoEvent' => __DIR__ . '/../..' . '/app/Events/LecturaGuardadoEvent.php',
-        'App\\Events\\LoRaWANGatewayEvent' => __DIR__ . '/../..' . '/app/Events/LoRaWANGatewayEvent.php',
+        'App\\Events\\NotificarDispositivoEvento' => __DIR__ . '/../..' . '/app/Events/NotificarDispositivoEvento.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Http\\Controllers\\AlertaController' => __DIR__ . '/../..' . '/app/Http/Controllers/AlertaController.php',
         'App\\Http\\Controllers\\Api\\GatewayController' => __DIR__ . '/../..' . '/app/Http/Controllers/Api/GatewayController.php',
@@ -648,6 +668,7 @@ class ComposerStaticInit7dc29c83ba0722a20030e4ad50fc268f
         'App\\Http\\Controllers\\DeviceProfileController' => __DIR__ . '/../..' . '/app/Http/Controllers/DeviceProfileController.php',
         'App\\Http\\Controllers\\DispositivoController' => __DIR__ . '/../..' . '/app/Http/Controllers/DispositivoController.php',
         'App\\Http\\Controllers\\GatewayController' => __DIR__ . '/../..' . '/app/Http/Controllers/GatewayController.php',
+        'App\\Http\\Controllers\\LecturaController' => __DIR__ . '/../..' . '/app/Http/Controllers/LecturaController.php',
         'App\\Http\\Controllers\\ProfileController' => __DIR__ . '/../..' . '/app/Http/Controllers/ProfileController.php',
         'App\\Http\\Controllers\\TenantController' => __DIR__ . '/../..' . '/app/Http/Controllers/TenantController.php',
         'App\\Http\\Controllers\\UsuariosController' => __DIR__ . '/../..' . '/app/Http/Controllers/UsuariosController.php',
@@ -665,7 +686,6 @@ class ComposerStaticInit7dc29c83ba0722a20030e4ad50fc268f
         'App\\Http\\Middleware\\VerifyCsrfToken' => __DIR__ . '/../..' . '/app/Http/Middleware/VerifyCsrfToken.php',
         'App\\Http\\Requests\\Auth\\LoginRequest' => __DIR__ . '/../..' . '/app/Http/Requests/Auth/LoginRequest.php',
         'App\\Http\\Requests\\ProfileUpdateRequest' => __DIR__ . '/../..' . '/app/Http/Requests/ProfileUpdateRequest.php',
-        'App\\Listeners\\LoRaWANGatewayListener' => __DIR__ . '/../..' . '/app/Listeners/LoRaWANGatewayListener.php',
         'App\\Models\\Alerta' => __DIR__ . '/../..' . '/app/Models/Alerta.php',
         'App\\Models\\AlertaTipo' => __DIR__ . '/../..' . '/app/Models/AlertaTipo.php',
         'App\\Models\\AlertaUser' => __DIR__ . '/../..' . '/app/Models/AlertaUser.php',
@@ -679,6 +699,7 @@ class ComposerStaticInit7dc29c83ba0722a20030e4ad50fc268f
         'App\\Models\\Lectura' => __DIR__ . '/../..' . '/app/Models/Lectura.php',
         'App\\Models\\Objeto' => __DIR__ . '/../..' . '/app/Models/Objeto.php',
         'App\\Models\\Permission' => __DIR__ . '/../..' . '/app/Models/Permission.php',
+        'App\\Models\\PuntosLocalizacion' => __DIR__ . '/../..' . '/app/Models/PuntosLocalizacion.php',
         'App\\Models\\Role' => __DIR__ . '/../..' . '/app/Models/Role.php',
         'App\\Models\\Tenant' => __DIR__ . '/../..' . '/app/Models/Tenant.php',
         'App\\Models\\TenantUser' => __DIR__ . '/../..' . '/app/Models/TenantUser.php',
@@ -689,6 +710,7 @@ class ComposerStaticInit7dc29c83ba0722a20030e4ad50fc268f
         'App\\Policies\\DeviceProfilePolicy' => __DIR__ . '/../..' . '/app/Policies/DeviceProfilePolicy.php',
         'App\\Policies\\DispositivoPolicy' => __DIR__ . '/../..' . '/app/Policies/DispositivoPolicy.php',
         'App\\Policies\\GatewayPolicy' => __DIR__ . '/../..' . '/app/Policies/GatewayPolicy.php',
+        'App\\Policies\\LecturaPolicy' => __DIR__ . '/../..' . '/app/Policies/LecturaPolicy.php',
         'App\\Policies\\TenantPolicy' => __DIR__ . '/../..' . '/app/Policies/TenantPolicy.php',
         'App\\Policies\\TenantUserPolicy' => __DIR__ . '/../..' . '/app/Policies/TenantUserPolicy.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
@@ -739,6 +761,15 @@ class ComposerStaticInit7dc29c83ba0722a20030e4ad50fc268f
         'Barryvdh\\Debugbar\\Twig\\Extension\\Debug' => __DIR__ . '/..' . '/barryvdh/laravel-debugbar/src/Twig/Extension/Debug.php',
         'Barryvdh\\Debugbar\\Twig\\Extension\\Dump' => __DIR__ . '/..' . '/barryvdh/laravel-debugbar/src/Twig/Extension/Dump.php',
         'Barryvdh\\Debugbar\\Twig\\Extension\\Stopwatch' => __DIR__ . '/..' . '/barryvdh/laravel-debugbar/src/Twig/Extension/Stopwatch.php',
+        'Barryvdh\\Snappy\\Facades\\SnappyImage' => __DIR__ . '/..' . '/barryvdh/laravel-snappy/src/Facades/SnappyImage.php',
+        'Barryvdh\\Snappy\\Facades\\SnappyPdf' => __DIR__ . '/..' . '/barryvdh/laravel-snappy/src/Facades/SnappyPdf.php',
+        'Barryvdh\\Snappy\\IlluminateSnappyImage' => __DIR__ . '/..' . '/barryvdh/laravel-snappy/src/IlluminateSnappyImage.php',
+        'Barryvdh\\Snappy\\IlluminateSnappyPdf' => __DIR__ . '/..' . '/barryvdh/laravel-snappy/src/IlluminateSnappyPdf.php',
+        'Barryvdh\\Snappy\\ImageWrapper' => __DIR__ . '/..' . '/barryvdh/laravel-snappy/src/ImageWrapper.php',
+        'Barryvdh\\Snappy\\LumenServiceProvider' => __DIR__ . '/..' . '/barryvdh/laravel-snappy/src/LumenServiceProvider.php',
+        'Barryvdh\\Snappy\\PdfFaker' => __DIR__ . '/..' . '/barryvdh/laravel-snappy/src/PdfFaker.php',
+        'Barryvdh\\Snappy\\PdfWrapper' => __DIR__ . '/..' . '/barryvdh/laravel-snappy/src/PdfWrapper.php',
+        'Barryvdh\\Snappy\\ServiceProvider' => __DIR__ . '/..' . '/barryvdh/laravel-snappy/src/ServiceProvider.php',
         'Bluerhinos\\phpMQTT' => __DIR__ . '/..' . '/bluerhinos/phpmqtt/phpMQTT.php',
         'Brick\\Math\\BigDecimal' => __DIR__ . '/..' . '/brick/math/src/BigDecimal.php',
         'Brick\\Math\\BigInteger' => __DIR__ . '/..' . '/brick/math/src/BigInteger.php',
@@ -3029,6 +3060,11 @@ class ComposerStaticInit7dc29c83ba0722a20030e4ad50fc268f
         'Illuminate\\View\\ViewFinderInterface' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/View/ViewFinderInterface.php',
         'Illuminate\\View\\ViewName' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/View/ViewName.php',
         'Illuminate\\View\\ViewServiceProvider' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/View/ViewServiceProvider.php',
+        'Knp\\Snappy\\AbstractGenerator' => __DIR__ . '/..' . '/knplabs/knp-snappy/src/Knp/Snappy/AbstractGenerator.php',
+        'Knp\\Snappy\\Exception\\FileAlreadyExistsException' => __DIR__ . '/..' . '/knplabs/knp-snappy/src/Knp/Snappy/Exception/FileAlreadyExistsException.php',
+        'Knp\\Snappy\\GeneratorInterface' => __DIR__ . '/..' . '/knplabs/knp-snappy/src/Knp/Snappy/GeneratorInterface.php',
+        'Knp\\Snappy\\Image' => __DIR__ . '/..' . '/knplabs/knp-snappy/src/Knp/Snappy/Image.php',
+        'Knp\\Snappy\\Pdf' => __DIR__ . '/..' . '/knplabs/knp-snappy/src/Knp/Snappy/Pdf.php',
         'Laravel\\Breeze\\BreezeServiceProvider' => __DIR__ . '/..' . '/laravel/breeze/src/BreezeServiceProvider.php',
         'Laravel\\Breeze\\Console\\InstallCommand' => __DIR__ . '/..' . '/laravel/breeze/src/Console/InstallCommand.php',
         'Laravel\\Breeze\\Console\\InstallsApiStack' => __DIR__ . '/..' . '/laravel/breeze/src/Console/InstallsApiStack.php',
@@ -7524,6 +7560,7 @@ class ComposerStaticInit7dc29c83ba0722a20030e4ad50fc268f
         'Yajra\\DataTables\\Utilities\\Config' => __DIR__ . '/..' . '/yajra/laravel-datatables-oracle/src/Utilities/Config.php',
         'Yajra\\DataTables\\Utilities\\Helper' => __DIR__ . '/..' . '/yajra/laravel-datatables-oracle/src/Utilities/Helper.php',
         'Yajra\\DataTables\\Utilities\\Request' => __DIR__ . '/..' . '/yajra/laravel-datatables-oracle/src/Utilities/Request.php',
+        'h4cc\\WKHTMLToPDF\\WKHTMLToPDF' => __DIR__ . '/..' . '/h4cc/wkhtmltopdf-amd64/WKHTMLToPDF.php',
         'voku\\helper\\ASCII' => __DIR__ . '/..' . '/voku/portable-ascii/src/voku/helper/ASCII.php',
     );
 

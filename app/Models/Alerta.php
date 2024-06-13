@@ -65,7 +65,7 @@ class Alerta extends Model
     // application <- alerta
     public function application(): BelongsTo
     {
-    return $this->belongsTo(Application::class, 'application_id');
+        return $this->belongsTo(Application::class, 'application_id');
     }
 
      // usuarios asignados en alertas para enviar correos
@@ -89,10 +89,5 @@ class Alerta extends Model
         return $this->hasOne(AlertaTipo::class);
     }
 
-    // Método para obtener alertaTipo por alerta_id
-    public static function getAlertaTipoByAlertaId($alertaId)
-    {
-        $alerta = self::find($alertaId);
-        return $alerta ? $alerta->alertaTipo : null;
-    }
+    
 }

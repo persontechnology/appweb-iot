@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\DataTables\LecturaDataTable;
 use App\Models\Lectura;
+use App\Models\Tenant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use PDF;
+
 class LecturaController extends Controller
 {
     /**
@@ -72,5 +76,22 @@ class LecturaController extends Controller
         } catch (\Throwable $th) {
             return redirect()->route('lecturas.index')->with('danger','Lectura no eliminado,'.$th->getMessage());
         }
+    }
+
+    public function descartarTodo(){
+        $tenant = Tenant::find(Auth::user()->tenant_id);
+        $tenant->lecturas()->update(['estado' => true]);
+        $tenant->lecturas()->get();
+        return redirect()->back()->with('success','Lecturas descartadas.!');
+    }
+
+    public function descargarPdf($idLectura) {
+        $lectura=Lectura::find($idLectura);
+        $headerHtml = view()->make('pdf.header')->render();
+        $footerHtml = view()->make('pdf.footer')->render();
+        $pdf = PDF::loadView('lecturas.pdf',['lectura'=>$lectura])
+        ->setOption('header-html', $headerHtml)
+        ->setOption('footer-html', $footerHtml);
+        return $pdf->download('Lectura-'.$lectura->id.'.pdf');
     }
 }

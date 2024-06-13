@@ -24,6 +24,7 @@ class Lectura extends Model
         'birthday'  => 'date:Y-m-d',
         'created_at' => 'datetime',
         'dev_eui' => 'string',
+        'data' => 'array',
     ];
     public function getCreatedAtAttribute($value)
     {
@@ -99,7 +100,7 @@ class Lectura extends Model
 
     // una lectura tiene un tenant
     public function tenant()  {
-        return $this->belongsTo(Tenant::class);
+        return $this->belongsTo(Tenant::class,'tenant_id');
     }
 
     // Función para obtener el total de lecturas con estado false.

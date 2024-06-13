@@ -43,6 +43,7 @@ class LecturaDataTable extends DataTable
         ->editColumn('created_at',function($lectura){
             return $lectura->created_at;
         })
+        
         ->setRowId('id')
         ->rawColumns(['mapa','action']);
     }
@@ -82,7 +83,7 @@ class LecturaDataTable extends DataTable
             Column::computed('nombre'),
             Column::computed('mapa'),
             Column::make('estado'),
-            Column::make('data'),
+            // Column::make('data'),
             Column::make('created_at')->title('Fecha')
         ];
     }

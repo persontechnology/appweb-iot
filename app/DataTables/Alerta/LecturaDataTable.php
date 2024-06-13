@@ -24,7 +24,7 @@ class LecturaDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function($lectura){
-                return view('alertas.configuracion.lecturas-action',['lectura'=>$lectura])->render();
+                return view('lecturas.action',['lectura'=>$lectura])->render();
             })
             
             ->addColumn('nombre',function($lectura){
@@ -90,7 +90,7 @@ class LecturaDataTable extends DataTable
             Column::computed('nombre'),
             Column::computed('mapa'),
             Column::make('estado'),
-            Column::make('data'),
+            // Column::make('data'),
             Column::make('created_at')->title('Fecha')
         ];
     }

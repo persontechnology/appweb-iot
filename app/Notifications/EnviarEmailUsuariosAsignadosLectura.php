@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-
+use PDF;
 class EnviarEmailUsuariosAsignadosLectura extends Notification implements ShouldQueue
 {
     use Queueable;
@@ -16,13 +16,12 @@ class EnviarEmailUsuariosAsignadosLectura extends Notification implements Should
      * Create a new notification instance.
      */
     protected $lectura;
-    protected $alerta;
+    
 
 
-    public function __construct($lectura,$alerta)
+    public function __construct($lectura)
     {
         $this->lectura = $lectura;
-        $this->alerta = $alerta;
     }
 
     /**
@@ -40,16 +39,25 @@ class EnviarEmailUsuariosAsignadosLectura extends Notification implements Should
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $lectura=$this->lectura;
+        $alerta=$lectura->alerta;
 
-        $alertaTipo = Alerta::getAlertaTipoByAlertaId($this->alerta->id);
+
+        $headerHtml = view()->make('pdf.header')->render();
+        $footerHtml = view()->make('pdf.footer')->render();
+        $pdf = PDF::loadView('lecturas.pdf',['lectura'=>$lectura])
+        ->setOption('header-html', $headerHtml)
+        ->setOption('footer-html', $footerHtml);
 
         return (new MailMessage)
-                    ->line('Mensaje')
-                    ->line($alertaTipo->mensaje)
-                    ->line('Datos.')
-                    ->line($this->lectura->data)
-                    // ->action('Notification Action', url('/'))
-                    ->line('Gracias por usar nuestra aplicación!');
+                ->subject($alerta->nombre)
+                    ->line('ALERTA: '.$alerta->nombre)
+                    ->line('APLICACIÓN: '.$alerta->application->name)
+                    ->line('FECHA: '.$alerta->created_at)
+                    ->line('DEV_EUI: '.$lectura->dev_eui)
+                    ->line('INQUILINO: '.$lectura->tenant->name)
+                    ->line('Gracias por usar nuestra aplicación!, adjunto encontrata archivo PDF, con toda la información')
+                    ->attachData($pdf->output(),'Lectura-'.$lectura->id.'.pdf');
     }
 
     /**

@@ -26,22 +26,22 @@ window.Echo = new Echo({
 
 
 window.Echo.channel('canal-notificar-dispositivo').listen('NotificarDispositivoEvento', (e) => {
-    console.log('Evento recibido:', e.dispositivo);
+    
 
     let dispositivo = e.dispositivo;
     // esta en dashbora
-    
+    let tenant_id = window.Laravel.tenant_id;
 
-    // esta en app
-    anadirLecturaNotificacionHeader(dispositivo);
+    if(tenant_id==dispositivo.tenant_id){
+        // esta en app
+        anadirLecturaNotificacionHeader(dispositivo);
 
-    // esta en dashboard
-    if (typeof buscarYcentrarMarketPorDispositivo === 'function') {
-        buscarYcentrarMarketPorDispositivo(dispositivo);
-        pintarDispositivo(dispositivo);
+        // esta en dashboard
+        if (typeof buscarYcentrarMarketPorDispositivo === 'function') {
+            buscarYcentrarMarketPorDispositivo(dispositivo);
+            pintarDispositivo(dispositivo);
+        }
     }
-    
-
     
 
 });

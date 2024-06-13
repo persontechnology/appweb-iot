@@ -22,7 +22,7 @@ class GatewayController extends Controller
 {
     public function sensor(Request $request)
     {
-        error_log($request);
+        // error_log($request);
         try {
             // Obtener la información del dispositivo y del objeto de la solicitud
             $deviceInfo = $request->json('deviceInfo');
@@ -58,19 +58,23 @@ class GatewayController extends Controller
                 // Verificar si las alertas se activan con los datos del objeto
                 if ($this->verificarAlertas($object, $horario->alerta)) {
                     // Crear una nueva lectura
-                    $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $object);
+                    $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
                     
                     
-
-                    // Enviar correos electrónicos a los usuarios asignados a la alerta si es necesario
-                    if ($lectura->alerta->puede_enviar_email) {
-                        $this->enviarEmailUsuariosAsignadosLectura($lectura);
-                    }
                     $lecturaCreada=Lectura::find($lectura->id);
+                    // Enviar correos electrónicos a los usuarios asignados a la alerta si es necesario
+                   try {
+                        if ($lectura->alerta->puede_enviar_email) {
+                            $this->enviarEmailUsuariosAsignadosLectura($lectura);
+                        }
+                   } catch (\Throwable $th) {
+                        error_log('NO ENVIADO EMAIL '.$th->getMessage());
+                   }
+                    
                     $dispositivo=$lectura->buscarDispositivoDevEui($deviceInfo['devEui']);
                                         
                     // Emitir un evento para notificar la lectura guardada en tiempo real
-                    error_log('###########################################');
+                    // error_log('###########################################');
 
                     $data = array(
                         'dev_eui_hex'=>$dispositivo->dev_eui_hex,
@@ -81,13 +85,14 @@ class GatewayController extends Controller
                         'created_at'=>$lectura->created_at,
                         'id_lectura'=>$lectura->id,
                         'ver_lectura_url'=>route('lecturas.show',$lectura->id),
-                        'description'=>$dispositivo->description
+                        'description'=>$dispositivo->description,
+                        'tenant_id'=>$lectura->tenant_id
                     );
 
                     
 
                     event(new NotificarDispositivoEvento($data));
-                    error_log('###########################################');
+                    // error_log('###########################################');
                     // event(new LecturaGuardadoEvent($data));
                 }
 
@@ -177,27 +182,38 @@ class GatewayController extends Controller
 
     public function enviarEmailUsuariosAsignadosLectura($lectura)
     {
+        // error_log('entro a enviar email');
         // Enviar correos electrónicos a los usuarios asignados a la alerta asociada a la lectura
-        foreach ($lectura->alerta->alertaUsers as $alertaUser) {
-            Queue::push(function ($job) use ($alertaUser, $lectura) {
-                $alertaUser->user->notify(new EnviarEmailUsuariosAsignadosLectura($lectura,$alertaUser->alerta));
-                $job->delete();
-            });
+        try {
+            foreach ($lectura->alerta->alertaUsers as $alertaUser) {
+                error_log($alertaUser);
+                Queue::push(function ($job) use ($alertaUser, $lectura) {
+                    error_log('aqui esta la vrg');
+                    $alertaUser->user->notify(new EnviarEmailUsuariosAsignadosLectura($lectura));
+                    $job->delete();
+                });
+            }
+        } catch (\Throwable $th) {
+            error_log('EMAIL ERROR '.$th->getMessage());
         }
     }
 
-    public function crearLectura($dev_eui, $alerta_id, $object)
+    public function crearLectura($dev_eui, $alerta_id, $request)
     {
         // Crear una nueva instancia de Lectura y guardarla en la base de datos
         
-        $lectura = new Lectura();
-        $lectura->dev_eui =$dev_eui;
-        $lectura->alerta_id = $alerta_id;
-        $lectura->data = json_encode($object);
-        $lectura->tenant_id=$lectura->alerta->application->tenant_id;
-        // $lectura->gateway_dev_eui=$object[''];
-        $lectura->save();
-        return $lectura;
+        try {
+            $lectura = new Lectura();
+            $lectura->dev_eui =$dev_eui;
+            $lectura->alerta_id = $alerta_id;
+            $lectura->data = json_decode($request->getContent(), true);
+            $lectura->tenant_id=$lectura->alerta->application->tenant_id;
+            $lectura->save();
+            error_log('LECTURA CREADO');
+            return $lectura;
+        } catch (\Throwable $th) {
+            error_log('LECTURA NO CREADO '.$th->getMessage());
+        }
     }
 
     public function verificarHorario($applicationId)

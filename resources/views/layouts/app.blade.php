@@ -65,7 +65,11 @@
 
 	@vite(['resources/css/app.css', 'resources/js/app.js']) 
 
-	
+	<script>
+		window.Laravel = {!! json_encode([
+			'tenant_id' => Auth::user() ? Auth::user()->tenant_id : null,
+		]) !!};
+	</script>
 	
 
 	
@@ -225,6 +229,7 @@
 									<div class="text-muted">
 										{{ $lectura_h->dipositivoXlecturaId($lectura_h->id)->name??'' }}
 									</div>
+									
 								</div>
 							</a>
 
@@ -233,10 +238,12 @@
 						</div>
 
 						<div class="d-flex border-top py-2 px-3">
-							{{-- <a href="#" class="text-body">
+							
+							
+							<a href="{{ route('lecturas.descartarTodo','x') }}" data-msg="¿Está seguro de descartar todas las lecturas?." onclick="event.preventDefault(); eliminar(this)" class="text-body">
 								<i class="ph-checks me-1"></i>
 								Descartar todo
-							</a> --}}
+							</a>
 							<a href="{{ route('lecturas.index') }}" class="text-body ms-auto">
 								Ver todos
 								<i class="ph-arrow-circle-right ms-1"></i>
@@ -453,32 +460,20 @@
 							<img src="{{ asset('assets/images/demo/users/usuario.png') }}" class="w-32px h-32px rounded-pill" alt="">
 							<span class="status-indicator bg-success"></span>
 						</div>
-						<span class="d-none d-lg-inline-block mx-lg-2">Victoria</span>
+						<span class="d-none d-lg-inline-block mx-lg-2">{{ Auth::user()->email }}</span>
 					</a>
 
 					<div class="dropdown-menu dropdown-menu-end">
 						<a href="{{ route('profile.edit') }}" class="dropdown-item">
 							<i class="ph-user-circle me-2"></i>
-							My profile
+							My perfil
 						</a>
-						<a href="#" class="dropdown-item">
-							<i class="ph-currency-circle-dollar me-2"></i>
-							My subscription
-						</a>
-						<a href="#" class="dropdown-item">
-							<i class="ph-shopping-cart me-2"></i>
-							My orders
-						</a>
-						<a href="#" class="dropdown-item">
-							<i class="ph-envelope-open me-2"></i>
-							My inbox
-							<span class="badge bg-primary rounded-pill ms-auto">26</span>
-						</a>
+						
 						<div class="dropdown-divider"></div>
-						<a href="#" class="dropdown-item">
+						{{-- <a href="#" class="dropdown-item">
 							<i class="ph-gear me-2"></i>
 							Account settings
-						</a>
+						</a> --}}
 						<form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <a href="{{ route('logout') }}" class="dropdown-item" onclick="event.preventDefault(); this.closest('form').submit();">

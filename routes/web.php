@@ -87,6 +87,12 @@ Route::middleware(['auth','check.tenant_id','verified'])->group(function () {
     Route::get('alertas/configuracion/{id}/{op}', [AlertaController::class,'inicio'])->name('alertas.configuracion');
 
     Route::resource('lecturas', LecturaController::class);
+    Route::delete('lecturas/descartarTodo/{id}',[LecturaController::class,'descartarTodo'])->name('lecturas.descartarTodo');
+    Route::get('lecturas/descargarPdf/{id}',[LecturaController::class,'descargarPdf'])->name('lecturas.descargarPdf');
+    
+    
+    
+    
     
     
     

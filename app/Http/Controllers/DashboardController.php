@@ -9,12 +9,15 @@ use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use PDF;
+
 
 class DashboardController extends Controller
 {
     public function index() {
         
-        $dispositivos=    Dispositivo::whereHas('application', function ($query) {
+        
+        $dispositivos=Dispositivo::whereHas('application', function ($query) {
             $query->whereHas('tenant', function ($query) {
                 $query->where('id', Auth::user()->tenant_id);
             });
@@ -32,7 +35,12 @@ class DashboardController extends Controller
         $query = $request->get('query');
 
         // Realiza la búsqueda de dispositivos según el query
-        $dispositivos = Dispositivo::when($query, function ($query, $search) {
+        $dispositivos = Dispositivo::whereHas('application', function ($query) {
+            $query->whereHas('tenant', function ($query) {
+                $query->where('id', Auth::user()->tenant_id);
+            });
+        })
+        ->when($query, function ($query, $search) {
             return $query->where(DB::raw("encode(dev_eui, 'hex')"), 'like', "%$search%");
         })
         ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *")
