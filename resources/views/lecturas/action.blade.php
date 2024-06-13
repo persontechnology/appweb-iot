@@ -2,15 +2,16 @@
     <a href="#" class="text-body dropdown-toggle" data-bs-toggle="dropdown">
         <i class="ph-gear"></i>
     </a>
-
     <div class="dropdown-menu">
-        <a href="{{ route('alertas.show',$al->id) }}" class="dropdown-item">
-            <i class="ph ph-calendar me-2"></i>
-            Horario
+        
+        <a href="{{ route('lecturas.show',$lectura->id) }}" class="dropdown-item">
+            <i class="ph ph-eye me-2"></i>
+            Detalle
         </a>
-        {{-- <a href="{{ route('dispositivos.destroy',$dis->device_id_hex) }}" data-msg="{{ $dis->name }}" onclick="event.preventDefault(); eliminar(this)" class="dropdown-item">
+
+        <a href="{{ route('lecturas.destroy',$lectura->id) }}" data-msg="{{ $lectura->dipositivoXlecturaId($lectura->id)->name }}-{{ $lectura->dipositivoXlecturaId($lectura->id)->dev_eui }}" onclick="event.preventDefault(); eliminar(this)" class="dropdown-item">
             <i class="ph ph-trash me-2"></i>
             Eliminar
-        </a> --}}
+        </a>
     </div>
 </div>

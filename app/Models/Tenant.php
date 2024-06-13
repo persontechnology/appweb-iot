@@ -55,6 +55,12 @@ class Tenant extends Model
         return $this->hasMany(DeviceProfile::class, 'tenant_id');
     }
 
+
+    public function lecturas()
+    {
+        return $this->hasMany(Lectura::class, 'tenant_id');
+    }
+
     // tenant -> application -> device
     
     

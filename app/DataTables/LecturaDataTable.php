@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DataTables\Alerta;
+namespace App\DataTables;
 
 use App\Models\Lectura;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
@@ -23,28 +23,28 @@ class LecturaDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('action', function($lectura){
-                return view('alertas.configuracion.lecturas-action',['lectura'=>$lectura])->render();
-            })
-            
-            ->addColumn('nombre',function($lectura){
-                // acceder a la lectura por id y obtener el dev_eui
-                $dev_eui= $lectura->xId($lectura->id)->dev_eui;
-                // buscar dispositivo por dev_eui 
-                return $lectura->buscarDispositivoDevEui($dev_eui)->name;
-            })
-            ->addColumn('mapa',function($lectura){
-                $dev_eui= $lectura->xId($lectura->id)->dev_eui;
+        ->addColumn('action', function($lectura){
+            return view('lecturas.action',['lectura'=>$lectura])->render();
+        })
+        
+        ->addColumn('nombre',function($lectura){
+            // acceder a la lectura por id y obtener el dev_eui
+            $dev_eui= $lectura->xId($lectura->id)->dev_eui;
+            // buscar dispositivo por dev_eui 
+            return $lectura->buscarDispositivoDevEui($dev_eui)->name;
+        })
+        ->addColumn('mapa',function($lectura){
+            $dev_eui= $lectura->xId($lectura->id)->dev_eui;
 
-                 $link='<a href="#" data-lat="23" data-long="23551" title="Ver mapa" onclick="event.preventDefault(); verMapa(this);" ><i class="ph ph-map-pin"></i></a>';
-                return $link;
-            })
+             $link='<a href="#" data-lat="23" data-long="23551" title="Ver mapa" onclick="event.preventDefault(); verMapa(this);" ><i class="ph ph-map-pin"></i></a>';
+            return $link;
+        })
 
-            ->editColumn('created_at',function($lectura){
-                return $lectura->created_at;
-            })
-            ->setRowId('id')
-            ->rawColumns(['mapa','action']);
+        ->editColumn('created_at',function($lectura){
+            return $lectura->created_at;
+        })
+        ->setRowId('id')
+        ->rawColumns(['mapa','action']);
     }
 
     /**
@@ -52,14 +52,7 @@ class LecturaDataTable extends DataTable
      */
     public function query(Lectura $model): QueryBuilder
     {
-        return $model->newQuery()
-        ->whereHas('alerta',function($query){
-            $query->whereHas('application', function ($query) {
-                $query->whereHas('tenant', function ($query) {
-                    $query->where('id', Auth::user()->tenant_id);
-                });
-            });
-        })->latest();
+        return $model->newQuery()->where('tenant_id',Auth::user()->tenant_id)->latest();
     }
 
     /**
@@ -70,7 +63,6 @@ class LecturaDataTable extends DataTable
         return $this->builder()
                     ->setTableId('lectura-table')
                     ->columns($this->getColumns())
-                    ->minifiedAjax()
                     ->parameters($this->getBuilderParameters());
     }
 

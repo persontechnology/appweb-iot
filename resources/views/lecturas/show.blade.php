@@ -5,51 +5,88 @@
 
 @section('content')
 
-<form action="{{ route('alertas.actualizarHorario') }}" method="POST" enctype="multipart/form-data">
-    @csrf
-    <div class="card">
-        <div class="card-header">Actualizar horario</div>
-        <div class="card-body">
-            <input type="hidden" name="alerta_id" value="{{ $alerta->id }}">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Día</th>
-                            <th>Estado</th>
-                            <th>Hora de Apertura</th>
-                            <th>Hora de Cierre</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($horarios as $horario)
-                            <tr>
-                                <td>{{ $horario->dia }}</td>
-                                <td>
-                                    <div class="form-check">
-                                        <input type="hidden" name="horarios[{{ $horario->id }}][id]" value="{{ $horario->id }}">
-                                        <input type="checkbox" class="form-check-input" id="estado{{ $horario->id }}" name="horarios[{{ $horario->id }}][estado]" {{ old('horarios.'.$horario->id.'.estado', $horario->estado) ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="estado{{ $horario->id }}">Activo</label>
-                                    </div>
-                                </td>
-                                <td>
-                                    <input type="time" class="form-control" id="hora_apertura{{ $horario->id }}" name="horarios[{{ $horario->id }}][hora_apertura]" value="{{ $horario->hora_apertura ?? '' }}">
-                                </td>
-                                <td>
-                                    <input type="time" class="form-control" id="hora_cierre{{ $horario->id }}" name="horarios[{{ $horario->id }}][hora_cierre]" value="{{ $horario->hora_cierre ?? '' }}">
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="card-footer text-muted">
-            <button class="btn btn-primary" type="submit">Guardar</button>
-            <a href="{{ route('alertas.index') }}" class="btn btn-danger">Cancelar</a>
-        </div>
+<div class="card">
+    <div class="card-header">
+        <strong>Detalle:</strong> {{ $lectura->dipositivoXlecturaId($lectura->id)->dev_eui_hex }}
     </div>
-</form>
+    <div class="card-body">
+
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr class="text-center">
+                        <th colspan="7">DETALLE DE LECTURA</th>
+                    </tr>
+                    <tr>
+                        <th scope="col">Creado el</th>
+                        
+                        <th scope="col">Data</th>
+                        <th scope="col">Lat</th>
+                        <th scope="col">Long</th>
+                        <th scope="col">Dev_eui</th>
+                        <th scope="col">Nombre</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ $lectura->created_at }}</td>
+                        
+                        <td>{{ $lectura->data }}</td>
+                        <td>{{ $lectura->lat??'NA' }}</td>
+                        <td>{{ $lectura->long??'NA' }}</td>
+                        <td>{{ $lectura->dev_eui }}</td>
+                        <td>{{ $lectura->dipositivoXlecturaId($lectura->id)->name }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+
+        @php
+            $dispositivo=$lectura->dipositivoXlecturaId($lectura->id);
+        @endphp
+
+        <div class="table-responsive mt-2">
+            <table class="table table-bordered">
+                <thead>
+                    <tr class="text-center">
+                        <th scope="col" colspan="11">DETALLE DEL DISPOSITIVO</th>
+                    </tr>
+                    <tr>
+                        <th scope="col">Dev_eui</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Descripción</th>
+                        <th scope="col">Nivel de batería</th>
+                        <th scope="col">Latitude</th>
+                        <th scope="col">Longitude</th>
+                        <th scope="col">Creado el</th>
+                        <th scope="col">Visto por última vez</th>
+                        <th scope="col">Está deshabilitado?</th>
+                        <th scope="col">Join_eui</th>
+                        <th scope="col">Es dispositivo de trackig?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ $dispositivo->dev_eui_hex }}</td>
+                        <td>{{ $dispositivo->name }}</td>
+                        <td>{{ $dispositivo->description }}</td>
+                        <td>{{ $dispositivo->battery_level }}</td>
+                        <td>{{ $dispositivo->latitude }}</td>
+                        <td>{{ $dispositivo->longitude }}</td>
+                        <td>{{ $dispositivo->created_at }}</td>
+                        <td>{{ $dispositivo->last_seen_at }}</td>
+                        <td>{{ $dispositivo->is_disabled }}</td>
+                        <td>{{ $dispositivo->join_eui }}</td>
+                        <td>{{ $dispositivo->use_tracking }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
 
 
 

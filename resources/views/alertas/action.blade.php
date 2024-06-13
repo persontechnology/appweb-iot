@@ -2,11 +2,11 @@
 <div class="d-inline-flex">
     
     <a href="{{ route('alertas.configuracion',['id'=>$al->id,'op'=>'inicio']) }}" class="text-body mx-2">
-        <i class="ph ph-gear"></i>
+        <i class="ph ph-arrow-right"></i>
     </a>
     <div class="dropdown">
         <a href="#" class="text-body dropdown-toggle" data-bs-toggle="dropdown">
-            <i class="ph ph-dots-three-circle-vertical"></i>
+            <i class="ph-gear"></i>
         </a>
 
         <div class="dropdown-menu">

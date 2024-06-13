@@ -10,11 +10,12 @@ window.axios = axios;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 
+
 import Echo from 'laravel-echo';
  
 import Pusher from 'pusher-js';
 window.Pusher = Pusher;
- 
+// Pusher.logToConsole = true;
 window.Echo = new Echo({
     broadcaster: 'pusher',
     key: import.meta.env.VITE_PUSHER_APP_KEY,
@@ -22,7 +23,34 @@ window.Echo = new Echo({
     forceTLS: true
 });
 
-console.log('cargado pusher')
+
+
+window.Echo.channel('canal-notificar-dispositivo').listen('NotificarDispositivoEvento', (e) => {
+    console.log('Evento recibido:', e.dispositivo);
+
+    let dispositivo = e.dispositivo;
+    // esta en dashbora
+    
+
+    // esta en app
+    anadirLecturaNotificacionHeader(dispositivo);
+
+    // esta en dashboard
+    if (typeof buscarYcentrarMarketPorDispositivo === 'function') {
+        buscarYcentrarMarketPorDispositivo(dispositivo);
+        pintarDispositivo(dispositivo);
+    }
+    
+
+    
+
+});
+
+
+
+
+
+
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

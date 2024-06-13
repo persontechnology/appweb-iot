@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Dispositivo;
 use App\Models\Lectura;
 use App\Models\PuntosLocalizacion;
+use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +14,6 @@ class DashboardController extends Controller
 {
     public function index() {
         
-       
         $dispositivos=    Dispositivo::whereHas('application', function ($query) {
             $query->whereHas('tenant', function ($query) {
                 $query->where('id', Auth::user()->tenant_id);
@@ -37,12 +37,14 @@ class DashboardController extends Controller
         })
         ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *")
         ->when(!$query, function ($query) {
-            return $query->take(15);
+            return $query->take(5);
         })
         ->get();
 
         return response()->json($dispositivos);
     }
+
+ 
 
 
 

@@ -80,24 +80,8 @@
                 </div>
 
                 <div class="collapse show">
-                    <div class="sidebar-section-body" id="sidebar-users">
-                        {{-- @foreach ($dispositivos as $dispositivo)
-                        <a href="#" style="color: inherit; text-decoration: none;" onclick="event.preventDefault(); buscarYcentrarMarketPorDevEuiHex('{{ $dispositivo->dev_eui_hex}}')">
-                            <div class="d-flex mb-0 border-bottom">
-                                <div class="flex-fill">
-                                    <span class="fw-semibold">{{ $dispositivo->dev_eui_hex }}</span>
-                                    <div class="fs-sm opacity-10">{{ $dispositivo->name }}</div>
-                                </div>
-                                <div class="ms-3 align-self-center">
-                                    @if ($dispositivo->use_tracking)
-                                    <i class="ph ph-truck"></i>
-                                    @else
-                                        <i class="ph ph-bell"></i>
-                                    @endif
-                                </div>
-                            </div>    
-                        </a>
-                        @endforeach --}}
+                    <div class="sidebar-section-body" id="sidebar-dispositivos">
+                        
                     </div>
                 </div>
             </div>
@@ -132,127 +116,188 @@
 
 @push('scriptsFooter')
 
-
 <script>
-    // Inicializa el mapa sin centrado específico
-    var map = L.map('map');
-
-    // Añade una capa de mapas base
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Inicializa el mapa y añade una capa base
+    const map = L.map('map').setView([0, 0], 2);
+    const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Obtén los datos de los dispositivos desde el servidor
-    var dispositivos = @json($dispositivos);
+    // Obtiene los datos de los dispositivos desde el servidor
+    const dispositivos = @json($dispositivos);
 
     // Array para almacenar las coordenadas de los dispositivos
-    var bounds = [];
+    const bounds = [];
 
     // Objeto para almacenar los marcadores con dev_eui_hex como clave
-    var markers = {};
+    const markers = {};
 
     // Añade marcadores al mapa
-    dispositivos.forEach(function(dispositivo) {
+    dispositivos.forEach(dispositivo => {
+        const { dev_eui_hex, name, latitude, longitude, battery_level, last_seen_at, description, ver_lectura_url } = dispositivo;
         
-            var lat = parseFloat(dispositivo.latitude??0);
-            var lng = parseFloat(dispositivo.longitude??0);
-
-            // Añadir coordenadas a bounds
-            bounds.push([lat, lng]);
-
-            var marker = L.marker([lat, lng], {
-                title: dispositivo.dev_eui_hex, // Añade el title
-                draggable:true
-            }).addTo(map);
-
-            // Almacena el marcador en el objeto markers
-            markers[dispositivo.dev_eui_hex] = marker;
-
-            // Añade un popup con información adicional
-            marker.bindPopup(`
-                <b>${dispositivo.name}</b><br>
-                DevEui: ${dispositivo.dev_eui_hex}<br>
-                Batería: ${dispositivo.battery_level}%<br>
-                Última vez visto: ${dispositivo.last_seen_at}<br>
-                Descripción: ${dispositivo.description}
-            `);
-
-            // Añade un tooltip con el dev_eui_hex
-            // marker.bindTooltip(dispositivo.dev_eui_hex, {
-            //     permanent: true, // Hace que la etiqueta sea siempre visible
-            //     direction: 'top' // Posiciona la etiqueta sobre el marcador
-            // });
+        const lat = parseFloat(latitude ?? 0);
+        const lng = parseFloat(longitude ?? 0);
         
+        // Añadir coordenadas a bounds
+        bounds.push([lat, lng]);
+
+        const marker = L.marker([lat, lng], {
+            title: dev_eui_hex,
+            draggable: true
+        }).addTo(map);
+
+        // Almacena el marcador en el objeto markers
+        markers[dev_eui_hex] = marker;
+
+        // Añade un popup con información adicional
+        const popupContent = `
+            <b>${name}</b><br>
+            DevEui: ${dev_eui_hex}<br>
+            Batería: ${battery_level}%<br>
+            Última vez visto: ${last_seen_at}<br>
+            Descripción: ${description}
+            ${ver_lectura_url ? `<br>Ver lectura: ${ver_lectura_url}` : ''}
+        `;
+        marker.bindPopup(popupContent);
+
+        // Añade un tooltip con el dev_eui_hex
+        // marker.bindTooltip(dev_eui_hex, {
+        //     permanent: true,
+        //     direction: 'top'
+        // });
     });
 
     // Si hay coordenadas, ajusta el mapa para mostrar todos los marcadores
     if (bounds.length > 0) {
         map.fitBounds(bounds);
-    } else {
-        // Si no hay coordenadas válidas, centra el mapa en una vista predeterminada
-        map.setView([0, 0], 2);
     }
 
     // Función para buscar y centrar el marcador por dev_eui_hex
     function buscarYcentrarMarketPorDevEuiHex(dev_eui_hex) {
-        var marker = markers[dev_eui_hex];
+        const marker = markers[dev_eui_hex];
+        
         if (marker) {
+            map.setView(marker.getLatLng(), 15);
+            marker.openPopup();
+        } else {
+            console.log(`Marcador no encontrado para dev_eui_hex: ${dev_eui_hex}`);
+        }
+    }
+     // Función para buscar y centrar el marcador por dispositivo completo
+    function buscarYcentrarMarketPorDispositivo(dispositivo) {
+        const { dev_eui_hex, name, battery_level, last_seen_at, description, ver_lectura_url } = dispositivo;
+        const marker = markers[dev_eui_hex];
+
+        if (marker) {
+            // Actualiza el contenido del bindPopup
+            const popupContent = `
+                <b>${name}</b><br>
+                DevEui: ${dev_eui_hex}<br>
+                Batería: ${battery_level}%<br>
+                Última vez visto: ${last_seen_at}<br>
+                Descripción: ${description}<br>
+                ${ver_lectura_url ? `<a href="${ver_lectura_url}">Ver lectura aquí.</a>` : ''}
+            `;
+
+            // Actualiza el contenido del popup
+            marker.bindPopup(popupContent);
+
+            // Centra el mapa en el marcador y abre el popup
             map.setView(marker.getLatLng(), 15); // Ajusta el nivel de zoom según sea necesario
             marker.openPopup();
         } else {
-            console.log("Marcador no encontrado para dev_eui_hex: " + dev_eui_hex);
+            console.log(`Marcador no encontrado para dev_eui_hex: ${dev_eui_hex}`);
         }
     }
 
 
-    
-    
-</script>
-
-<script>
-
+    // Función para buscar dispositivos y actualizar la lista en la barra lateral
     function buscarDispositivos() {
-        var query = document.getElementById('searchInput').value;
+        const query = document.getElementById('searchInput').value;
 
         $.ajax({
             type: 'GET',
             url: "{{ route('buscar.dispositivos') }}",
             data: { query: query },
-            success: function (response) {
-                console.log(response)
-                // Actualiza la lista de dispositivos en la barra lateral
+            success: function(response) {
                 actualizarListaDispositivos(response);
             },
-            error: function (xhr, status, error) {
-                console.error(xhr.responseText);
+            error: function(xhr, status, error) {
+                console.error(`Error al buscar dispositivos: ${error}`);
             }
         });
     }
 
+    // Actualiza la lista de dispositivos en la barra lateral
     function actualizarListaDispositivos(dispositivos) {
-        var listaDispositivos = $('#sidebar-users');
+        const listaDispositivos = $('#sidebar-dispositivos');
         listaDispositivos.empty();
 
-        dispositivos.forEach(function(dispositivo) {
-            var item = `
-                
-                <a href="#" style="color: inherit; text-decoration: none;" onclick="event.preventDefault(); buscarYcentrarMarketPorDevEuiHex('${dispositivo.dev_eui_hex}')">
+        dispositivos.forEach(dispositivo => {
+            const { dev_eui_hex, name, use_tracking } = dispositivo;
+            const item = `
+                <a href="#" id="dispositivo-item-${dev_eui_hex}" style="color: inherit; text-decoration: none;">
+                    <div class="d-flex mb-0 border-bottom">
+                        <div class="flex-fill">
+                            <span class="fw-semibold">${dev_eui_hex}</span>
+                            <div class="fs-sm opacity-10">${name}</div>
+                        </div>
+                        <div class="ms-3 align-self-center">
+                            ${use_tracking ? '<i class="ph ph-truck"></i>' : '<i class="ph ph-bell"></i>'}
+                        </div>
+                    </div>
+                </a>
+            `;
+            listaDispositivos.append(item);
+
+            // Asigna evento de clic para buscar y centrar el marcador por dispositivo completo
+            const dispositivoItem = document.getElementById(`dispositivo-item-${dev_eui_hex}`);
+            dispositivoItem.addEventListener('click', function(event) {
+                event.preventDefault();
+                buscarYcentrarMarketPorDispositivo(dispositivo);
+            });
+        });
+    }
+
+   
+    function pintarDispositivo(dispositivo){
+        const listaDispositivos = $('#sidebar-dispositivos');
+        const existingItem = $(`#dispositivo-item-${dispositivo.dev_eui_hex}`);
+
+        if (existingItem.length) {
+            // Si el elemento ya existe, actualiza solo los datos necesarios
+            existingItem.find('.fw-semibold').text(dispositivo.dev_eui_hex);
+            existingItem.find('.opacity-10').text(dispositivo.name);
+            existingItem.find('.align-self-center').html(dispositivo.use_tracking ? '<i class="ph ph-truck"></i>' : '<i class="ph ph-bell text-danger"></i>');
+        } else {
+            // Si el elemento no existe, crea uno nuevo
+            const itemHtml = `
+                <a href="#" id="dispositivo-item-${dispositivo.dev_eui_hex}" style="color: inherit; text-decoration: none;" onclick="event.preventDefault(); buscarYcentrarMarketPorDevEuiHex('${dispositivo.dev_eui_hex}')">
                     <div class="d-flex mb-0 border-bottom">
                         <div class="flex-fill">
                             <span class="fw-semibold">${dispositivo.dev_eui_hex}</span>
                             <div class="fs-sm opacity-10">${dispositivo.name}</div>
                         </div>
                         <div class="ms-3 align-self-center">
-                            ${dispositivo.use_tracking ? '<i class="ph ph-truck"></i>' : '<i class="ph ph-bell"></i>'}
+                            ${dispositivo.use_tracking ? '<i class="ph ph-truck"></i>' : '<i class="ph ph-bell text-danger"></i>'}
                         </div>
                     </div>
                 </a>
             `;
-            listaDispositivos.append(item);
-        });
+            listaDispositivos.prepend(itemHtml);
+        }
     }
-    buscarDispositivos()
+
+    
+
+
+    // Espera a que el documento esté completamente cargado antes de buscar dispositivos
+    $(document).ready(function() {
+        buscarDispositivos();
+    });
 </script>
+
 
 
 

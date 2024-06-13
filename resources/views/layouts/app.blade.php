@@ -49,7 +49,9 @@
 	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
 	<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 
-	
+	{{-- scroll --}}
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.4.1/jquery.jscroll.min.js"></script>
+
 	<!-- /theme JS files -->
 
     @stack('scriptsHeader')
@@ -71,26 +73,27 @@
 
 <body>
 
-	<!-- Main navbar -->
 	<div class="navbar navbar-dark navbar-expand-lg navbar-static border-bottom border-bottom-white border-opacity-10">
 		<div class="container-fluid">
 			<div class="d-flex d-lg-none me-2">
 				<button type="button" class="navbar-toggler sidebar-mobile-main-toggle rounded-pill">
 					<i class="ph-list"></i>
 				</button>
+				<button type="button" class="navbar-toggler sidebar-mobile-secondary-toggle rounded-pill">
+					<i class="ph-arrow-left"></i>
+				</button>
 			</div>
 
 			<div class="navbar-brand flex-1 flex-lg-0">
-				<a href="{{ route('dashboard') }}" class="d-inline-flex align-items-center">
+				<a href="index.html" class="d-inline-flex align-items-center">
 					<img src="{{ asset('assets/images/logo_icon.svg') }}" alt="">
 					<img src="{{ asset('assets/images/logo_text_light.svg') }}" class="d-none d-sm-inline-block h-16px ms-3" alt="">
 				</a>
 			</div>
 
-
 			<div class="d-xl-none">
 				<button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-form-select2-dark">
-					<i class="ph-list"></i>
+					<i class="ph ph-arrow-down"></i>
 				</button>
 			</div>
 
@@ -108,9 +111,10 @@
 					</div>
 				</div>
 			</div>
-
+			
+			
 			<ul class="nav flex-row">
-
+				
 				{{-- <li class="nav-item d-lg-none">
 					<a href="#navbar_search" class="navbar-nav-link navbar-nav-link-icon rounded-pill" data-bs-toggle="collapse">
 						<i class="ph-magnifying-glass"></i>
@@ -175,23 +179,25 @@
 					</div>
 				</li> --}}
 
-				{{-- <li class="nav-item nav-item-dropdown-lg dropdown ms-lg-2">
+				<li class="nav-item nav-item-dropdown-lg dropdown ms-lg-2">
 					<a href="#" class="navbar-nav-link navbar-nav-link-icon rounded-pill" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-						<i class="ph-chats"></i>
-						<span class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1">8</span>
+						<i class="ph ph-bell"></i>
+						<span class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1" id="contadorLecturasNotificacion">
+							{{ App\Models\Lectura::totalLecturasEstadoFalse() }}
+						</span>
 					</a>
 
 					<div class="dropdown-menu wmin-lg-400 p-0">
 						<div class="d-flex align-items-center p-3">
-							<h6 class="mb-0">Messages</h6>
-							<div class="ms-auto">
-								<a href="#" class="text-body rounded-pill">
+							<h6 class="mb-0">Lecturas</h6>
+							{{-- <div class="ms-auto">
+								<a href="#" class="text-body">
 									<i class="ph-plus-circle"></i>
 								</a>
-								<a href="#search_messages" class="collapsed text-body rounded-pill ms-2" data-bs-toggle="collapse">
+								<a href="#search_messages" class="collapsed text-body ms-2" data-bs-toggle="collapse">
 									<i class="ph-magnifying-glass"></i>
 								</a>
-							</div>
+							</div> --}}
 						</div>
 
 						<div class="collapse" id="search_messages">
@@ -205,87 +211,44 @@
 							</div>
 						</div>
 
-						<div class="dropdown-menu-scrollable pb-2">
-							<a href="#" class="dropdown-item align-items-start text-wrap py-2">
-								<div class="status-indicator-container me-3">
-									<img src="../../../assets/images/demo/users/face10.jpg" class="w-40px h-40px rounded-pill" alt="">
-									<span class="status-indicator bg-warning"></span>
-								</div>
-
+						<div class="dropdown-menu-scrollable pb-2" id="contenedor-lecturas">
+							@php
+								$lecturas_h=App\Models\Lectura::take(20)->latest()->get();
+							@endphp
+							@foreach ($lecturas_h as $lectura_h)
+								
+							
+							<a href="{{ route('lecturas.show',$lectura_h->id) }}" class="dropdown-item align-items-start text-wrap py-2 {{ $lectura_h->estado==false?'bg-primary bg-opacity-20':'' }}">
 								<div class="flex-1">
-									<span class="fw-semibold">James Alexander</span>
-									<span class="text-muted float-end fs-sm">04:58</span>
-									<div class="text-muted">who knows, maybe that would be the best thing for me...</div>
+									<span class="fw-semibold">{{ $lectura_h->dev_eui }}</span>
+									<span class="text-muted float-end fs-sm">{{ $lectura_h->created_at }}</span>
+									<div class="text-muted">
+										{{ $lectura_h->dipositivoXlecturaId($lectura_h->id)->name??'' }}
+									</div>
 								</div>
 							</a>
 
-							<a href="#" class="dropdown-item align-items-start text-wrap py-2">
-								<div class="status-indicator-container me-3">
-									<img src="../../../assets/images/demo/users/face3.jpg" class="w-40px h-40px rounded-pill" alt="">
-									<span class="status-indicator bg-success"></span>
-								</div>
+							@endforeach
 
-								<div class="flex-1">
-									<span class="fw-semibold">Margo Baker</span>
-									<span class="text-muted float-end fs-sm">12:16</span>
-									<div class="text-muted">That was something he was unable to do because...</div>
-								</div>
-							</a>
-
-							<a href="#" class="dropdown-item align-items-start text-wrap py-2">
-								<div class="status-indicator-container me-3">
-									<img src="../../../assets/images/demo/users/face24.jpg" class="w-40px h-40px rounded-pill" alt="">
-									<span class="status-indicator bg-success"></span>
-								</div>
-								<div class="flex-1">
-									<span class="fw-semibold">Jeremy Victorino</span>
-									<span class="text-muted float-end fs-sm">22:48</span>
-									<div class="text-muted">But that would be extremely strained and suspicious...</div>
-								</div>
-							</a>
-
-							<a href="#" class="dropdown-item align-items-start text-wrap py-2">
-								<div class="status-indicator-container me-3">
-									<img src="../../../assets/images/demo/users/face4.jpg" class="w-40px h-40px rounded-pill" alt="">
-									<span class="status-indicator bg-grey"></span>
-								</div>
-								<div class="flex-1">
-									<span class="fw-semibold">Beatrix Diaz</span>
-									<span class="text-muted float-end fs-sm">Tue</span>
-									<div class="text-muted">What a strenuous career it is that I've chosen...</div>
-								</div>
-							</a>
-
-							<a href="#" class="dropdown-item align-items-start text-wrap py-2">
-								<div class="status-indicator-container me-3">
-									<img src="../../../assets/images/demo/users/face25.jpg" class="w-40px h-40px rounded-pill" alt="">
-									<span class="status-indicator bg-danger"></span>
-								</div>
-								<div class="flex-1">
-									<span class="fw-semibold">Richard Vango</span>
-									<span class="text-muted float-end fs-sm">Mon</span>
-									<div class="text-muted">Other travelling salesmen live a life of luxury...</div>
-								</div>
-							</a>
 						</div>
 
 						<div class="d-flex border-top py-2 px-3">
-							<a href="#" class="text-body">
+							{{-- <a href="#" class="text-body">
 								<i class="ph-checks me-1"></i>
-								Dismiss all
-							</a>
-							<a href="#" class="text-body ms-auto">
-								View all
+								Descartar todo
+							</a> --}}
+							<a href="{{ route('lecturas.index') }}" class="text-body ms-auto">
+								Ver todos
 								<i class="ph-arrow-circle-right ms-1"></i>
 							</a>
 						</div>
 					</div>
-				</li> --}}
-
+				</li>
 			</ul>
 
-			{{-- <div class="navbar-collapse justify-content-center flex-lg-1 order-2 order-lg-1 collapse" id="navbar_search">
-				<div class="navbar-search flex-fill position-relative mt-2 mt-lg-0 mx-lg-3">
+			
+			<div class="navbar-collapse justify-content-center flex-lg-1 order-2 order-lg-1 collapse" id="navbar_search">
+				{{-- <div class="navbar-search flex-fill position-relative mt-2 mt-lg-0 mx-lg-3">
 					<div class="form-control-feedback form-control-feedback-start flex-grow-1" data-color-theme="dark">
 						<input type="text" class="form-control bg-transparent rounded-pill" placeholder="Search" data-bs-toggle="dropdown">
 						<div class="form-control-feedback-icon">
@@ -473,17 +436,16 @@
 							</div>
 						</div>
 					</div>
-				</div>
-			</div> --}}
+				</div> --}}
+			</div>
 
 			<ul class="nav flex-row justify-content-end order-1 order-lg-2">
-
-				<li class="nav-item">
+				{{-- <li class="nav-item ms-lg-2">
 					<a href="#" class="navbar-nav-link navbar-nav-link-icon rounded-pill" data-bs-toggle="offcanvas" data-bs-target="#notifications">
 						<i class="ph-bell"></i>
-						<span class="badge bg-white text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1" id="contador-notificacion">0</span>
+						<span class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1">2</span>
 					</a>
-				</li>
+				</li> --}}
 
 				<li class="nav-item nav-item-dropdown-lg dropdown ms-lg-2">
 					<a href="#" class="navbar-nav-link align-items-center rounded-pill p-1" data-bs-toggle="dropdown">
@@ -491,13 +453,13 @@
 							<img src="{{ asset('assets/images/demo/users/usuario.png') }}" class="w-32px h-32px rounded-pill" alt="">
 							<span class="status-indicator bg-success"></span>
 						</div>
-						<span class="d-none d-lg-inline-block mx-lg-2">{{ Auth::user()->email }}</span>
+						<span class="d-none d-lg-inline-block mx-lg-2">Victoria</span>
 					</a>
 
 					<div class="dropdown-menu dropdown-menu-end">
 						<a href="{{ route('profile.edit') }}" class="dropdown-item">
 							<i class="ph-user-circle me-2"></i>
-							Mi perfil
+							My profile
 						</a>
 						<a href="#" class="dropdown-item">
 							<i class="ph-currency-circle-dollar me-2"></i>
@@ -517,21 +479,20 @@
 							<i class="ph-gear me-2"></i>
 							Account settings
 						</a>
-						
-                        <form method="POST" action="{{ route('logout') }}">
+						<form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <a href="{{ route('logout') }}" class="dropdown-item" onclick="event.preventDefault(); this.closest('form').submit();">
                                 <i class="ph-sign-out me-2"></i>
                                 Cerrar sesión
                             </a>
                         </form>
-
 					</div>
 				</li>
 			</ul>
 		</div>
 	</div>
 	<!-- /main navbar -->
+
 
 
 	<!-- Page content -->
@@ -714,30 +675,41 @@
     @stack('scriptsFooter')
 
 	<script>
-		$(document).ready(function(){
-			
-			window.Echo.channel('lectura-guardada')
-				.listen('LecturaGuardadoEvent', function(data) {
-
-					console.log(data.lectura);
-
-					// Ejemplo de uso de la función
-					console.log('llego')
-    				buscarYcentrarMarketPorDevEuiHex(data.lectura.dev_eui);
-			
-				});
-		});
-
-
 		
 		$('#selectInquilino').on('change', function() {
 			$('#seleccionarInquilinoForm').submit();
 		});
 
+		function anadirLecturaNotificacionHeader(dispositivo){
+
+			// Obtener el valor actual del elemento usando jQuery
+			let valorActual = parseInt($('#contadorLecturasNotificacion').text().trim());
+			// Incrementar el valor
+			valorActual++;
+			// Actualizar el texto del elemento con el nuevo valor usando jQuery
+			$('#contadorLecturasNotificacion').text(valorActual);
+
+			let contenedorLecturas =$('#contenedor-lecturas')
+			let itemLectura = `
+			
+			<a href="${dispositivo.ver_lectura_url}" class="dropdown-item align-items-start text-wrap py-2 bg-primary bg-opacity-20">
+					<div class="flex-1">
+						<span class="fw-semibold">${ dispositivo.dev_eui_hex }</span>
+						<span class="text-muted float-end fs-sm">${dispositivo.created_at}</span>
+						<div class="text-muted">
+							${dispositivo.name}
+						</div>
+					</div>
+				</a>
+			`;
+
+			contenedorLecturas.prepend(itemLectura);
+		}
+
 		
 	</script>
 
-	
+
 </body>
 
 </html>

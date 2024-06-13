@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Events\EnviarDispositivoEvent;
 use App\Events\GatewayDataUpdated;
 use App\Events\LoRaWANGatewayEvent;
 use App\Listeners\LoRaWANGatewayListener;
@@ -19,15 +20,8 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         Registered::class => [
-            SendEmailVerificationNotification::class,
+            SendEmailVerificationNotification::class
         ],
-
-        // lorawan
-        LoRaWANGatewayEvent::class=>[
-            LoRaWANGatewayListener::class
-        ],
-        
-        // 
     ];
 
     /**

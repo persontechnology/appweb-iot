@@ -49,7 +49,9 @@ Route::middleware(['auth','check.tenant_id','verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class,'index'])->name('dashboard');
     // buscra dispositivo
     Route::get('/buscar-dispositivos', [DashboardController::class,'buscarDispositivo'])->name('buscar.dispositivos');
-
+    
+    
+    
 
 
     
@@ -82,10 +84,10 @@ Route::middleware(['auth','check.tenant_id','verified'])->group(function () {
     Route::post('alertas/guardarTipo',[AlertaController::class,'guardarTipo'])->name('alertas.guardarTipo');
     Route::delete('alertas/eliminarTipo/{id}',[AlertaController::class,'eliminarTipo'])->name('alertas.eliminarTipo');
     Route::delete('alertas/eliminarLectura/{id}',[AlertaController::class,'eliminarLectura'])->name('alertas.eliminarLectura');
-    
-    
     Route::get('alertas/configuracion/{id}/{op}', [AlertaController::class,'inicio'])->name('alertas.configuracion');
 
+    Route::resource('lecturas', LecturaController::class);
+    
     
     
 

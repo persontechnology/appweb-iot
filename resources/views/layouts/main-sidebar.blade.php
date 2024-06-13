@@ -137,6 +137,16 @@
                     </a>
                 </li>
 
+
+                <li class="nav-item">
+                    <a href="{{ route('lecturas.index') }}" class="nav-link {{ Route::is('lecturas.*')?'active':'' }}">
+                        <i class="ph ph-alarm"></i>
+                        <span>
+                            Lecturas
+                        </span>
+                    </a>
+                </li>
+
             </ul>
         </div>
         <!-- /main navigation -->

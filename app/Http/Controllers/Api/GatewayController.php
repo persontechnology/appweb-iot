@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\EnviarDispositivoEvent;
 use App\Events\LecturaGuardadoEvent;
+use App\Events\NotificarDispositivoEvento;
 use App\Http\Controllers\Controller;
 use App\Models\Dispositivo;
 use App\Models\Horario;
@@ -58,14 +60,35 @@ class GatewayController extends Controller
                     // Crear una nueva lectura
                     $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $object);
                     
+                    
+
                     // Enviar correos electrónicos a los usuarios asignados a la alerta si es necesario
                     if ($lectura->alerta->puede_enviar_email) {
                         $this->enviarEmailUsuariosAsignadosLectura($lectura);
                     }
                     $lecturaCreada=Lectura::find($lectura->id);
-
+                    $dispositivo=$lectura->buscarDispositivoDevEui($deviceInfo['devEui']);
+                                        
                     // Emitir un evento para notificar la lectura guardada en tiempo real
-                    event(new LecturaGuardadoEvent($lecturaCreada));
+                    error_log('###########################################');
+
+                    $data = array(
+                        'dev_eui_hex'=>$dispositivo->dev_eui_hex,
+                        'last_seen_at'=>$dispositivo->last_seen_at,
+                        'name'=>$dispositivo->name,
+                        'battery_level'=>$dispositivo->battery_level,
+                        'use_tracking'=>$dispositivo->use_tracking,
+                        'created_at'=>$lectura->created_at,
+                        'id_lectura'=>$lectura->id,
+                        'ver_lectura_url'=>route('lecturas.show',$lectura->id),
+                        'description'=>$dispositivo->description
+                    );
+
+                    
+
+                    event(new NotificarDispositivoEvento($data));
+                    error_log('###########################################');
+                    // event(new LecturaGuardadoEvent($data));
                 }
 
 
@@ -75,7 +98,6 @@ class GatewayController extends Controller
             
         } catch (\Exception $th) {
             // Capturar cualquier excepción y registrarla en los registros de errores
-            Log::error('error',[$th->getMessage()]);
             error_log('OCURRIO UN ERROR: ' . $th->getMessage());
         }
     }
@@ -173,6 +195,7 @@ class GatewayController extends Controller
         $lectura->alerta_id = $alerta_id;
         $lectura->data = json_encode($object);
         $lectura->tenant_id=$lectura->alerta->application->tenant_id;
+        // $lectura->gateway_dev_eui=$object[''];
         $lectura->save();
         return $lectura;
     }
