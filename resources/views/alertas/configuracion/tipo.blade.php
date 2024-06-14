@@ -33,26 +33,26 @@
                                 </optgroup>
 
                                 <optgroup label="Smart Button">
-                                    <option value="press=====Estado de la tecla (unknown, short, long, double)">Estado de la tecla (unknown, short, long, double)</option>
+                                    <option value="press=====Estado de la tecla (short, long, double)">Estado de la tecla (short, long, double)</option>
                                 </optgroup>
 
                                 <optgroup label="Enviroment Monitoring Sensor">
                                     <option value="distance=====Distancia en unidades específicas de tu dispositivo (3 to 450) milimetros.">Distancia en unidades específicas de tu dispositivo (30 to 4500) milimetros.</option>
-                                    <option value="position=====Posición del dispositivo (unknown, normal, tilt)">Posición del dispositivo (unknown, normal, tilt) </option>
+                                    <option value="position=====Posición del dispositivo (normal, tilt)">Posición del dispositivo (normal, tilt) </option>
                                     
                                 </optgroup>
 
                                 <optgroup label="Asset Tracker">
                                     {{-- <option value="latitude=====Latitud en formato decimal (-90 a 90)">Latitud en formato decimal (-90 a 90) </option>
                                     <option value="longitude=====Longitud en formato decimal (-180 a 180)">Longitud en formato decimal (-180 a 180) </option> --}}
-                                    <option value="position=====Posición del dispositivo (unknown, normal, tilt)">Posición del dispositivo (unknown, normal, tilt) </option>
-                                    <option value="motion_status=====Estado de movimiento (unknown, start, moving, stop)">Estado de movimiento (unknown, start, moving, stop) </option>
+                                    <option value="position=====Posición del dispositivo (normal, tilt)">Posición del dispositivo (normal, tilt) </option>
+                                    <option value="motion_status=====Estado de movimiento (start, moving, stop)">Estado de movimiento (start, moving, stop) </option>
                                     <option value="temperature===== Temperatura en grados Celsius (0 a 40)"> Temperatura en grados Celsius (0 a 40) </option>
                                     
-                                    {{-- <option value="geofence_status=====Estado de la geovalla (unknown, inside, outside, unset)">Estado de la geovalla (unknown, inside, outside, unset) </option>
-                                    <option value="position=====Posición del dispositivo (unknown, normal, tilt)">Posición del dispositivo (unknown, normal, tilt) </option>
-                                    <option value="wifi_scan_result=====Resultado del escaneo de Wi-Fi (unknown, finish, timeout)">Resultado del escaneo de Wi-Fi (unknown, finish, timeout)</option>
-                                    <option value="tamper_status=====Estado de la manipulación (unknown, install, uninstall)">Estado de la manipulación (unknown, install, uninstall)</option>
+                                    {{-- <option value="geofence_status=====Estado de la geovalla (inside, outside, unset)">Estado de la geovalla (inside, outside, unset) </option>
+                                    <option value="position=====Posición del dispositivo (normal, tilt)">Posición del dispositivo (normal, tilt) </option>
+                                    <option value="wifi_scan_result=====Resultado del escaneo de Wi-Fi (finish, timeout)">Resultado del escaneo de Wi-Fi (finish, timeout)</option>
+                                    <option value="tamper_status=====Estado de la manipulación (install, uninstall)">Estado de la manipulación (install, uninstall)</option>
                                     <option value="temperature_abnormal=====Indicador de temperatura anormal (true, false)">Indicador de temperatura anormal (true, false) </option> --}}
                                 </optgroup>
                             </select>
