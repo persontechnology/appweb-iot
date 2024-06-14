@@ -63,7 +63,7 @@
                             <div class="form-control-feedback-icon">
                                 <i class="ph ph-timer"></i>
                             </div>
-                            <input type="number" name="intervalo_estadisticas" value="{{ old('intervalo_estadisticas') }}" class="form-control @error('intervalo_estadisticas') is-invalid @enderror" placeholder="" required>
+                            <input type="number" name="intervalo_estadisticas" value="{{ old('intervalo_estadisticas',60) }}" class="form-control @error('intervalo_estadisticas') is-invalid @enderror" placeholder="" required>
                             <label>Intervalo de estadísticas (segundos)</label>
                             <div class="form-text">El intervalo esperado en segundos en el que la puerta de enlace envía sus estadísticas.</div>
                             @error('intervalo_estadisticas')

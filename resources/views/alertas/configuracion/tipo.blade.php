@@ -28,18 +28,29 @@
                             </div>
 
                             <select name="parametro" class="form-select">
-                                <option value="battery=====Nivel de batería en porcentaje (0 a 255)">Nivel de batería en porcentaje (0 a 255) </option>
-                                <option value="press=====Estado de la tecla (unknown, short, long, double)">Estado de la tecla (unknown, short, long, double)</option>
-                                <option value="distance=====Distancia en unidades específicas de tu dispositivo (0 to 65535)">Distancia en unidades específicas de tu dispositivo (0 to 65535) </option>
-                                <option value="temperature===== Temperatura en grados Celsius (-3276.8 a 3276.7)"> Temperatura en grados Celsius (-3276.8 a 3276.7) </option>
-                                <option value="latitude=====Latitud en formato decimal (-90 a 90)">Latitud en formato decimal (-90 a 90) </option>
-                                <option value="longitude=====Longitud en formato decimal (-180 a 180)">Longitud en formato decimal (-180 a 180) </option>
-                                <option value="motion_status=====Estado de movimiento (unknown, start, moving, stop)">Estado de movimiento (unknown, start, moving, stop) </option>
-                                <option value="geofence_status=====Estado de la geovalla (unknown, inside, outside, unset)">Estado de la geovalla (unknown, inside, outside, unset) </option>
-                                <option value="position=====Posición del dispositivo (unknown, normal, tilt)">Posición del dispositivo (unknown, normal, tilt) </option>
-                                <option value="wifi_scan_result=====Resultado del escaneo de Wi-Fi (unknown, finish, timeout)">Resultado del escaneo de Wi-Fi (unknown, finish, timeout)</option>
-                                <option value="tamper_status=====Estado de la manipulación (unknown, install, uninstall)">Estado de la manipulación (unknown, install, uninstall)</option>
-                                <option value="temperature_abnormal=====Indicador de temperatura anormal (true, false)">Indicador de temperatura anormal (true, false) </option>
+                                <optgroup label="Todos">
+                                    <option value="battery=====Nivel de batería en porcentaje (0 a 255)">Nivel de batería en porcentaje (0 a 255) </option>
+                                </optgroup>
+
+                                <optgroup label="Smart Button">
+                                    <option value="press=====Estado de la tecla (unknown, short, long, double)">Estado de la tecla (unknown, short, long, double)</option>
+                                </optgroup>
+
+                                <optgroup label="Enviroment Monitoring Sensor">
+                                    <option value="distance=====Distancia en unidades específicas de tu dispositivo (0 to 65535)">Distancia en unidades específicas de tu dispositivo (0 to 65535) </option>
+                                    <option value="temperature===== Temperatura en grados Celsius (-3276.8 a 3276.7)"> Temperatura en grados Celsius (-3276.8 a 3276.7) </option>
+                                </optgroup>
+
+                                <optgroup label="Asset Tracker">
+                                    <option value="latitude=====Latitud en formato decimal (-90 a 90)">Latitud en formato decimal (-90 a 90) </option>
+                                    <option value="longitude=====Longitud en formato decimal (-180 a 180)">Longitud en formato decimal (-180 a 180) </option>
+                                    <option value="motion_status=====Estado de movimiento (unknown, start, moving, stop)">Estado de movimiento (unknown, start, moving, stop) </option>
+                                    <option value="geofence_status=====Estado de la geovalla (unknown, inside, outside, unset)">Estado de la geovalla (unknown, inside, outside, unset) </option>
+                                    <option value="position=====Posición del dispositivo (unknown, normal, tilt)">Posición del dispositivo (unknown, normal, tilt) </option>
+                                    <option value="wifi_scan_result=====Resultado del escaneo de Wi-Fi (unknown, finish, timeout)">Resultado del escaneo de Wi-Fi (unknown, finish, timeout)</option>
+                                    <option value="tamper_status=====Estado de la manipulación (unknown, install, uninstall)">Estado de la manipulación (unknown, install, uninstall)</option>
+                                    <option value="temperature_abnormal=====Indicador de temperatura anormal (true, false)">Indicador de temperatura anormal (true, false) </option>
+                                </optgroup>
                             </select>
                             
                             <label>Parametro</label>
