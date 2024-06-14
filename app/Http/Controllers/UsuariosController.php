@@ -36,21 +36,24 @@ class UsuariosController extends Controller
     {
         try {
             // Buscar o crear un usuario con el correo electrónico proporcionado
-            $user = User::firstOrCreate(
-                ['email' => $request->email],
-                [
-                    'is_admin' => false,
-                    'is_active' => false,
-                    'email_verified' => true,
-                    'password_hash' => Hash::make($request->contrasena),
-                    'note' => $request->descripcion,
-                    'password' => Hash::make($request->contrasena),
-                    'apellidos' => $request->apellidos,
-                    'nombres' => $request->nombres,
-                    'identificacion' => $request->identificacion,
-                ]
-            );
 
+            $user=User::where('email',$request->email)->first();
+
+            if(!$user){
+                $user=new User();
+                $user->email = $request->email;
+                $user->is_admin = false;
+                $user->is_active = false;
+                $user->email_verified = true;
+                $user->password_hash = Hash::make($request->contrasena);
+                $user->note = $request->descripcion;
+                $user->password = Hash::make($request->contrasena);
+                $user->apellidos = $request->apellidos;
+                $user->nombres = $request->nombres;
+                $user->identificacion = $request->identificacion;
+                $user->save();
+            }
+            
             // Verificar si ya existe una relación tenantUser para este usuario en el mismo tenant
             $tenantUser = TenantUser::firstOrNew([
                 'tenant_id' => Auth::user()->tenant_id,
