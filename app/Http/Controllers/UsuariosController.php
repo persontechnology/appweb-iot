@@ -137,19 +137,11 @@ class UsuariosController extends Controller
    
     public function destroy($user_id)
     {
-
         try {
             // Ejecutar una consulta SQL para eliminar la entrada en la tabla tenant_user
-            $deleted = DB::table('tenant_user')
-                ->where('tenant_id', Auth::user()->tenant_id)
-                ->where('user_id', $user_id)
-                ->delete();
-
-            if ($deleted) {
-                return redirect()->route('usuarios.index')->with('success', 'Usuario eliminado exitosamente');
-            } else {
-                return back()->with('danger', 'No se pudo eliminar el usuario');
-            }
+            User::destroy($user_id);
+            return redirect()->route('usuarios.index')->with('success', 'Usuario eliminado exitosamente');
+           
         } catch (\Throwable $th) {
             return back()->with('danger', 'Usuario no eliminado, ' . $th->getMessage());
         }
