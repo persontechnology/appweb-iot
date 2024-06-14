@@ -114,7 +114,8 @@ class UsuariosController extends Controller
             $user->is_active=$request->esta_activo?1:0;
             $user->email=$request->email;
             $user->note=$request->descripcion;
-
+            $user->tenant_id=Auth::user()->tenant_id;
+            
             if($request->contrasena){
                 $user->password=Hash::make($request->contrasena);
             }
