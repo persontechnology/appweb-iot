@@ -49,27 +49,26 @@ class GatewayController extends Controller
             // consultar si el dispositivo tiene y tracking, si tiene tracking guadar PuntoLocalizacion.
             // caso contrario generamos lectura para los otros dispositivos
             $dev_eui=$deviceInfo['devEui'];
-            $dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+            // $dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
 
-            if ($dispositivoTracking && $dispositivoTracking->use_tracking) {
-                    $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object);
-            } else {
+            // if ($dispositivoTracking && $dispositivoTracking->use_tracking) {
+            //         $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object);
+            // } else {
                 
                 // Verificar si las alertas se activan con los datos del objeto
                 if ($this->verificarAlertas($object, $horario->alerta)) {
                     // Crear una nueva lectura
+                    
                     $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
-                    
-                    
+
                     $lecturaCreada=Lectura::find($lectura->id);
                     // Enviar correos electrónicos a los usuarios asignados a la alerta si es necesario
-                   try {
-                        if ($lectura->alerta->puede_enviar_email) {
-                            $this->enviarEmailUsuariosAsignadosLectura($lectura);
-                        }
-                   } catch (\Throwable $th) {
-                        error_log('NO ENVIADO EMAIL '.$th->getMessage());
-                   }
+                 
+                    // $dispositivoTracking
+                    if ($lectura->alerta->puede_enviar_email) {
+                        $this->enviarEmailUsuariosAsignadosLectura($lectura);
+                    }
+                 
                     
                     $dispositivo=$lectura->buscarDispositivoDevEui($deviceInfo['devEui']);
                                         
@@ -97,7 +96,7 @@ class GatewayController extends Controller
                 }
 
 
-            }
+            // }
             
         
             
