@@ -51,9 +51,10 @@ class UsuariosController extends Controller
                 $user->apellidos = $request->apellidos;
                 $user->nombres = $request->nombres;
                 $user->identificacion = $request->identificacion;
+                $user->tenant_id=Auth::user()->tenant_id;
                 $user->save();
             }
-            
+
             // Verificar si ya existe una relación tenantUser para este usuario en el mismo tenant
             $tenantUser = TenantUser::firstOrNew([
                 'tenant_id' => Auth::user()->tenant_id,
