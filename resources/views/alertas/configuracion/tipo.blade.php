@@ -37,7 +37,7 @@
                                 </optgroup>
 
                                 <optgroup label="Enviroment Monitoring Sensor">
-                                    <option value="distance=====Distancia milimetros (30 to 4500)">Distancia milimetros (30 to 4500)</option>
+                                    <option value="distance=====Distancia en milimetros (30 to 4500)">Distancia en milimetros (30 to 4500)</option>
                                     <option value="position=====Posición del dispositivo (normal, tilt)">Posición del dispositivo (normal, tilt) </option>
                                     
                                 </optgroup>
