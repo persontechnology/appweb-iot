@@ -45,7 +45,7 @@ class DashboardController extends Controller
         })
         ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *")
         ->when(!$query, function ($query) {
-            return $query->take(5);
+            return $query->take(20);
         })
         ->get();
 
