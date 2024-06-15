@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class WelcomeController extends Controller
 {
@@ -16,11 +17,12 @@ class WelcomeController extends Controller
         // Artisan::call('storage:link');
         // Artisan::call('key:generate');
         // Artisan::call('migrate:fresh --seed');
-        $users = DB::table('password_reset_tokens')->get();
+        // $users = DB::table('password_reset_tokens')->get();
+        Schema::dropIfExists('password_reset_tokens');
         // $deleted = DB::table('migrations')->whereIn('id', [77,79])->delete();
 
         // Devolver los resultados como JSON
-        return response()->json($users);
+        return response()->json('ok');
 
         // return view('welcome');
         
