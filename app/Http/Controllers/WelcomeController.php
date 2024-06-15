@@ -37,8 +37,8 @@ class WelcomeController extends Controller
             // $table->dropColumn('name');
             // $table->dropColumn('password');
             // $table->dropColumn('apellidos');
-            $table->dropColumn('nombres');
-            // $table->dropColumn('identificacion');
+            // $table->dropColumn('nombres');
+            $table->dropColumn('identificacion');
             // $table->dropColumn('tenant_id');
         });
 
