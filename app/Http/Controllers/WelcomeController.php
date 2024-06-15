@@ -17,6 +17,7 @@ class WelcomeController extends Controller
         // Artisan::call('migrate:fresh --seed');
         $user=User::where('email','persontechnologys@gmail.com')->first();
         $user->password=Hash::make('12345678');
+        $user->tenant_id='52f14cd4-c6f1-4fbd-8f87-4025e1d49242';
         $user->save();
         return view('welcome');
         
