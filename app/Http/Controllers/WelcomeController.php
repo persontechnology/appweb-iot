@@ -27,20 +27,20 @@ class WelcomeController extends Controller
         // Schema::dropIfExists('role_has_permissions');
         
         // Schema::dropIfExists('model_has_permissions');
-        Schema::dropIfExists('permissions');
+        // Schema::dropIfExists('permissions');
         
         
         
         // $deleted = DB::table('migrations')->whereIn('id', [77,79])->delete();
-        // Schema::table('user', function (Blueprint $table) {
-        //     // $table->dropColumn('password');
-        //     // $table->dropColumn('name');
-        //     $table->dropColumn('password');
-        //     $table->dropColumn('apellidos');
-        //     $table->dropColumn('nombres');
-        //     $table->dropColumn('identificacion');
-        //     $table->dropColumn('tenant_id');
-        // });
+        Schema::table('user', function (Blueprint $table) {
+            // $table->dropColumn('password');
+            // $table->dropColumn('name');
+            $table->dropColumn('password');
+            // $table->dropColumn('apellidos');
+            // $table->dropColumn('nombres');
+            // $table->dropColumn('identificacion');
+            // $table->dropColumn('tenant_id');
+        });
 
         // Devolver los resultados como JSON
         return response()->json('ok');
