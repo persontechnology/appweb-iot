@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class WelcomeController extends Controller
 {
@@ -13,6 +15,14 @@ class WelcomeController extends Controller
         // Artisan::call('storage:link');
         // Artisan::call('key:generate');
         // Artisan::call('migrate:fresh --seed');
+
+        $user=User::where('email',config('app.ADMIN_EMAIL'))->first();
+        if($user){
+            $user->password=Hash::make('12345678');
+            $user->save();
+        }
+
+
         return view('welcome');
         
     }
