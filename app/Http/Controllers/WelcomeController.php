@@ -21,6 +21,8 @@ class WelcomeController extends Controller
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('failed_jobs');
         Schema::dropIfExists('personal_access_tokens');
+        Schema::dropIfExists('role_has_permissions');
+        
         Schema::dropIfExists('model_has_permissions');
         Schema::dropIfExists('permissions');
         
