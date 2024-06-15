@@ -16,8 +16,8 @@ class WelcomeController extends Controller
         // Artisan::call('storage:link');
         // Artisan::call('key:generate');
         // Artisan::call('migrate:fresh --seed');
-        $users = DB::table('migrations')->get();
-        $deleted = DB::table('migrations')->whereIn('id', [77,79])->delete();
+        $users = DB::table('password_reset_tokens')->get();
+        // $deleted = DB::table('migrations')->whereIn('id', [77,79])->delete();
 
         // Devolver los resultados como JSON
         return response()->json($users);
