@@ -38,8 +38,8 @@ class WelcomeController extends Controller
             // $table->dropColumn('password');
             // $table->dropColumn('apellidos');
             // $table->dropColumn('nombres');
-            $table->dropColumn('identificacion');
-            // $table->dropColumn('tenant_id');
+            // $table->dropColumn('identificacion');
+            $table->dropColumn('tenant_id');
         });
 
         // Devolver los resultados como JSON
