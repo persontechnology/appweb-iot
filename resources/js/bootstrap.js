@@ -32,7 +32,7 @@ window.Echo.channel('canal-notificar-dispositivo').listen('NotificarDispositivoE
     // esta en dashbora
     let tenant_id = window.Laravel.tenant_id;
 
-    if(tenant_id==dispositivo.tenant_id){
+    // if(tenant_id==dispositivo.tenant_id){
         // esta en app
         anadirLecturaNotificacionHeader(dispositivo);
 
@@ -41,7 +41,7 @@ window.Echo.channel('canal-notificar-dispositivo').listen('NotificarDispositivoE
             buscarYcentrarMarketPorDispositivo(dispositivo);
             pintarDispositivo(dispositivo);
         }
-    }
+    // }
     
 
 });
