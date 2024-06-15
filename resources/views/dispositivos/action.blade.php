@@ -12,5 +12,11 @@
             <i class="ph ph-trash me-2"></i>
             Eliminar
         </a>
+        @if ($dis->use_tracking)
+        <a href="{{ route('dispositivo.map',$dis->dev_eui_hex) }}" class="dropdown-item">
+            <i class="ph ph-map-pin me-2"></i>
+            Ver tracking
+        </a>
+        @endif
     </div>
 </div>

@@ -7,6 +7,7 @@ use App\Models\Application;
 use App\Models\DeviceKeys;
 use App\Models\DeviceProfile;
 use App\Models\Dispositivo;
+use App\Models\PuntosLocalizacion;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -217,5 +218,28 @@ class DispositivoController extends Controller
         } catch (\Throwable $th) {
             return redirect()->route('dispositivos.index')->with('warning','Gateway no eliminado.!'.$th->getMessage());
         }
+    }
+    /**
+     * Buscar los puntos de localizacion.
+     */
+    public function showMap($dispositivoId)
+    {
+        $dispositivo=Dispositivo::where('dev_eui', DB::raw("decode('$dispositivoId', 'hex')"))->first();
+        $dk=DeviceKeys::where('dev_eui', DB::raw("decode('$dispositivoId', 'hex')"))->first();        
+        $tenant=Tenant::find(Auth::user()->tenant_id);
+        $puntosLocalizacion=PuntosLocalizacion::where('dev_eui', DB::raw("decode('$dispositivoId', 'hex')"))->where('tipo','LOCALIZACION')->limit(10)->orderBy('created_at','desc')->get();
+        $puntosLocalizacionError=PuntosLocalizacion::where('dev_eui', DB::raw("decode('$dispositivoId', 'hex')"))->limit(10)->orderBy('created_at','desc')->where('tipo','ERROR')->get();
+        
+        $data = array(
+            'aplicaciones'=>$tenant->applications,
+            'perfil_dispositivos'=>$tenant->deviceProfiles,
+            'dis'=>$dispositivo,
+            'nwk_key'=>$dk->nwk_key,
+            'dev_eui'=>$dispositivo->dev_eui,
+            'puntos_Localizaciones'=>$puntosLocalizacion,
+            'puntos_Localizaciones_error'=>$puntosLocalizacionError
+
+        );
+        return view('dispositivos.map',$data);
     }
 }

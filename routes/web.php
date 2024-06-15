@@ -75,7 +75,9 @@ Route::middleware(['auth','check.tenant_id','verified'])->group(function () {
     Route::resource('gateways', GatewayController::class);
     Route::resource('applicaciones', ApplicationController::class);
     Route::resource('dispositivos', DispositivoController::class);
-    
+     //dispositivos
+     Route::get('{id}/showMap', [DispositivoController::class, 'showMap'])->name('dispositivo.map');
+
     Route::resource('alertas', AlertaController::class);
     Route::post('alertas/actualizarHorario', [AlertaController::class,'actualizarHorario'])->name('alertas.actualizarHorario');
     Route::post('alertas/actualizarEstado', [AlertaController::class,'actualizarEstado'])->name('alertas.actualizarEstado');

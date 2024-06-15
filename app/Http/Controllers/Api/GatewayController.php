@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 
+use function Laravel\Prompts\error;
+
 class GatewayController extends Controller
 {
     public function sensor(Request $request)
@@ -49,11 +51,11 @@ class GatewayController extends Controller
             // consultar si el dispositivo tiene y tracking, si tiene tracking guadar PuntoLocalizacion.
             // caso contrario generamos lectura para los otros dispositivos
             $dev_eui=$deviceInfo['devEui'];
-            // $dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
-
-            // if ($dispositivoTracking && $dispositivoTracking->use_tracking) {
-            //         $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object);
-            // } else {
+             $dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+            Log::info('dadas');
+             if ($dispositivoTracking && $dispositivoTracking->use_tracking) {
+                   $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object);
+             } else {
                 
                 // Verificar si las alertas se activan con los datos del objeto
                 if ($this->verificarAlertas($object, $horario->alerta)) {
@@ -96,7 +98,7 @@ class GatewayController extends Controller
                 }
 
 
-            // }
+            }
             
         
             
@@ -109,25 +111,68 @@ class GatewayController extends Controller
 
     // crear putos de localizacion para el gps o dispositivoa que tengan atributo tracking
     public function crearPuntosLocalizacion($dev_eui,$object) {
-
-
-        if (isset($object['latitude']) && isset($object['longitude'])) {
-            $puntosLocalizacion= new PuntosLocalizacion();
-            $puntosLocalizacion->estado=1;
-            $puntosLocalizacion->tipo='LOCALIZACION';
-            $puntosLocalizacion->dato='TEST';
-            $puntosLocalizacion->error='';
-            $puntosLocalizacion->latitud=$object['latitude'];
-            $puntosLocalizacion->longitud=$object['longitude'];
-            $puntosLocalizacion->exactitud='1';
-            $puntosLocalizacion->dev_eui=$dev_eui;
-            $puntosLocalizacion->save();
-            return $puntosLocalizacion;
+        Log::info('INGRESO PUNTO DE UBICACION',[$object['latitude'],$object['longitude']]);
+        try {
+            if (isset($object['latitude']) && isset($object['longitude'])) {
+                $puntosLocalizacion= new PuntosLocalizacion();
+                $puntosLocalizacion->estado=1;
+                $puntosLocalizacion->tipo='LOCALIZACION';
+                $puntosLocalizacion->dato='TEST';
+                $puntosLocalizacion->error='';
+                $validationResult = $this->validateCoordinates($object['latitude'], $object['longitude']);
+                Log::error('PUNTO DE UBICACION NO GUARDADO',[$validationResult]);
+                $puntosLocalizacion->latitud=$object['latitude'];
+                $puntosLocalizacion->longitud=$object['longitude'];
+                if (!$validationResult['estado']) {
+                    $puntosLocalizacion->tipo='ERROR';
+                    $puntosLocalizacion->error=$validationResult['error'];
+                }
+                $puntosLocalizacion->exactitud='1';
+                $puntosLocalizacion->dev_eui=$dev_eui;
+                $puntosLocalizacion->save();
+                Log::info('PUNTO DE UBICACION GUARDADO',[$puntosLocalizacion]);
+                return $puntosLocalizacion;
+            }
+        } catch (\Exception $ex) {
+            Log::error('PUNTO DE UBICACION NO GUARDADO',[$ex]);
+            return null;
         }
-        return null;
-
+       
+        
         
     }
+    
+    private function validateCoordinates($latitude, $longitude)
+    {
+        $data = [
+            'estado' => true,
+            'error' => ''
+        ];
+    
+        if (!isset($latitude) || !isset($longitude)) {
+            return [
+                'estado' => false,
+                'error' => 'Las coordenadas no son numéricas: ' . json_encode($latitude) . ', ' . json_encode($longitude),
+            ];
+        }
+    
+        if ($latitude < -90 || $latitude > 90 || $longitude < -180 || $longitude > 180) {
+            return [
+                'estado' => false,
+                'error' => 'Las coordenadas están fuera de los límites válidos: ' . json_encode($latitude) . ', ' . json_encode($longitude)
+            ];
+        }
+    
+        if ($latitude < -5.0 || $latitude > 1.7 || $longitude < -81.1 || $longitude > -75.2) {
+            return [
+                'estado' => false,
+                'error' => 'Las coordenadas no pertenecen a Ecuador: ' . json_encode($latitude) . ', ' . json_encode($longitude)
+            ];
+        }
+    
+        return $data;
+    }
+    
 
 
     private function verificarAlertas($object, $alerta)
