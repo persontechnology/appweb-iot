@@ -2,12 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Schema;
 
 class WelcomeController extends Controller
 {
@@ -18,34 +13,7 @@ class WelcomeController extends Controller
         // Artisan::call('storage:link');
         // Artisan::call('key:generate');
         // Artisan::call('migrate:fresh --seed');
-        // $users = DB::table('password_reset_tokens')->get();
-        // Schema::dropIfExists('password_reset_tokens');
-        // Schema::dropIfExists('failed_jobs');
-        // Schema::dropIfExists('personal_access_tokens');
-        // Schema::dropIfExists('model_has_roles');
-        // Schema::dropIfExists('roles');
-        // Schema::dropIfExists('role_has_permissions');
-        
-        // Schema::dropIfExists('model_has_permissions');
-        // Schema::dropIfExists('permissions');
-        
-        
-        
-        // $deleted = DB::table('migrations')->whereIn('id', [77,79])->delete();
-        Schema::table('user', function (Blueprint $table) {
-            // $table->dropColumn('password');
-            // $table->dropColumn('name');
-            // $table->dropColumn('password');
-            // $table->dropColumn('apellidos');
-            // $table->dropColumn('nombres');
-            // $table->dropColumn('identificacion');
-            $table->dropColumn('tenant_id');
-        });
-
-        // Devolver los resultados como JSON
-        return response()->json('ok');
-
-        // return view('welcome');
+        return view('welcome');
         
     }
 
