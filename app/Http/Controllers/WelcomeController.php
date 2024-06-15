@@ -33,7 +33,7 @@ class WelcomeController extends Controller
         
         // $deleted = DB::table('migrations')->whereIn('id', [77,79])->delete();
         Schema::table('user', function (Blueprint $table) {
-            $table->dropColumn('email_verified_at');
+            $table->dropColumn('remember_token');
         });
 
         // Devolver los resultados como JSON
