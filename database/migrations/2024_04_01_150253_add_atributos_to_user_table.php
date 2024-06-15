@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('apellidos')->nullable();
             $table->string('nombres')->nullable();
             $table->string('identificacion')->nullable();
-
             $table->string('tenant_id')->nullable();
 
         });
