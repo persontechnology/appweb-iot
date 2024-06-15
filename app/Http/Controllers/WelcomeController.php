@@ -20,6 +20,8 @@ class WelcomeController extends Controller
         // $users = DB::table('password_reset_tokens')->get();
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('failed_jobs');
+        Schema::dropIfExists('personal_access_tokens');
+        
         
         // $deleted = DB::table('migrations')->whereIn('id', [77,79])->delete();
 
