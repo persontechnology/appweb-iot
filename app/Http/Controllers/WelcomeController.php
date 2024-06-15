@@ -17,7 +17,7 @@ class WelcomeController extends Controller
         // Artisan::call('key:generate');
         // Artisan::call('migrate:fresh --seed');
         $users = DB::table('migrations')->get();
-        $deleted = DB::table('migrations')->whereIn('id', [45,78,81])->delete();
+        $deleted = DB::table('migrations')->whereIn('id', [77,79])->delete();
 
         // Devolver los resultados como JSON
         return response()->json($users);
