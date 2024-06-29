@@ -6,9 +6,11 @@ use App\Models\Dispositivo;
 use App\Models\Lectura;
 use App\Models\PuntosLocalizacion;
 use App\Models\Tenant;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use PDF;
 
 
@@ -16,6 +18,7 @@ class DashboardController extends Controller
 {
     public function index() {
         
+
         
         $dispositivos=Dispositivo::whereHas('application', function ($query) {
             $query->whereHas('tenant', function ($query) {

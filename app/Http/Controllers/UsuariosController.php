@@ -51,7 +51,7 @@ class UsuariosController extends Controller
                 $user->apellidos = $request->apellidos;
                 $user->nombres = $request->nombres;
                 $user->identificacion = $request->identificacion;
-                $user->tenant_id=Auth::user()->tenant_id;
+                
                 $user->save();
             }
 
@@ -66,6 +66,7 @@ class UsuariosController extends Controller
                 $tenantUser->is_admin = true;
                 $tenantUser->is_device_admin = false;
                 $tenantUser->is_gateway_admin = false;
+                $user->tenant_id=$tenantUser->tenant_id;
                 $tenantUser->save();
             }
 

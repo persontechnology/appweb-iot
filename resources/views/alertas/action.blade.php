@@ -18,15 +18,7 @@
                 <i class="ph ph-trash me-2"></i>
                 Eliminar
             </a>
-
-            <a href="#" class="dropdown-item">
-                <i class="ph-file-xls me-2"></i>
-                Export to CSV
-            </a>
-            <a href="#" class="dropdown-item">
-                <i class="ph-file-doc me-2"></i>
-                Export to DOC
-            </a>
+            
         </div>
     </div>
 </div>

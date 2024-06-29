@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class WelcomeController extends Controller
 {
@@ -13,6 +17,9 @@ class WelcomeController extends Controller
         // Artisan::call('storage:link');
         // Artisan::call('key:generate');
         // Artisan::call('migrate:fresh --seed');
+        // DB::table('migrations')->truncate();
+        Schema::dropIfExists('migrations');
+
         return view('welcome');
         
     }
