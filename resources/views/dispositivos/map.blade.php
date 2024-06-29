@@ -7,39 +7,7 @@
 
 <div class="card">
     <div class="row m-3">
-        <div class="col-lg-4">
-            <h2>Tabla de errores</h2>
-            @if (count($puntos_Localizaciones_error)>0)
-            <table class="table table-sm table-boreder">
-                <thead>
-                    <th>
-                        ERROR
-                    </th>
-                    <th>
-                        FECHA
-                    </th>
-                </thead>
-            <tbody>
-                @foreach ($puntos_Localizaciones_error as $item)
-                <tr>
-                    <td>
-                        <span style="font-size: 10px">{{$item->error}}</span>
-                    </td>
-                    <td>
-                        <span style="font-size: 10px">{{$item->created_at}}</span>  
-                    </td>
-                </tr>                        
-                @endforeach
-
-            </tbody>
-            </table>
-            @else
-                <span>No existe errores</span>
-            @endif
-            
-            
-        </div>
-        <div class="col-lg-8">
+        <div class="col-lg-12">
             <h2>Ubicación del dispositivo</h2>
             <div id="map"></div>
         </div>

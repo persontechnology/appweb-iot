@@ -228,8 +228,7 @@ class DispositivoController extends Controller
         $dk=DeviceKeys::where('dev_eui', DB::raw("decode('$dispositivoId', 'hex')"))->first();        
         $tenant=Tenant::find(Auth::user()->tenant_id);
         $puntosLocalizacion=PuntosLocalizacion::where('dev_eui', DB::raw("decode('$dispositivoId', 'hex')"))->where('tipo','LOCALIZACION')->limit(10)->orderBy('created_at','desc')->get();
-        $puntosLocalizacionError=PuntosLocalizacion::where('dev_eui', DB::raw("decode('$dispositivoId', 'hex')"))->limit(10)->orderBy('created_at','desc')->where('tipo','ERROR')->get();
-        
+       
         $data = array(
             'aplicaciones'=>$tenant->applications,
             'perfil_dispositivos'=>$tenant->deviceProfiles,
@@ -237,7 +236,6 @@ class DispositivoController extends Controller
             'nwk_key'=>$dk->nwk_key,
             'dev_eui'=>$dispositivo->dev_eui,
             'puntos_Localizaciones'=>$puntosLocalizacion,
-            'puntos_Localizaciones_error'=>$puntosLocalizacionError
 
         );
         return view('dispositivos.map',$data);

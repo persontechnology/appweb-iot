@@ -74,7 +74,5 @@ class Dispositivo extends Model
     {
         return $this->belongsTo(DeviceProfile::class, 'device_profile_id');
     }
-
     
-
 }

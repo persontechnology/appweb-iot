@@ -10,6 +10,7 @@ use App\Models\Dispositivo;
 use App\Models\Horario;
 use App\Models\Lectura;
 use App\Models\PuntosLocalizacion;
+use App\Models\SensorData;
 use App\Notifications\EnviarEmailUsuariosAsignadosLectura;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -24,6 +25,9 @@ class GatewayController extends Controller
 {
     public function sensor(Request $request)
     {
+        //crear datos del sensor 
+        Log::info('datos del sensor',[$request]);
+        $this->guardarDatosSensor($request);
         // error_log($request);
         try {
             // Obtener la información del dispositivo y del objeto de la solicitud
@@ -53,7 +57,7 @@ class GatewayController extends Controller
             $dev_eui=$deviceInfo['devEui'];
              $dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
             Log::info('dadas');
-             if ($dispositivoTracking && $dispositivoTracking->use_tracking) {
+             if (isset($object['motion_status'])&& $object['motion_status']=="moving") {
                    $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object);
              } else {
                 
@@ -111,7 +115,6 @@ class GatewayController extends Controller
 
     // crear putos de localizacion para el gps o dispositivoa que tengan atributo tracking
     public function crearPuntosLocalizacion($dev_eui,$object) {
-        Log::info('INGRESO PUNTO DE UBICACION',[$object['latitude'],$object['longitude']]);
         try {
             if (isset($object['latitude']) && isset($object['longitude'])) {
                 $puntosLocalizacion= new PuntosLocalizacion();
@@ -123,15 +126,14 @@ class GatewayController extends Controller
                 Log::error('PUNTO DE UBICACION NO GUARDADO',[$validationResult]);
                 $puntosLocalizacion->latitud=$object['latitude'];
                 $puntosLocalizacion->longitud=$object['longitude'];
-                if (!$validationResult['estado']) {
-                    $puntosLocalizacion->tipo='ERROR';
-                    $puntosLocalizacion->error=$validationResult['error'];
+                if ($validationResult['estado']) {
+                    $puntosLocalizacion->exactitud='1';
+                    $puntosLocalizacion->dev_eui=$dev_eui;
+                    $puntosLocalizacion->save();
+                    Log::info('PUNTO DE UBICACION GUARDADO',[$puntosLocalizacion]);
+                    return $puntosLocalizacion;
                 }
-                $puntosLocalizacion->exactitud='1';
-                $puntosLocalizacion->dev_eui=$dev_eui;
-                $puntosLocalizacion->save();
-                Log::info('PUNTO DE UBICACION GUARDADO',[$puntosLocalizacion]);
-                return $puntosLocalizacion;
+                return null;
             }
         } catch (\Exception $ex) {
             Log::error('PUNTO DE UBICACION NO GUARDADO',[$ex]);
@@ -174,7 +176,13 @@ class GatewayController extends Controller
     }
     
 
+    private function guardarDatosSensor($request){
 
+        $sensorData= new SensorData();
+        $sensorData->fecha=Carbon::now();
+        $sensorData->data=$request;
+        $sensorData->save();
+    }
     private function verificarAlertas($object, $alerta)
     {
         
