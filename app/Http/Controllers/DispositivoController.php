@@ -7,6 +7,7 @@ use App\Models\Application;
 use App\Models\DeviceKeys;
 use App\Models\DeviceProfile;
 use App\Models\Dispositivo;
+use App\Models\Lectura;
 use App\Models\PuntosLocalizacion;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
@@ -21,7 +22,10 @@ class DispositivoController extends Controller
      */
     public function index(DispositivoDataTable $dataTable)
     {
-        
+
+        // $lectura=Lectura::first();
+        // $dispo= $lectura->dipositivoXlecturaId($lectura->id);
+        // return $dispo;
 
         return $dataTable->render('dispositivos.index');
     }

@@ -18,9 +18,9 @@ return new class extends Migration
             $table->json('data')->nullable();
             $table->json('lat')->nullable();
             $table->json('long')->nullable();
-            $table->binary('dev_eui');
+            $table->string('dev_eui');
             $table->unsignedBigInteger('alerta_id');
-            $table->foreign('dev_eui')->references('dev_eui')->on('device')->onDelete('cascade');
+            // $table->foreign('dev_eui')->references('dev_eui')->on('device')->onDelete('cascade');
             $table->foreign('alerta_id')->references('id')->on('alertas')->onDelete('cascade');
             $table->uuid('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('tenant')->onDelete('cascade');

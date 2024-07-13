@@ -31,20 +31,25 @@ class Lectura extends Model
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
     
-    // una lectura pertenece a  un dispositivo
-    public function dispositivo()
-    {
-        return $this->belongsTo(Dispositivo::class, 'dev_eui','dev_eui');
-    }
+
+    // paso 1
+    // esta funcion es importante, ya que de aqui ingresamos a la lectura pa accer al dev_eui
+    // public function xId($id)  {
+    //     return $this->find($id);
+    // }
+
+    // paso 2
     public function dipositivoXlecturaId($id) {
         $lect= $this->find($id);
         $dis=$lect->buscarDispositivoDevEui($lect->dev_eui);
         return $dis;
     }
 
-    // esta funcion es importante, ya que de aqui ingresamos a la lectura pa accer al dev_eui
-    public function xId($id)  {
-        return $this->find($id);
+    // paso3
+    // una lectura pertenece a  un dispositivo
+    public function dispositivo()
+    {
+        return $this->belongsTo(Dispositivo::class, 'dev_eui','dev_eui');
     }
 
     // buscar dispositivo por dev_eui
@@ -57,29 +62,13 @@ class Lectura extends Model
         return [$dispositivo->latitude??'',$dispositivo->longitude ?? ''];
     }
 
-    // buscar dispositivo por dev_eui fabian
-    static function buscarDispositivoUsoDevEui($dev_eui) {
-        return Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
-    }
+   
     // una lectura pertenece a  una alerta
     public function alerta()
     {
         return $this->belongsTo(Alerta::class);
     }
-    
-    public function setDevEuiAttribute($value)
-    {
-        // Decodifica el valor hexadecimal a binario
-        $gatewayIdBinary = DB::selectOne("SELECT decode(?, 'hex') as binary_value", [$value])->binary_value;
-        // Asigna el valor binario al atributo 'dev_eui'
-        $this->attributes['dev_eui'] = $gatewayIdBinary;
-    }
 
-    public function getDevEuiAttribute($value)
-    {
-        // Convierte el valor binario a hexadecimal
-        return bin2hex(stream_get_contents($value));
-    }
 
 
     // Método para obtener lecturas basadas en el tenant del usuario
@@ -93,10 +82,7 @@ class Lectura extends Model
             });
         })->latest();
     }
-    // disparar evento para notificacion en tiempo real
-    // protected $dispatchesEvents = [
-    //     'created' => LecturaGuardadoEvent::class,
-    // ];
+    
 
     // una lectura tiene un tenant
     public function tenant()  {
