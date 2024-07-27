@@ -24,11 +24,9 @@ class DashboardController extends Controller
             $query->whereHas('tenant', function ($query) {
                 $query->where('id', Auth::user()->tenant_id);
             });
-        })
+        })->with(['deviceprofile:id,name,description','puntosLocalizacion','lecturas','lecturasLatest'])
         ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *")
         ->get();
-        
-        //return $dispositivos;
         $data = array('dispositivos'=>$dispositivos);
         return view('dashboard',$data);
     }
@@ -38,20 +36,19 @@ class DashboardController extends Controller
         $query = $request->get('query');
 
         // Realiza la búsqueda de dispositivos según el query
-        $dispositivos = Dispositivo::whereHas('application', function ($query) {
+        $dispositivos=Dispositivo::whereHas('application', function ($query) {
             $query->whereHas('tenant', function ($query) {
                 $query->where('id', Auth::user()->tenant_id);
             });
-        })
-        ->when($query, function ($query, $search) {
-            return $query->where(DB::raw("encode(dev_eui, 'hex')"), 'like', "%$search%");
-        })
-        ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *")
-        ->when(!$query, function ($query) {
-            return $query->take(20);
-        })
-        ->get();
-
+        })->with(['deviceprofile:id,name,description','puntosLocalizacion','lecturas','lecturasLatest','puntosLocalizacionLatest'])
+        ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *");
+        if(isset($query)){
+            $dispositivos=$dispositivos->when($query, function ($query, $search) {
+                return $query->where(DB::raw("encode(dev_eui, 'hex')"), 'like', "%$search%");
+            });
+        }
+        $dispositivos=$dispositivos->get();
+     
         return response()->json($dispositivos);
     }
 

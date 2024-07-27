@@ -17,11 +17,13 @@ return new class extends Migration
             $table->enum('tipo',['LOCALIZACION','ERROR'])->default('LOCALIZACION');
             $table->text('dato')->nullable();
             $table->text('error')->nullable();
+            $table->json('data')->nullable();
             $table->decimal('latitud',10,8)->nullable();
             $table->decimal('longitud',10,8)->nullable();
             $table->integer('exactitud')->nullable();  
-            $table->binary('dev_eui');          
-            $table->foreign('dev_eui')->references('dev_eui')->on('device')->onDelete('cascade');
+            //$table->binary('dev_eui'); 
+            $table->string('dev_eui');         
+            //$table->foreign('dev_eui')->references('dev_eui')->on('device')->onDelete('cascade');
             $table->timestamps();
         });
     }
