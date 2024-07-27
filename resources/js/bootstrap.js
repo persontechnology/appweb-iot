@@ -35,7 +35,11 @@ window.Echo.channel('canal-notificar-dispositivo').listen('NotificarDispositivoE
     if(tenant_id==dispositivo.tenant_id){
         // esta en app
         anadirLecturaNotificacionHeader(dispositivo);
-
+        try {
+            cargarDispositivos();
+        } catch (error) {
+            
+        }
         // esta en dashboard
         if (typeof buscarYcentrarMarketPorDispositivo === 'function') {
             buscarYcentrarMarketPorDispositivo(dispositivo);
