@@ -340,14 +340,24 @@
                 use_tracking,
                 deviceprofile,
                 lecturas_latest,
+                puntos_localizacion_latest,
                 description
             } = dispositivo;
             const overlaySection = $('#overlay-section');
-            let estadoLectura = estadoDispositivo(lecturas_latest);
-            let estadoBadgetLectura = estadoBadgetDispositivo(lecturas_latest);
-            let sensor=sensorData(lecturas_latest)??'';
+            let estadoLectura = estadoDispositivo(puntos_localizacion_latest??lecturas_latest);
+            let estadoBadgetLectura = estadoBadgetDispositivo(puntos_localizacion_latest??lecturas_latest);
+            let sensor=sensorData(puntos_localizacion_latest??lecturas_latest)??'';
+            let ultimaFecha='';
+            let conversionFecha='';
+            if(puntos_localizacion_latest){
+                ultimaFecha=puntos_localizacion_latest?.created_at;
+                conversionFecha=puntos_localizacion_latest?calcularDiferenciaTiempo(puntos_localizacion_latest.created_at):''
+            }else{
+                ultimaFecha=lecturas_latest?.created_at;
+                conversionFecha=lecturas_latest?calcularDiferenciaTiempo(lecturas_latest.created_at):''
+            }
             overlaySection.html(`
-        <div class="card-group">
+        <div class="card-group" style="min-height: 140px;">
             <div class="card p-1">
                 <div class="card-body m-0 p-0">
                 <div class="card-title text-small-card m-0 p-0 d-flex align-items-center justify-content-between">
@@ -370,9 +380,9 @@
                      <div class="d-flex align-items-center justify-content-between">
                         <div class="text-muted text-small-card">Último regitro</div>
                         <div class="fw-semibold">
-                            ${lecturas_latest?calcularDiferenciaTiempo(lecturas_latest.created_at):''}
+                            ${conversionFecha}
                             <div class="text-muted text-small-card">
-                            ${lecturas_latest?lecturas_latest.created_at:''}    
+                            ${ultimaFecha??''}    
                             </div>
                         </div>
                     </div>            
@@ -393,25 +403,17 @@
             </div>
 
             <div class="card">
-                <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">
-                    This is a wider card with supporting text below as a natural lead-in to
-                    additional content. This card has even longer content than the first to
-                    show that equal height action.
-                </p>
-                </div>
-
-                <div class="card-footer d-flex justify-content-between">
-                <span class="text-muted">Last updated 3 mins ago</span>
-                <span class="hstack gap-1">
-                    <i class="ph-star fs-base text-warning"></i>
-                    <i class="ph-star fs-base text-warning"></i>
-                    <i class="ph-star fs-base text-warning"></i>
-                    <i class="ph-star fs-base text-warning"></i>
-                    <i class="ph-star-half fs-base text-warning"></i>
-                    <span class="text-muted ms-1">(63)</span>
-                </span>
+                <div class="card-body m-0 p-0">
+                    <h5 class="card-title text-small-card p-1 m-0">registros</h5>
+                    <div class=" p-0 m-0">
+                        <a href="#" class="navbar-nav-link navbar-nav-link-icon rounded-pill" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                            <i class="ph ph-bell"></i>
+                            <span class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1" id="contadorLecturasNotificacion">
+                                16
+                            </span>
+					    </a>
+                    </div>
+                
                 </div>
             </div>
             </div>
@@ -555,6 +557,7 @@
                         </div>`;
                 }else if(motionStatus && motionStatus==="moving"){
                     return `<div class="list-group-item p-1 d-flex">
+                            <span>
                             BATERIA 
                             <span class="badge bg-primary bg-opacity-20 text-primary rounded-pill ms-auto">
                              ${conveerDataObject?.battery}%  
@@ -573,10 +576,6 @@
 
                             <i class="fa-solid fa-temperature-low"></i>    
                             </span>
-                        </div>
-                        <div class="list-group-item p-1 d-flex">
-                            DISTANCIA
-                            <span class="badge bg-primary bg-opacity-20 text-primary rounded-pill ms-auto">85</span>
                         </div>`;
                 }else if(press){
 

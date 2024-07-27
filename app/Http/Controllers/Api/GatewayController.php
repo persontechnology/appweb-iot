@@ -46,9 +46,9 @@ class GatewayController extends Controller
             $horario = $this->verificarHorario($applicationId);
             
             // Verificar si existe un horario para la aplicación actual
-            //if (!$horario) {
-              //  throw new \Exception('NO EXISTE HORARIO PARA LA APLICACIÓN ' . $applicationId);
-            //}
+            if (!$horario) {
+              throw new \Exception('NO EXISTE HORARIO PARA LA APLICACIÓN ' . $applicationId);
+            }
             
 
 
