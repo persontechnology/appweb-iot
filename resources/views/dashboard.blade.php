@@ -516,6 +516,7 @@
                 let motionStatus=conveerDataObject?.motion_status??null;
                 let press=conveerDataObject?.press??null;
                 if(distancia&&distancia>=0){
+                    distancia=Number(distancia)/10;
                     let iconoo=null;
                     let estadodistancia=null;
                     let descripcio=null;
