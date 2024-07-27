@@ -34,9 +34,9 @@ class Lectura extends Model
 
     // paso 1
     // esta funcion es importante, ya que de aqui ingresamos a la lectura pa accer al dev_eui
-    // public function xId($id)  {
-    //     return $this->find($id);
-    // }
+    public function xId($id)  {
+        return $this->find($id);
+    }
 
     // paso 2
     public function dipositivoXlecturaId($id) {
