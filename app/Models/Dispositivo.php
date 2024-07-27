@@ -59,9 +59,13 @@ class Dispositivo extends Model
      // un dispositivo, o device tiene varias lecturas
      public function lecturas()
      {
-         return $this->hasMany(Lectura::class, 'dev_eui', 'dev_eui');
+         return $this->hasMany(Lectura::class, 'dev_eui', 'dev_eui_hex');
      }
 
+     public function lecturasLatest()
+     {
+         return $this->hasOne(Lectura::class, 'dev_eui', 'dev_eui_hex')->latest();
+     }
 
     // un dispositivo pertenece a una aplicacion
     public function application(): BelongsTo
@@ -74,5 +78,15 @@ class Dispositivo extends Model
     {
         return $this->belongsTo(DeviceProfile::class, 'device_profile_id');
     }
+      // un dispositivo, o device tiene varias lecturas
+      public function puntosLocalizacion()
+      {
+          return $this->hasMany(PuntosLocalizacion::class, 'dev_eui', 'dev_eui_hex');
+      }
+ 
+      public function puntosLocalizacionLatest()
+      {
+          return $this->hasOne(PuntosLocalizacion::class, 'dev_eui', 'dev_eui_hex')->latest();
+      }
     
 }

@@ -58,7 +58,7 @@
 	<script src="{{ asset('assets/js/app.js') }}"></script>
 	<script src="{{ asset('assets/demo/pages/navbar_components.js') }}"></script>
 	<script src="{{ asset('assets/js/page.js') }}"></script>
-	
+	<link rel="stylesheet" href="{{ asset('assets/css/personalized.css') }}" />
 	
 	
 	<!-- SECCTION VITE FOR ECHO SERVER --->

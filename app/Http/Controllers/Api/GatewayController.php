@@ -26,7 +26,9 @@ class GatewayController extends Controller
     public function sensor(Request $request)
     {
         //crear datos del sensor 
+        
         error_log($request);
+
         $this->guardarDatosSensor($request);
         // error_log($request);
         try {
@@ -37,6 +39,7 @@ class GatewayController extends Controller
             // Verificar si se recibieron los datos del dispositivo y del objeto
             if (!$deviceInfo || !$object) {
                 throw new \Exception('NO EXISTE DEVICE INFO O OBJECT');
+                Log::info('NO EXISTE DEVICE INFO O OBJECT');
             }
             
             // Obtener el ID de la aplicación del dispositivo
@@ -46,20 +49,21 @@ class GatewayController extends Controller
             $horario = $this->verificarHorario($applicationId);
             
             // Verificar si existe un horario para la aplicación actual
-            if (!$horario) {
-                throw new \Exception('NO EXISTE HORARIO PARA LA APLICACIÓN ' . $applicationId);
-            }
+            //if (!$horario) {
+              //  throw new \Exception('NO EXISTE HORARIO PARA LA APLICACIÓN ' . $applicationId);
+            //}
             
 
 
             // consultar si el dispositivo tiene y tracking, si tiene tracking guadar PuntoLocalizacion.
             // caso contrario generamos lectura para los otros dispositivos
             $dev_eui=$deviceInfo['devEui'];
-             $dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+             //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
             
              if (isset($object['motion_status'])&& $object['motion_status']=="moving") {
+                Log::info('dsasdsa',[$request]);
                 error_log('si');
-                   $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object);
+                   $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object,$request);
              } else {
                 error_log('no');
                 // Verificar si las alertas se activan con los datos del objeto
@@ -105,9 +109,10 @@ class GatewayController extends Controller
 
             }
             
-        
+        return "ok";
             
         } catch (\Exception $th) {
+            return  $th->getMessage();
             // Capturar cualquier excepción y registrarla en los registros de errores
             error_log('OCURRIO UN ERROR: ' . $th->getMessage());
         }
@@ -115,29 +120,30 @@ class GatewayController extends Controller
 
 
     // crear putos de localizacion para el gps o dispositivoa que tengan atributo tracking
-    public function crearPuntosLocalizacion($dev_eui,$object) {
+    public function crearPuntosLocalizacion($dev_eui,$object,$request) {
         try {
             if (isset($object['latitude']) && isset($object['longitude'])) {
+                $data=json_decode($request->getContent(), true);
                 $puntosLocalizacion= new PuntosLocalizacion();
                 $puntosLocalizacion->estado=1;
+                $puntosLocalizacion->data=$data;
                 $puntosLocalizacion->tipo='LOCALIZACION';
                 $puntosLocalizacion->dato='TEST';
                 $puntosLocalizacion->error='';
                 $validationResult = $this->validateCoordinates($object['latitude'], $object['longitude']);
-                Log::error('PUNTO DE UBICACION NO GUARDADO',[$validationResult]);
                 $puntosLocalizacion->latitud=$object['latitude'];
                 $puntosLocalizacion->longitud=$object['longitude'];
                 if ($validationResult['estado']) {
                     $puntosLocalizacion->exactitud='1';
                     $puntosLocalizacion->dev_eui=$dev_eui;
+                    Log::info('PUNTO DE UBICACION GUARDADO',[json_decode($request->getContent(), true)]);
                     $puntosLocalizacion->save();
-                    Log::info('PUNTO DE UBICACION GUARDADO',[$puntosLocalizacion]);
                     return $puntosLocalizacion;
                 }
                 return null;
             }
         } catch (\Exception $ex) {
-            Log::error('PUNTO DE UBICACION NO GUARDADO',[$ex]);
+            Log::error('PUNTO DE UBICACION NO GUARDADO'.$ex);
             return null;
         }
        
@@ -181,7 +187,7 @@ class GatewayController extends Controller
 
         $sensorData= new SensorData();
         $sensorData->fecha=Carbon::now();
-        $sensorData->data=$request;
+        $sensorData->data=json_decode($request->getContent(), true);;
         $sensorData->save();
     }
     private function verificarAlertas($object, $alerta)
