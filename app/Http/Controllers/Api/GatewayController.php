@@ -26,6 +26,9 @@ class GatewayController extends Controller
     public function sensor(Request $request)
     {
         //crear datos del sensor 
+        
+        error_log($request);
+
         $this->guardarDatosSensor($request);
         // error_log($request);
         try {

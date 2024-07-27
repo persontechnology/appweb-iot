@@ -83,6 +83,7 @@ class DeviceProfileController extends Controller
             $dp->relay_notify_limit_bucket_size=0;
             $dp->relay_global_uplink_limit_bucket_size=0;
             $dp->relay_overall_limit_bucket_size=0;
+            $dp->rx1_delay=0;
             $dp->allow_roaming=false;
             $dp->save();
 
