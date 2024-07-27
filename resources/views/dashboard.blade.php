@@ -579,13 +579,45 @@
                             </span>
                         </div>`;
                 }else if(press){
+                    return `
+                    <div class="list-group-item p-1 d-flex">
+                            TIPO DE PRESION
+                            <span class="text-primary ms-auto">
+                            <span class="badge bg-primary bg-opacity-20 text-primary rounded-pill ms-auto">
+                             ${press}   
+                            </span>
+
+                            <i class="fa-solid fa-temperature-low"></i>    
+                            </span>
+                        </div>
+                    <div class="list-group-item p-1 d-flex">
+                            <span>
+                            BATERIA 
+                            <span class="badge bg-primary bg-opacity-20 text-primary rounded-pill ms-auto">
+                             ${conveerDataObject?.battery}%  
+                            </span>
+                            </span>
+                            <span class="badge text-primary ms-auto">
+                             <i class="ph-thin ph-battery-charging"></i>
+                            </span>
+                        </div>
+                        `;
 
                 }else{
-
+                    return `
+                    <div class="list-group-item p-1 d-flex">
+                            <span>
+                            BATERIA 
+                            <span class="badge bg-primary bg-opacity-20 text-primary rounded-pill ms-auto">
+                             ${conveerDataObject?.battery}%  
+                            </span>
+                            </span>
+                            <span class="badge text-primary ms-auto">
+                             <i class="ph-thin ph-battery-charging"></i>
+                            </span>
+                        </div>
+                        `;
                 }
-
-
-                debugger;
             }
         }
             // Función para sumar horas a una fecha dada
