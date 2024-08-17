@@ -81,6 +81,9 @@
     <link rel="stylesheet" href="{{ asset('custom/css/homeDashboard.css') }}">
     <script src="{{ asset('custom/js/general.js') }}"></script>
     <script src="{{ asset('custom/js/homeDashboard.js') }}"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/stock/modules/price-indicator.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
 @endpush
 
 
@@ -107,7 +110,6 @@
                 url: "{{ route('buscar.dispositivos') }}",
                 success: function(response) {
                     actualizarMapaYLista(response);
-                    console.log('uu');
                     actualizarListaDispositivos(response);
                 },
                 error: function(xhr, status, error) {
@@ -277,7 +279,7 @@
                     </tr>
                 `;
                     tbody.append(row);
-                    mostrarInformacionDispositivo("sas")
+
                     // Asigna evento de clic para buscar y centrar el marcador por dispositivo completo
                     const dispositivoItem = document.getElementById(`dispositivo-item-${dev_eui_hex}`);
                     dispositivoItem.addEventListener('click', function(event) {
@@ -297,6 +299,7 @@
                 use_tracking,
                 deviceprofile,
                 lecturas_latest,
+                lecturas,
                 puntos_localizacion_latest,
                 description,
                 application
@@ -360,15 +363,10 @@
             </div>
 
             <div class="card">
-                <div class="card-body m-0 p-0">
-                    <h5 class="card-title text-small-card p-1 m-0">registros</h5>
-                    <div class=" p-0 m-0">
-                        <a href="#" class="navbar-nav-link navbar-nav-link-icon rounded-pill" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                            <i class="ph ph-bell"></i>
-                            <span class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1" id="contadorLecturasNotificacion">
-                                16
-                            </span>
-					    </a>
+                <div class="card-body m-0 p-0">             
+                    <div>
+                        <div id="grafico" style="height: 200px; min-width: 20px"></div>
+
                     </div>
                 
                 </div>
@@ -377,6 +375,7 @@
     `);
             overlaySection.show();
             updatePercentage(lecturas_latest, configuraciones ?? []);
+            createChart(lecturas);
         }
 
 
@@ -410,7 +409,7 @@
             }
         }
 
-       
+
 
         function sensorData(lecturasLatest) {
             let conveerData = lecturasLatest?.data ?? null;
@@ -439,7 +438,7 @@
                             <div class="d-flex flex-column">
                                 <!-- Estado del lector -->
                                 <div class="mb-2">
-                                    <span class="text-dark h6 fw-bold" id="estadoLector">Estado</span>
+                                    <span class="text-dark h6 fw-bold" style="font-size: 11px;" id="estadoLector">Estado</span>
                                 </div>
 
                                 <!-- Distancia -->
@@ -533,5 +532,44 @@
             //buscarDispositivos();
             cargarDispositivos();
         });
+
+        function createChart(lecturas) {
+
+            // Convertimos las lecturas a un formato adecuado para Highcharts
+            const seriesData = lecturas.map(lectura => {
+                return [
+                    new Date(lectura.data.time).getTime(), // Convertimos el tiempo a milisegundos
+                    lectura?.data?.object?.distance ?? 0 // Extraemos la distancia
+                ];
+            });
+
+            Highcharts.stockChart('grafico', {
+                rangeSelector: {
+                    selected: 1
+                },
+                title: {
+                    text: ''
+                },
+                series: [{
+                    name: '(mm)',
+                    data: seriesData,
+                    tooltip: {
+                        valueSuffix: ' mm'
+                    }
+                }],
+                xAxis: {
+                    type: 'datetime',
+                    title: {
+                        text: ''
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: '(mm)'
+                    }
+                }
+            });
+
+        }
     </script>
 @endpush

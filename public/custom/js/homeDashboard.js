@@ -44,7 +44,10 @@ function updatePercentage(lecturasLatest, configuraciones) {
                             0.5
                         );
                         section.textContent = configuraciones[i].descripcion;
-                        section.style.color = configuraciones[i].color;
+                        section.style.color = hexToRgba(
+                            configuraciones[i].color,
+                            0.5
+                        );
                         const percentageText = document.createElement("span");
                         percentageText.className = "percentage-text";
                         let cantidadPositiva = Math.abs(heightPercentage);
