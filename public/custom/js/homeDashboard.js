@@ -97,7 +97,6 @@ function sumarHoras(fecha, horas) {
     return nuevaFecha;
 }
 
-
 //Funcion para calcular la diferencia de tiempo
 function calcularDiferenciaTiempo(fechaUltimaLectura) {
     const fechaActual = new Date();
@@ -109,48 +108,52 @@ function calcularDiferenciaTiempo(fechaUltimaLectura) {
     const dias = Math.floor(horas / 24);
 
     if (dias > 0) {
-        return `hace ${dias} ${dias === 1 ? 'día' : 'días'}`;
+        return `hace ${dias} ${dias === 1 ? "día" : "días"}`;
     } else if (horas > 0) {
-        return `hace ${horas} ${horas === 1 ? 'hora' : 'horas'}`;
+        return `hace ${horas} ${horas === 1 ? "hora" : "horas"}`;
     } else if (minutos > 0) {
-        return `hace ${minutos} ${minutos === 1 ? 'minuto' : 'minutos'}`;
+        return `hace ${minutos} ${minutos === 1 ? "minuto" : "minutos"}`;
     } else {
-        return 'hace unos momentos';
+        return "hace unos momentos";
     }
 }
 
 function estadoDispositivo(lecturasLatest) {
-
     if (lecturasLatest) {
         const fechaUltimaLectura = lecturasLatest?.created_at; // Fecha de la última lectura en formato ISO 8601
         const resultado = reportoEnUltimas24Horas(fechaUltimaLectura);
         if (resultado) {
-            return `<div class="bg-success bg-opacity-50 text-success lh-1 rounded-pill p-1">
+            return `<span class="bg-success bg-opacity-50 text-success lh-1 rounded-pill p-1" style="w">
                     <i class="ph ph-bell"></i>
-                </div>`
+                </span>`;
         } else {
-            return `<div class="bg-danger bg-opacity-50 text-danger lh-1 rounded-pill p-1">
+            return `<span class="bg-danger bg-opacity-50 text-danger lh-1 rounded-pill p-1">
                     <i class="ph ph-bell"></i>
-                </div>`
+                </span>`;
         }
-
     } else {
-        return `<div class="bg-dark bg-opacity-50 text-dark lh-1 rounded-pill p-1">
+        return `<span class="bg-dark bg-opacity-50 text-dark lh-1 rounded-pill p-1">
                     <i class="ph ph-bell"></i>
-                </div>`
+                </span>`;
     }
 }
 
-function estadoBadgetDispositivo(lecturasLatest) {
+function estadoBadgetDispositivo(lecturasLatest, fontSize = null) {
     if (lecturasLatest) {
         const fechaUltimaLectura = lecturasLatest?.created_at; // Fecha de la última lectura en formato ISO 8601
         const resultado = reportoEnUltimas24Horas(fechaUltimaLectura);
         if (resultado) {
-            return `<span class="badge bg-success bg-opacity-10 text-success">Conectado</span>`
+            return `<span class="badge bg-success bg-opacity-10 text-success" style="font-size:${
+                fontSize ? fontSize : "12"
+            }px;">Conectado</span>`;
         } else {
-            return `<span class="badge bg-danger bg-opacity-10 text-danger">Desconectado</span>`
+            return `<span class="badge bg-danger bg-opacity-10 text-danger" style="font-size:${
+                fontSize ? fontSize : "12"
+            }px;">Desconectado</span>`;
         }
     } else {
-        return `<span class="badge bg-dark bg-opacity-10 text-dark">Sin registros</span>`
+        return `<span class="badge bg-dark bg-opacity-10 text-dark" style="font-size:${
+            fontSize ? fontSize : "12"
+        }px;">Sin registros</span>`;
     }
 }

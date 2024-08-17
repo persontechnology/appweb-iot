@@ -83,3 +83,8 @@
     pointer-events: none;
     /* Asegura que el texto no interfiera con clics */
 }
+
+.table-active {
+    background-color: #d1ecf1 !important; /* Color de fondo personalizado */
+    color: #0c5460; /* Color de texto personalizado */
+}

@@ -79,11 +79,11 @@
 
 @push('scriptsHeader')
     <link rel="stylesheet" href="{{ asset('custom/css/homeDashboard.css') }}">
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/price-indicator.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
     <script src="{{ asset('custom/js/general.js') }}"></script>
     <script src="{{ asset('custom/js/homeDashboard.js') }}"></script>
-    <script src="https://code.highcharts.com/stock/highstock.js"></script>
-<script src="https://code.highcharts.com/stock/modules/price-indicator.js"></script>
-<script src="https://code.highcharts.com/modules/accessibility.js"></script>
 @endpush
 
 
@@ -244,53 +244,111 @@
         }
 
         // Actualiza la lista de dispositivos en la barra lateral
-        function actualizarListaDispositivos(dispositivos) {
-            const listaDispositivos = $('#sidebar-dispositivos');
-            listaDispositivos.empty();
+        let dispositivoSeleccionado = null;
 
-            if (dispositivos.length === 0) {
-                const mensaje = '<div class="text-center py-3">No se encontró resultados o dispositivos.</div>';
-                listaDispositivos.append(mensaje);
-            } else {
-                const table = `
-            <table class="table table-bordered">                
+        function actualizarListaDispositivos(dispositivos) {
+    const listaDispositivos = $('#sidebar-dispositivos');
+    listaDispositivos.empty();
+
+    if (dispositivos.length === 0) {
+        const mensaje = '<div class="text-center py-3">No se encontró resultados o dispositivos.</div>';
+        listaDispositivos.append(mensaje);
+    } else {
+        const table = `
+            <table class="table table-bordered table-hover table-sm mb-0">
                 <tbody>
                 </tbody>
             </table>
         `;
-                listaDispositivos.append(table);
+        listaDispositivos.append(table);
 
-                const tbody = listaDispositivos.find('tbody');
-                dispositivos.forEach(dispositivo => {
-                    const {
-                        dev_eui_hex,
-                        name,
-                        use_tracking
-                    } = dispositivo;
-                    const row = `
-                    <tr class="p-0 m-0">
-                        <td class="p-1 pb-0 pt-0 m-0">
-                            <a class="fs-sm" href="#" id="dispositivo-item-${dev_eui_hex}">
-                                ${name}
-                            </a>
-                            <div class="fs-sm opacity-50">${dev_eui_hex}</div>
-                        </td>
-                        <td class="p-1 m-0 pb-0 pt-0">${use_tracking ? '<i class="ph ph-truck"></i>' : '<i class="ph ph-bell"></i>'}</td>
-                    </tr>
-                `;
-                    tbody.append(row);
+        const tbody = listaDispositivos.find('tbody');
+        dispositivos.forEach(dispositivo => {
+            const {
+                dev_eui_hex,
+                name,
+                use_tracking,
+                deviceprofile,
+                lecturas_latest,
+                lecturas,
+                puntos_localizacion_latest,
+                description,
+                application
+            } = dispositivo;
 
-                    // Asigna evento de clic para buscar y centrar el marcador por dispositivo completo
-                    const dispositivoItem = document.getElementById(`dispositivo-item-${dev_eui_hex}`);
-                    dispositivoItem.addEventListener('click', function(event) {
-                        event.preventDefault();
-                        buscarYcentrarMarketPorDispositivo(dispositivo);
-                        document.getElementById('overlay-section').style.display = 'block';
-                        mostrarInformacionDispositivo(dispositivo);
-                    });
-                });
+            // Determinar el estado del dispositivo basado en la última lectura o localización
+            let estadoLectura = estadoDispositivo(puntos_localizacion_latest ?? lecturas_latest);
+            let conversionFecha = '';
+            if (puntos_localizacion_latest) {
+                ultimaFecha = puntos_localizacion_latest?.created_at;
+                conversionFecha = puntos_localizacion_latest ? calcularDiferenciaTiempo(puntos_localizacion_latest
+                    .created_at) : ''
+            } else {
+                ultimaFecha = lecturas_latest?.created_at;
+                conversionFecha = lecturas_latest ? calcularDiferenciaTiempo(lecturas_latest.created_at) : ''
             }
-        }
+            let estadoBadgetLectura = estadoBadgetDispositivo(puntos_localizacion_latest ?? lecturas_latest,9);
+            // Construir la fila de la tabla
+            const row = `
+                <tr class="p-0 m-0 dispositivo-row" data-dev-eui-hex="${dev_eui_hex}">
+                    <td class="p-1 m-0 align-middle">
+                        <a class="fs-sm fw-bold text-decoration-none text-primary dispositivo-link" href="#">
+                            ${name}
+                        </a>
+                        <div class="fs-xs opacity-50">${dev_eui_hex}</div>
+                    </td>
+                    <td class="p-1 m-0 text-center align-middle">
+                        <div class="fs-sm">
+                            ${estadoLectura}
+                            
+                        </div>
+                    </td>
+                    <td class="p-1 m-0 text-center align-middle">
+                       <div class="d-flex align-items-center justify-content-between">
+                        <div class="fw-semibold" style="font-size:9px;">${estadoBadgetLectura}</div>
+                        </div>  
+                        <div class="d-flex align-items-center justify-content-between text-center">
+                            <div class="fw-semibold" style="font-size:9px;">
+                                ${conversionFecha}                            
+                            </div>
+                        </div>    
+                    </td>
+                </tr>
+            `;
+            tbody.append(row);
+
+            // Asigna evento de clic al <tr> para guardar y resaltar el dispositivo seleccionado
+            const dispositivoRow = tbody.find(`tr[data-dev-eui-hex="${dev_eui_hex}"]`);
+            dispositivoRow.on('click', function(event) {
+                event.preventDefault();
+
+                // Guardar el dispositivo seleccionado
+                dispositivoSeleccionado = dispositivo;
+
+                // Remover resaltado de todas las filas
+                document.querySelectorAll('.dispositivo-row').forEach(row => {
+                    row.classList.remove('table-active');
+                });
+
+                // Resaltar la fila seleccionada
+                dispositivoRow.addClass('table-active');
+
+                // Realizar las demás acciones (mostrar información, centrar marcador, etc.)
+                buscarYcentrarMarketPorDispositivo(dispositivo);
+                document.getElementById('overlay-section').style.display = 'block';
+                mostrarInformacionDispositivo(dispositivo);
+            });
+        });
+
+        // Inicializa tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+}
+
+
 
         function mostrarInformacionDispositivo(dispositivo) {
             const {
@@ -365,7 +423,7 @@
             <div class="card">
                 <div class="card-body m-0 p-0">             
                     <div>
-                        <div id="grafico" style="height: 200px; min-width: 20px"></div>
+                        <div id="grafico" style="height: 200px; min-width: 20px" class="none"></div>
 
                     </div>
                 
@@ -373,9 +431,22 @@
             </div>
             </div>
     `);
+
             overlaySection.show();
             updatePercentage(lecturas_latest, configuraciones ?? []);
-            createChart(lecturas);
+            $('#grafico').show();
+            let conveerData = lecturas_latest?.data ?? null;
+
+            if (conveerData) {
+                let conveerDataObject = conveerData.object;
+                let distancia = conveerDataObject?.distance ?? null;
+                if (distancia && distancia >= 0) {
+                    debugger;
+                    createChart(lecturas);
+                }
+            } else {
+                $('#grafico').hide();
+            }
         }
 
 
@@ -531,17 +602,18 @@
         $(document).ready(function() {
             //buscarDispositivos();
             cargarDispositivos();
+            $('#grafico').hide();
         });
 
         function createChart(lecturas) {
 
-            // Convertimos las lecturas a un formato adecuado para Highcharts
             const seriesData = lecturas.map(lectura => {
                 return [
-                    new Date(lectura.data.time).getTime(), // Convertimos el tiempo a milisegundos
-                    lectura?.data?.object?.distance ?? 0 // Extraemos la distancia
+                    new Date(lectura.data.time).getTime(),
+                    lectura?.data?.object?.distance ?? 0
                 ];
             });
+
 
             Highcharts.stockChart('grafico', {
                 rangeSelector: {
