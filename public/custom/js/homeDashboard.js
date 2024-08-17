@@ -23,7 +23,7 @@ function updatePercentage(lecturasLatest, configuraciones) {
 
                 levelContainer.innerHTML = "";
 
-                var heightTotal = 0;
+                var heightTotal = null;
                 for (let i = 0; i < configuraciones.length; i++) {
                     const currentValue = configuraciones[i].valor;
                     const nextValue =
@@ -58,6 +58,7 @@ function updatePercentage(lecturasLatest, configuraciones) {
                         $("#estadoLector").text(
                             configuraciones[i]?.descripcion ?? ""
                         );
+                        heightTotal=100;
                         break;
                     } else {
                         const heightPercentage =
@@ -66,13 +67,29 @@ function updatePercentage(lecturasLatest, configuraciones) {
                             100;
                         const section = document.createElement("div");
                         section.className = "liquid-section";
-                        heightTotal = heightTotal + heightPercentage;
                         section.style.height = `${heightPercentage}%`;
                         section.textContent = configuraciones[i].descripcion;
                         section.style.backgroundColor = "transparent";
                         section.style.textColor = "transparent";
                         levelContainer.appendChild(section);
                     }
+                }
+                debugger;
+                if(heightTotal===null){
+                    const section = document.createElement("div");
+                    section.className = "liquid-section";
+                    section.style.height = `100%`;
+                    section.style.backgroundColor = ""
+                    section.textContent = "VACIO";
+                    const percentageText = document.createElement("span");
+                    percentageText.className = "percentage-text";
+                    percentageText.textContent = `${distancia??'0'}mm`;
+
+                    section.appendChild(percentageText);
+                    levelContainer.appendChild(section);
+                    $("#estadoLector").text(
+                        "VACIO"
+                    );
                 }
             }
         }

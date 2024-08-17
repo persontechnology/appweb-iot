@@ -79,7 +79,7 @@
     font-weight: bold;
     color: black;
     /* Ajusta el color según sea necesario */
-    font-size: 1.5em;
+    font-size: 10px;
     pointer-events: none;
     /* Asegura que el texto no interfiera con clics */
 }
