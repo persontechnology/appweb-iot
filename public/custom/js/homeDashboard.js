@@ -51,9 +51,7 @@ function updatePercentage(lecturasLatest, configuraciones) {
                         const percentageText = document.createElement("span");
                         percentageText.className = "percentage-text";
                         let cantidadPositiva = Math.abs(heightPercentage);
-                        percentageText.textContent = `${cantidadPositiva.toFixed(
-                            1
-                        )}%`;
+                        percentageText.textContent = `${distancia??'0'}mm`;
 
                         section.appendChild(percentageText);
                         levelContainer.appendChild(section);
