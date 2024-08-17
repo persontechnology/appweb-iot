@@ -78,52 +78,9 @@
 
 
 @push('scriptsHeader')
-    <style>
-        #map-container {
-            position: relative;
-            height: calc(100vh - 150px);
-            /* Ajusta la altura del mapa restando la altura del overlay-section */
-        }
-
-        #map {
-            width: 100%;
-            height: 100%;
-        }
-
-        #overlay-section {
-            position: absolute;
-            bottom: 5px;
-            /* Espacio desde la parte inferior */
-            left: 5px;
-            /* Espacio desde el lado izquierdo */
-            width: 100%;
-            /* Ancho del overlay-section */
-            height: 150px;
-            /* Altura máxima del overlay-section */
-            overflow-y: auto;
-            /* Habilita el scroll vertical si el contenido excede la altura máxima */
-            background-color: #fff;
-            z-index: 1000;
-            border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            /* Sombra ligera */
-        }
-
-        .sidebar {
-            --sidebar-width: 25.75rem;
-        }
-
-        .card {
-            margin-bottom: 10px;
-            /* Espacio entre tarjetas */
-            border: 1px solid #ccc;
-            /* Borde de las tarjetas */
-            border-radius: 8px;
-            /* Borde redondeado */
-            padding: 10px;
-            /* Espaciado interno de las tarjetas */
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('custom/css/homeDashboard.css') }}">
+    <script src="{{ asset('custom/js/general.js') }}"></script>
+    <script src="{{ asset('custom/js/homeDashboard.js') }}"></script>
 @endpush
 
 
@@ -150,7 +107,7 @@
                 url: "{{ route('buscar.dispositivos') }}",
                 success: function(response) {
                     actualizarMapaYLista(response);
-
+                    console.log('uu');
                     actualizarListaDispositivos(response);
                 },
                 error: function(xhr, status, error) {
@@ -309,16 +266,16 @@
                         use_tracking
                     } = dispositivo;
                     const row = `
-                <tr class="p-0 m-0">
-                    <td class="p-1 pb-0 pt-0 m-0">
-                        <a class="fs-sm" href="#" id="dispositivo-item-${dev_eui_hex}">
-                            ${name}
-                        </a>
-                        <div class="fs-sm opacity-50">${dev_eui_hex}</div>
-                    </td>
-                    <td class="p-1 m-0 pb-0 pt-0">${use_tracking ? '<i class="ph ph-truck"></i>' : '<i class="ph ph-bell"></i>'}</td>
-                </tr>
-            `;
+                    <tr class="p-0 m-0">
+                        <td class="p-1 pb-0 pt-0 m-0">
+                            <a class="fs-sm" href="#" id="dispositivo-item-${dev_eui_hex}">
+                                ${name}
+                            </a>
+                            <div class="fs-sm opacity-50">${dev_eui_hex}</div>
+                        </td>
+                        <td class="p-1 m-0 pb-0 pt-0">${use_tracking ? '<i class="ph ph-truck"></i>' : '<i class="ph ph-bell"></i>'}</td>
+                    </tr>
+                `;
                     tbody.append(row);
                     mostrarInformacionDispositivo("sas")
                     // Asigna evento de clic para buscar y centrar el marcador por dispositivo completo
@@ -341,20 +298,24 @@
                 deviceprofile,
                 lecturas_latest,
                 puntos_localizacion_latest,
-                description
+                description,
+                application
             } = dispositivo;
             const overlaySection = $('#overlay-section');
-            let estadoLectura = estadoDispositivo(puntos_localizacion_latest??lecturas_latest);
-            let estadoBadgetLectura = estadoBadgetDispositivo(puntos_localizacion_latest??lecturas_latest);
-            let sensor=sensorData(puntos_localizacion_latest??lecturas_latest)??'';
-            let ultimaFecha='';
-            let conversionFecha='';
-            if(puntos_localizacion_latest){
-                ultimaFecha=puntos_localizacion_latest?.created_at;
-                conversionFecha=puntos_localizacion_latest?calcularDiferenciaTiempo(puntos_localizacion_latest.created_at):''
-            }else{
-                ultimaFecha=lecturas_latest?.created_at;
-                conversionFecha=lecturas_latest?calcularDiferenciaTiempo(lecturas_latest.created_at):''
+            let estadoLectura = estadoDispositivo(puntos_localizacion_latest ?? lecturas_latest);
+            let estadoBadgetLectura = estadoBadgetDispositivo(puntos_localizacion_latest ?? lecturas_latest);
+            let configuraciones = application?.configuraciones ?? [];
+            let sensor = sensorData(puntos_localizacion_latest ?? lecturas_latest) ?? '';
+
+            let ultimaFecha = '';
+            let conversionFecha = '';
+            if (puntos_localizacion_latest) {
+                ultimaFecha = puntos_localizacion_latest?.created_at;
+                conversionFecha = puntos_localizacion_latest ? calcularDiferenciaTiempo(puntos_localizacion_latest
+                    .created_at) : ''
+            } else {
+                ultimaFecha = lecturas_latest?.created_at;
+                conversionFecha = lecturas_latest ? calcularDiferenciaTiempo(lecturas_latest.created_at) : ''
             }
             overlaySection.html(`
         <div class="card-group" style="min-height: 140px;">
@@ -393,11 +354,7 @@
                 <div class="card-body p-0 m-0">
                 <h5 class="card-title text-small-card p-1 m-0">Sensores</h5>
                 <div class="card-text p-0 m-0">
-                   
-                    <div class="list-group ">
-                    ${sensor}
-                    </div>
-                    
+                    ${sensor}                    
                 </div>
                 </div>
             </div>
@@ -419,6 +376,7 @@
             </div>
     `);
             overlaySection.show();
+            updatePercentage(lecturas_latest, configuraciones ?? []);
         }
 
 
@@ -452,111 +410,59 @@
             }
         }
 
-        function estadoDispositivo(lecturasLatest) {
+       
 
-            if (lecturasLatest) {
-                const fechaUltimaLectura = lecturasLatest?.created_at; // Fecha de la última lectura en formato ISO 8601
-                const resultado = reportoEnUltimas24Horas(fechaUltimaLectura);
-                if (resultado) {
-                    return `<div class="bg-success bg-opacity-50 text-success lh-1 rounded-pill p-1">
-                            <i class="ph ph-bell"></i>
-                        </div>`
-                } else {
-                    return `<div class="bg-danger bg-opacity-50 text-danger lh-1 rounded-pill p-1">
-                            <i class="ph ph-bell"></i>
-                        </div>`
-                }
-
-            } else {
-                return `<div class="bg-dark bg-opacity-50 text-dark lh-1 rounded-pill p-1">
-                            <i class="ph ph-bell"></i>
-                        </div>`
-            }
-        }
-
-        function estadoBadgetDispositivo(lecturasLatest) {
-            if (lecturasLatest) {
-                const fechaUltimaLectura = lecturasLatest?.created_at; // Fecha de la última lectura en formato ISO 8601
-                const resultado = reportoEnUltimas24Horas(fechaUltimaLectura);
-                if (resultado) {
-                    return `<span class="badge bg-success bg-opacity-10 text-success">Conectado</span>`
-                } else {
-                    return `<span class="badge bg-danger bg-opacity-10 text-danger">Desconectado</span>`
-                }
-            } else {
-                return `<span class="badge bg-dark bg-opacity-10 text-dark">Sin registros</span>`
-            }
-        }
-        function calcularDiferenciaTiempo(fechaUltimaLectura) {
-                const fechaActual = new Date();
-                const fechaLectura = new Date(fechaUltimaLectura);
-                const diferenciaMs = fechaActual - fechaLectura;
-
-                const minutos = Math.floor(diferenciaMs / 60000);
-                const horas = Math.floor(minutos / 60);
-                const dias = Math.floor(horas / 24);
-
-                if (dias > 0) {
-                    return `hace ${dias} ${dias === 1 ? 'día' : 'días'}`;
-                } else if (horas > 0) {
-                    return `hace ${horas} ${horas === 1 ? 'hora' : 'horas'}`;
-                } else if (minutos > 0) {
-                    return `hace ${minutos} ${minutos === 1 ? 'minuto' : 'minutos'}`;
-                } else {
-                    return 'hace unos momentos';
-                }
-            }
-
-        
         function sensorData(lecturasLatest) {
-            let conveerData=lecturasLatest?.data??null;
-            if(conveerData){
-                let conveerDataObject=conveerData.object;
-                let distancia=conveerDataObject?.distance??null;
-                let motionStatus=conveerDataObject?.motion_status??null;
-                let press=conveerDataObject?.press??null;
-                if(distancia&&distancia>=0){
-                    distancia=Number(distancia)/10;
-                    let iconoo=null;
-                    let estadodistancia=null;
-                    let descripcio=null;
-                    if(distancia>50){
-                        iconoo=` <img src="{{ asset('assets/images/sensor/contenedor-vacio.png') }}" class="h-48px" alt="">` ;
-                        estadodistancia=`<span class="badge bg-success bg-opacity-20 text-success rounded-pill ms-auto">VACÍO</span>` ;
-                    
-                    }else if(distancia<50&& distancia>10){
-                        iconoo=` <img src="{{ asset('assets/images/sensor/contenedor-medio.png') }}" class="h-48px" alt="">` ;
-                        estadodistancia=`<span class="badge bg-danger bg-opacity-20 text-danger rounded-pill ms-auto">MEDIO</span>` ;
-                    
-                    }else{
-                        iconoo=` <img src="{{ asset('assets/images/sensor/contenedor-lleno.png') }}" class="h-48px" alt="">`;
-                        estadodistancia=`<span class="badge bg-warning bg-opacity-20 text-warning rounded-pill ms-auto">LLENO</span>` ;
-                    }
+            let conveerData = lecturasLatest?.data ?? null;
+            if (conveerData) {
+                let conveerDataObject = conveerData.object;
+                let distancia = conveerDataObject?.distance ?? null;
+                let motionStatus = conveerDataObject?.motion_status ?? null;
+                let press = conveerDataObject?.press ?? null;
+
+                if (distancia && distancia >= 0) {
+                    distancia = distancia;
+                    let iconoo = null;
+                    let estadodistancia = null;
+                    let descripcio = null;
                     return `                    
-                    <div class="list-group-item p-1 d-flex">
-                        <span class="mt-1">
-                        DISTANCIA
-                        </br>
-                        ${estadodistancia}
-                        </span>
-                        <span class="badge text-success ms-auto">
-                        <span class="badge bg-primary bg-opacity-20 text-primary rounded-pill ms-auto">
-                            ${distancia}
-                        </span>                        
-                        ${iconoo}
-                    </div>
-                    <div class="list-group-item p-1 d-flex">
-                        <span>
-                            BATERIA 
-                             <span class="badge bg-primary bg-opacity-20 text-primary rounded-pill ms-auto">
-                             ${conveerDataObject?.battery}%
-                            </span>
-                             </span>
-                            <span class="badge text-success ms-auto">
-                                 <i class="ph-thin ph-battery-charging"></i>
-                            </span>
-                        </div>`;
-                }else if(motionStatus && motionStatus==="moving"){
+                    <div class="row">
+                        <div class="col-6 text-center">
+                           <div class="containerDistancia">
+                                <div class="level" id="level-container">
+                                    </div>
+                                    <span class="percentage-text" id="totalPorcentaje">
+                                    </span>
+                            </div> 
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex flex-column">
+                                <!-- Estado del lector -->
+                                <div class="mb-2">
+                                    <span class="text-dark h6 fw-bold" id="estadoLector">Estado</span>
+                                </div>
+
+                                <!-- Distancia -->
+                                <div class="mb-2">
+                                    <span class="badge bg-primary bg-opacity-20 text-primary rounded-pill">
+                                        Distancia: <span id="distanciaValue">${distancia}</span> mm
+                                    </span>
+                                </div>
+
+                                <!-- Batería -->
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-primary bg-opacity-20 text-primary rounded-pill">
+                                            <span id="batteryValue">${conveerDataObject?.battery}</span>%
+                                        </span>
+                                        <span class="badge text-success">
+                                            <i class="ph-thin ph-battery-charging"></i>
+                                        </span>
+                                    </div>
+                            </div>
+                        </div>                        
+                   
+                    </div>`;
+                } else if (motionStatus && motionStatus === "moving") {
                     return `<div class="list-group-item p-1 d-flex">
                             <span>
                             BATERIA 
@@ -578,7 +484,7 @@
                             <i class="fa-solid fa-temperature-low"></i>    
                             </span>
                         </div>`;
-                }else if(press){
+                } else if (press) {
                     return `
                     <div class="list-group-item p-1 d-flex">
                             TIPO DE PRESION
@@ -603,7 +509,7 @@
                         </div>
                         `;
 
-                }else{
+                } else {
                     return `
                     <div class="list-group-item p-1 d-flex">
                             <span>
@@ -618,21 +524,10 @@
                         </div>
                         `;
                 }
+
             }
         }
-            // Función para sumar horas a una fecha dada
-        function sumarHoras(fecha, horas) {
-            const nuevaFecha = new Date(fecha);
-            nuevaFecha.setHours(nuevaFecha.getHours() + horas);
-            return nuevaFecha;
-        }
 
-        // Función para verificar si un dispositivo reportó lecturas en las últimas 24 horas
-        function reportoEnUltimas24Horas(fechaUltimaLectura) {
-            const fechaActual = new Date();
-            const fechaComparar = sumarHoras(fechaUltimaLectura, 24);
-            return fechaActual < fechaComparar;
-        }
         // Espera a que el documento esté completamente cargado antes de buscar dispositivos
         $(document).ready(function() {
             //buscarDispositivos();

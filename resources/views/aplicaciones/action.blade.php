@@ -12,5 +12,9 @@
             <i class="ph ph-trash me-2"></i>
             Eliminar
         </a>
+        <a href="{{ route('configuraciones.distancia',$app->id) }}" class="dropdown-item">
+            <i class="ph ph-pencil-simple me-2"></i>
+            Cofiguración de distncia
+        </a>
     </div>
 </div>

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Application extends Model
 {
@@ -54,5 +54,8 @@ class Application extends Model
     {
         return $this->hasMany(Dispositivo::class, 'application_id');
     }
-
+    public function configuraciones(): HasMany
+    {
+        return $this->hasMany(Configuracion::class, 'application_id')->orderBy('valor');
+    }
 }

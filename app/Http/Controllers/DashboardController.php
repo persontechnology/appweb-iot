@@ -40,7 +40,7 @@ class DashboardController extends Controller
             $query->whereHas('tenant', function ($query) {
                 $query->where('id', Auth::user()->tenant_id);
             });
-        })->with(['deviceprofile:id,name,description','puntosLocalizacion','lecturas','lecturasLatest','puntosLocalizacionLatest'])
+        })->with(['deviceprofile:id,name,description','puntosLocalizacion','lecturas','lecturasLatest','puntosLocalizacionLatest','application.configuraciones'])
         ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *");
         if(isset($query)){
             $dispositivos=$dispositivos->when($query, function ($query, $search) {

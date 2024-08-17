@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('configuracions', function (Blueprint $table) {
             $table->id();
+            $table->integer('valor');
+            $table->string('descripcion');
+            $table->string('color');
+            $table->uuid('application_id');
             $table->timestamps();
         });
     }

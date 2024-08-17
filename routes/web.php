@@ -3,6 +3,7 @@
 use App\Http\Controllers\AlertaController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ConfiguaracionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceProfileController;
 use App\Http\Controllers\DispositivoController;
@@ -68,7 +69,9 @@ Route::middleware(['auth','check.tenant_id','verified'])->group(function () {
     Route::get('inquilinos-clientes/{tenantId}',[TenantController::class,'clientes'])->name('inquilinos.clientes');
     Route::post('inquilinos-clientes-asignar',[TenantController::class,'clientesAsignar'])->name('inquilinos.clientes.asignar');
     Route::delete('inquilinos-clientes-eliminar/{tenantId}/{userId}',[TenantController::class,'clientesEliminar'])->name('inquilinos.clientes.eliminar');
-
+    Route::get('get-configuraciones-distancia/{applicationId}',[ApplicationController::class,'getConfiguracionesDistancia'])->name('configuraciones.distancia');
+    Route::post('store-configuraciones-distancia',[ApplicationController::class,'storeConfiguraciones'])->name('store.configuraciones.distancia');
+    Route::get('delete-configuraciones-distancia/{configuracion}',[ApplicationController::class,'deleteConfiguraciones'])->name('delete.configuraciones.distancia');
     
     Route::resource('usuarios', UsuariosController::class);
     Route::resource('perfil-dispositivos', DeviceProfileController::class);
@@ -89,6 +92,7 @@ Route::middleware(['auth','check.tenant_id','verified'])->group(function () {
     Route::get('alertas/configuracion/{id}/{op}', [AlertaController::class,'inicio'])->name('alertas.configuracion');
 
     Route::resource('lecturas', LecturaController::class);
+    Route::resource('configuraciones', ConfiguaracionController::class);
     Route::delete('lecturas/descartarTodo/{id}',[LecturaController::class,'descartarTodo'])->name('lecturas.descartarTodo');
     Route::get('lecturas/descargarPdf/{id}',[LecturaController::class,'descargarPdf'])->name('lecturas.descargarPdf');
     

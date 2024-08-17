@@ -6,6 +6,7 @@ use App\DataTables\ApplicationDataTable;
 use App\Events\LecturaGuardadoEvent;
 use App\Models\Application;
 use App\Models\ApplicationIntegration;
+use App\Models\Configuracion;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -157,6 +158,50 @@ class ApplicationController extends Controller
             return redirect()->route('applicaciones.index')->with('success','Aplicación eliminado.!');
         } catch (\Throwable $th) {
             return redirect()->route('applicaciones.index')->with('warning','Aplicación no eliminado.!'.$th->getMessage());
+        }
+    }
+
+    public function getConfiguracionesDistancia($applicationId)
+    {
+        $application= Application::find($applicationId);
+        $configuraciones= Configuracion::orderBy('valor');
+
+        if(isset($application)){
+            $configuraciones=$configuraciones->where('application_id',$applicationId);
+        }
+        $configuraciones=$configuraciones->get();
+        return view('aplicaciones.configuraciones',['configuraciones'=>$configuraciones, 'application'=>$application,]);
+    }
+    public function storeConfiguraciones(Request $request)
+    {
+           
+        $request->validate([
+            'valor'=>'required|string',
+            'descripcion'=>'required|string|max:255',
+            'application_id'=>'required',
+        ]);
+        try {
+            $configuracion=new Configuracion();
+            $configuracion->valor=$request->valor;
+            $configuracion->descripcion=$request->descripcion;
+            $configuracion->color=$request->color;
+            $configuracion->application_id=$request->application_id;
+            $configuracion->save();
+
+            return redirect()->route('configuraciones.distancia',[$request->application_id])->with('success',$configuracion->valor.', ingresado exitosamente.!');
+        } catch (\Throwable $th) {
+            return back()->with('danger', 'Error.! '.$th->getMessage())->withInput();
+        }
+    }
+    public function deleteConfiguraciones(Configuracion $configuracion)
+    {
+        
+        try {
+          
+            $configuracion->delete();
+            return redirect()->route('configuraciones.distancia',[$configuracion->application_id])->with('success',$configuracion->valor.', ingresado exitosamente.!');
+        } catch (\Throwable $th) {
+            return back()->with('danger', 'Error.! '.$th->getMessage())->withInput();
         }
     }
 }
