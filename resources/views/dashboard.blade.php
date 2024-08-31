@@ -444,7 +444,7 @@
                 let conveerDataObject = conveerData.object;
                 let distancia = conveerDataObject?.distance ?? null;
                 if (distancia) {
-                    createChart(lecturas);
+                    createChart(lecturas, aplicacion);
                 }
             } else {
                 $('#grafico').hide();
@@ -605,16 +605,18 @@
             $('#grafico').hide();
         });
 
-        function createChart(lecturas) {
+        function createChart(lecturas, aplicacion) {
 
             const seriesData = lecturas.map(lectura => {
                 return [
                     new Date(lectura.data.time).getTime(),
-                    lectura?.data?.object?.distance ?? 0
+                    calcularPorcentajeLlenado(
+                        Number(lectura?.data?.object?.distance ?? 0) ?? 0,
+                        Number(aplicacion?.distance ?? 0))
+
                 ];
             });
-
-
+            debugger;
             Highcharts.stockChart('grafico', {
                 rangeSelector: {
                     selected: 1
@@ -623,7 +625,7 @@
                     text: ''
                 },
                 series: [{
-                    name: '(mm)',
+                    name: '(%)',
                     data: seriesData,
                     tooltip: {
                         valueSuffix: ' mm'
@@ -637,7 +639,7 @@
                 },
                 yAxis: {
                     title: {
-                        text: '(mm)'
+                        text: '(%)'
                     }
                 }
             });
