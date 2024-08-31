@@ -1,102 +1,96 @@
-//trabaja con la ultima lectura y conviete el porcentaje en color del grafico
-
-function updatePercentage(lecturasLatest, configuraciones) {
+function updatePercentage(lecturasLatest, dispositivo) {
     try {
         let conveerData = lecturasLatest?.data ?? null;
+        const tank = document.getElementById("tank");
+
+        tank.innerHTML = "";
         if (conveerData) {
             let conveerDataObject = conveerData.object;
             let distancia = Number(conveerDataObject?.distance ?? 0);
-
-            if (
-                distancia &&
-                configuraciones !== null &&
-                configuraciones.length > 0
-            ) {
-                const maxValue = Math.max(
-                    ...configuraciones.map((item) => item.valor)
+            let configuraciones = dispositivo
+                ? dispositivo.configuraciones
+                : [];
+            const nivelMaximo = dispositivo?.distance ?? 0; // Capacidad máxima del contenedor
+            const nivelActual = distancia; // Nivel actual del contenedor
+            if (distancia && configuraciones !== null) {
+                const porcentajeLlenado = calcularPorcentajeLlenado(
+                    nivelActual,
+                    nivelMaximo
                 );
-                const minValue = Math.min(
-                    ...configuraciones.map((item) => item.valor)
+                const rangoLlenado = determinarRangoLlenado(
+                    porcentajeLlenado,
+                    configuraciones
                 );
-                const levelContainer =
-                    document.getElementById("level-container");
-
-                levelContainer.innerHTML = "";
-
-                var heightTotal = null;
-                for (let i = 0; i < configuraciones.length; i++) {
-                    const currentValue = configuraciones[i].valor;
-                    const nextValue =
-                        i < configuraciones.length - 1
-                            ? configuraciones[i + 1].valor
-                            : 0;
-
-                    if (distancia <= nextValue && distancia >= currentValue) {
-                        const heightPercentage =
-                            ((currentValue - nextValue) /
-                                (maxValue - minValue)) *
-                            100;
-                        const section = document.createElement("div");
-                        section.className = "liquid-section";
-                        section.style.height = `100%`;
-                        section.style.backgroundColor = hexToRgba(
-                            configuraciones[i].color,
-                            0.5
-                        );
-                        section.textContent = configuraciones[i].descripcion;
-                        section.style.color = hexToRgba(
-                            configuraciones[i].color,
-                            0.5
-                        );
-                        const percentageText = document.createElement("span");
-                        percentageText.className = "percentage-text";
-                        let cantidadPositiva = Math.abs(heightPercentage);
-                        percentageText.textContent = `${distancia??'0'}mm`;
-
-                        section.appendChild(percentageText);
-                        levelContainer.appendChild(section);
-                        $("#estadoLector").text(
-                            configuraciones[i]?.descripcion ?? ""
-                        );
-                        heightTotal=100;
-                        break;
-                    } else {
-                        const heightPercentage =
-                            ((currentValue - nextValue) /
-                                (maxValue - minValue)) *
-                            100;
-                        const section = document.createElement("div");
-                        section.className = "liquid-section";
-                        section.style.height = `${heightPercentage}%`;
-                        section.textContent = configuraciones[i].descripcion;
-                        section.style.backgroundColor = "transparent";
-                        section.style.textColor = "transparent";
-                        levelContainer.appendChild(section);
-                    }
-                }
+                $("#estadoLector").text(rangoLlenado?.descripcion ?? "");
+                pintarNivelDeAgua(porcentajeLlenado,rangoLlenado?.color??"#000")
                 debugger;
-                if(heightTotal===null){
-                    const section = document.createElement("div");
-                    section.className = "liquid-section";
-                    section.style.height = `100%`;
-                    section.style.backgroundColor = ""
-                    section.textContent = "VACIO";
-                    const percentageText = document.createElement("span");
-                    percentageText.className = "percentage-text";
-                    percentageText.textContent = `${distancia??'0'}mm`;
-
-                    section.appendChild(percentageText);
-                    levelContainer.appendChild(section);
-                    $("#estadoLector").text(
-                        "VACIO"
-                    );
-                }
             }
         }
     } catch (error) {
         console.log(error);
     }
 }
+
+function pintarNivelDeAgua(porcentajeLlenado, color) {
+    const tank = document.getElementById("tank");
+    const waterLevel = document.createElement("div");
+    waterLevel.className = "water-level";
+    waterLevel.style.height = `${porcentajeLlenado}%`;
+    waterLevel.style.backgroundColor = color;
+
+    // Onda dentro del agua
+    const wave = document.createElement("div");
+    wave.className = "wave";
+
+    // Añadir el porcentaje como texto en la parte superior del agua
+    waterLevel.textContent = `${porcentajeLlenado.toFixed(2)}%`;
+
+    // Agregar la onda y el nivel de agua al tanque
+    waterLevel.appendChild(wave);
+    tank.appendChild(waterLevel);
+}
+
+// Ejemplo de uso
+const porcentajeLlenado = 88; // Nivel de llenado actual
+const color = "#4aa3df"; // Color del agua
+
+pintarNivelDeAgua(porcentajeLlenado, color);
+
+const tank = document.getElementById("tank");
+const waterLevel = document.createElement("div");
+waterLevel.className = "water-level";
+waterLevel.style.height = `${porcentajeLlenado}%`;
+waterLevel.style.backgroundColor = color;
+waterLevel.textContent = `${porcentajeLlenado.toFixed(2)}%`;
+
+tank.appendChild(waterLevel);
+//
+function calcularPorcentajeLlenado(nivelActual, nivelMaximo) {
+    // Invertir el nivel: 0 es vacío, nivelMaximo es lleno
+    const nivelInvertido = nivelMaximo - nivelActual;
+
+    // Convertir el nivel invertido a un porcentaje
+    const porcentajeLlenado = (nivelInvertido / nivelMaximo) * 100;
+    console.log(porcentajeLlenado);
+
+    return porcentajeLlenado;
+}
+
+// Función para determinar el rango de llenado basado en el porcentaje
+function determinarRangoLlenado(porcentajeLlenado, niveles) {
+    let rango = null;
+
+    for (let i = 0; i < niveles.length; i++) {
+        if (porcentajeLlenado <= niveles[i].valor) {
+            rango = niveles[i];
+            break;
+        }
+    }
+
+    return rango;
+}
+
+//trabaja con la ultima lectura y conviete el porcentaje en color del grafico
 
 // Función para verificar si un dispositivo reportó lecturas en las últimas 24 horas
 function reportoEnUltimas24Horas(fechaUltimaLectura) {

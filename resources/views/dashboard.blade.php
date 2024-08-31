@@ -247,49 +247,52 @@
         let dispositivoSeleccionado = null;
 
         function actualizarListaDispositivos(dispositivos) {
-    const listaDispositivos = $('#sidebar-dispositivos');
-    listaDispositivos.empty();
+            const listaDispositivos = $('#sidebar-dispositivos');
+            listaDispositivos.empty();
 
-    if (dispositivos.length === 0) {
-        const mensaje = '<div class="text-center py-3">No se encontró resultados o dispositivos.</div>';
-        listaDispositivos.append(mensaje);
-    } else {
-        const table = `
+            if (dispositivos.length === 0) {
+                const mensaje = '<div class="text-center py-3">No se encontró resultados o dispositivos.</div>';
+                listaDispositivos.append(mensaje);
+            } else {
+                const table = `
             <table class="table table-bordered table-hover table-sm mb-0">
                 <tbody>
                 </tbody>
             </table>
         `;
-        listaDispositivos.append(table);
+                listaDispositivos.append(table);
 
-        const tbody = listaDispositivos.find('tbody');
-        dispositivos.forEach(dispositivo => {
-            const {
-                dev_eui_hex,
-                name,
-                use_tracking,
-                deviceprofile,
-                lecturas_latest,
-                lecturas,
-                puntos_localizacion_latest,
-                description,
-                application
-            } = dispositivo;
+                const tbody = listaDispositivos.find('tbody');
+                dispositivos.forEach(dispositivo => {
+                    const {
+                        dev_eui_hex,
+                        name,
+                        use_tracking,
+                        deviceprofile,
+                        lecturas_latest,
+                        lecturas,
+                        puntos_localizacion_latest,
+                        description,
+                        application
+                    } = dispositivo;
 
-            // Determinar el estado del dispositivo basado en la última lectura o localización
-            let estadoLectura = estadoDispositivo(puntos_localizacion_latest ?? lecturas_latest);
-            let conversionFecha = '';
-            if (puntos_localizacion_latest) {
-                ultimaFecha = puntos_localizacion_latest?.created_at;
-                conversionFecha = puntos_localizacion_latest ? calcularDiferenciaTiempo(puntos_localizacion_latest
-                    .created_at) : ''
-            } else {
-                ultimaFecha = lecturas_latest?.created_at;
-                conversionFecha = lecturas_latest ? calcularDiferenciaTiempo(lecturas_latest.created_at) : ''
-            }
-            let estadoBadgetLectura = estadoBadgetDispositivo(puntos_localizacion_latest ?? lecturas_latest,9);
-            // Construir la fila de la tabla
-            const row = `
+                    // Determinar el estado del dispositivo basado en la última lectura o localización
+                    let estadoLectura = estadoDispositivo(puntos_localizacion_latest ?? lecturas_latest);
+                    let conversionFecha = '';
+                    if (puntos_localizacion_latest) {
+                        ultimaFecha = puntos_localizacion_latest?.created_at;
+                        conversionFecha = puntos_localizacion_latest ? calcularDiferenciaTiempo(
+                            puntos_localizacion_latest
+                            .created_at) : ''
+                    } else {
+                        ultimaFecha = lecturas_latest?.created_at;
+                        conversionFecha = lecturas_latest ? calcularDiferenciaTiempo(lecturas_latest.created_at) :
+                            ''
+                    }
+                    let estadoBadgetLectura = estadoBadgetDispositivo(puntos_localizacion_latest ?? lecturas_latest,
+                        9);
+                    // Construir la fila de la tabla
+                    const row = `
                 <tr class="p-0 m-0 dispositivo-row" data-dev-eui-hex="${dev_eui_hex}">
                     <td class="p-1 m-0 align-middle">
                         <a class="fs-sm fw-bold text-decoration-none text-primary dispositivo-link" href="#">
@@ -315,38 +318,38 @@
                     </td>
                 </tr>
             `;
-            tbody.append(row);
+                    tbody.append(row);
 
-            // Asigna evento de clic al <tr> para guardar y resaltar el dispositivo seleccionado
-            const dispositivoRow = tbody.find(`tr[data-dev-eui-hex="${dev_eui_hex}"]`);
-            dispositivoRow.on('click', function(event) {
-                event.preventDefault();
+                    // Asigna evento de clic al <tr> para guardar y resaltar el dispositivo seleccionado
+                    const dispositivoRow = tbody.find(`tr[data-dev-eui-hex="${dev_eui_hex}"]`);
+                    dispositivoRow.on('click', function(event) {
+                        event.preventDefault();
 
-                // Guardar el dispositivo seleccionado
-                dispositivoSeleccionado = dispositivo;
+                        // Guardar el dispositivo seleccionado
+                        dispositivoSeleccionado = dispositivo;
 
-                // Remover resaltado de todas las filas
-                document.querySelectorAll('.dispositivo-row').forEach(row => {
-                    row.classList.remove('table-active');
+                        // Remover resaltado de todas las filas
+                        document.querySelectorAll('.dispositivo-row').forEach(row => {
+                            row.classList.remove('table-active');
+                        });
+
+                        // Resaltar la fila seleccionada
+                        dispositivoRow.addClass('table-active');
+
+                        // Realizar las demás acciones (mostrar información, centrar marcador, etc.)
+                        buscarYcentrarMarketPorDispositivo(dispositivo);
+                        document.getElementById('overlay-section').style.display = 'block';
+                        mostrarInformacionDispositivo(dispositivo);
+                    });
                 });
 
-                // Resaltar la fila seleccionada
-                dispositivoRow.addClass('table-active');
-
-                // Realizar las demás acciones (mostrar información, centrar marcador, etc.)
-                buscarYcentrarMarketPorDispositivo(dispositivo);
-                document.getElementById('overlay-section').style.display = 'block';
-                mostrarInformacionDispositivo(dispositivo);
-            });
-        });
-
-        // Inicializa tooltips
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        const tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-    }
-}
+                // Inicializa tooltips
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                const tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            }
+        }
 
 
 
@@ -365,7 +368,7 @@
             const overlaySection = $('#overlay-section');
             let estadoLectura = estadoDispositivo(puntos_localizacion_latest ?? lecturas_latest);
             let estadoBadgetLectura = estadoBadgetDispositivo(puntos_localizacion_latest ?? lecturas_latest);
-            let configuraciones = application?.configuraciones ?? [];
+            let aplicacion = application ?? null;
             let sensor = sensorData(puntos_localizacion_latest ?? lecturas_latest) ?? '';
 
             let ultimaFecha = '';
@@ -433,15 +436,14 @@
     `);
 
             overlaySection.show();
-            updatePercentage(lecturas_latest, configuraciones ?? []);
+            updatePercentage(lecturas_latest, aplicacion ?? []);
             $('#grafico').show();
             let conveerData = lecturas_latest?.data ?? null;
 
             if (conveerData) {
                 let conveerDataObject = conveerData.object;
                 let distancia = conveerDataObject?.distance ?? null;
-                if (distancia && distancia >= 0) {
-                    debugger;
+                if (distancia) {
                     createChart(lecturas);
                 }
             } else {
@@ -489,8 +491,7 @@
                 let distancia = conveerDataObject?.distance ?? null;
                 let motionStatus = conveerDataObject?.motion_status ?? null;
                 let press = conveerDataObject?.press ?? null;
-
-                if (distancia && distancia >= 0) {
+                if (distancia !== null) {
                     distancia = distancia;
                     let iconoo = null;
                     let estadodistancia = null;
@@ -499,10 +500,9 @@
                     <div class="row">
                         <div class="col-6 text-center">
                            <div class="containerDistancia">
-                                <div class="level" id="level-container">
-                                    </div>
-                                    <span class="percentage-text" id="totalPorcentaje">
-                                    </span>
+                             <div class="tank" id="tank">
+                                
+                            </div>
                             </div> 
                         </div>
                         <div class="col-6">

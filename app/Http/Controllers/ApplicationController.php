@@ -179,6 +179,7 @@ class ApplicationController extends Controller
             'valor'=>'required|string',
             'descripcion'=>'required|string|max:255',
             'application_id'=>'required',
+            'notification'=>'required',
         ]);
         try {
             $configuracion=new Configuracion();
@@ -186,6 +187,8 @@ class ApplicationController extends Controller
             $configuracion->descripcion=$request->descripcion;
             $configuracion->color=$request->color;
             $configuracion->application_id=$request->application_id;
+            $configuracion->notification=$request->notification;
+
             $configuracion->save();
 
             return redirect()->route('configuraciones.distancia',[$request->application_id])->with('success',$configuracion->valor.', ingresado exitosamente.!');
@@ -202,6 +205,27 @@ class ApplicationController extends Controller
             return redirect()->route('configuraciones.distancia',[$configuracion->application_id])->with('success',$configuracion->valor.', ingresado exitosamente.!');
         } catch (\Throwable $th) {
             return back()->with('danger', 'Error.! '.$th->getMessage())->withInput();
+        }
+    }
+
+    public function updateDistance(Request $request)
+    {
+        $request->validate([
+            // 'tenant_id' => 'required',
+            'distance'=>'required',
+            'application_id'=>'required'
+        ]);
+
+        
+        $aplication= Application::find($request->application_id);
+        Gate ::authorize('editar', $aplication);
+        try {
+            $aplication->distance=$request->distance;
+            $aplication->save();
+
+            return redirect()->route('configuraciones.distancia',[$request->application_id])->with('success',$aplication->name.', actualizado exitosamente.!');
+        } catch (\Throwable $th) {
+            return back()->with('danger', 'Error.! '.$th->getMessage());
         }
     }
 }

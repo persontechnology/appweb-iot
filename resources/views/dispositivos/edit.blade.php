@@ -139,6 +139,21 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-lg-6">
+                    <div class="border rounded mb-3">
+                        <div class="form-check form-switch mb-2">
+                            <p>Tipo de dispositivo</p>
+                            <select class="form-select @error('type') is-invalid @enderror" name="type" required>
+                                <option value="">SELECCIONAR</option>
+                                <option value="PULSO">PULSO</option>
+                                <option value="MOVIMIENTO">MOVIMIENTO</option>
+                                <option value="DISTANCIA">DISTANCIA</option>
+                              </select>
+                            
+                            <div class="form-text text-warning">Selecciona el tipo de dispositivo con cuidado, ya que la elección correcta es crucial para asegurar que los reportes se generen correctamente.</div>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-lg-12">
                     <div class="mb-3">
                         <div class="form-floating form-control-feedback form-control-feedback-start">

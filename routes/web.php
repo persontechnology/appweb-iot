@@ -94,7 +94,7 @@ Route::middleware(['auth','check.tenant_id','verified'])->group(function () {
     Route::resource('lecturas', LecturaController::class);
     Route::resource('configuraciones', ConfiguaracionController::class);
     Route::delete('lecturas/descartarTodo/{id}',[LecturaController::class,'descartarTodo'])->name('lecturas.descartarTodo');
-    Route::get('lecturas/descargarPdf/{id}',[LecturaController::class,'descargarPdf'])->name('lecturas.descargarPdf');
+    Route::post('applicaciones/updatedistance',[ApplicationController::class,'updatedistance'])->name('aplication.update-distance');
     
     
     

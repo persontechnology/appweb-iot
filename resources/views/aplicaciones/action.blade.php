@@ -14,7 +14,7 @@
         </a>
         <a href="{{ route('configuraciones.distancia',$app->id) }}" class="dropdown-item">
             <i class="ph ph-pencil-simple me-2"></i>
-            Cofiguración de distncia
+            Cofiguración de distancia
         </a>
     </div>
 </div>

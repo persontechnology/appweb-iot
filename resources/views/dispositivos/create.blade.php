@@ -149,11 +149,17 @@
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <div class="border p-3 rounded mb-3">
+                    <div class="border rounded mb-3">
                         <div class="form-check form-switch mb-2">
-                            <input type="checkbox" class="form-check-input" name="use_tracking" id="use_tracking">
-                            <label class="form-check-label" for="use_tracking"><strong>SOLO PARA RASTREO GPS</strong><br> Activar seguimiento (Tracking) del dispositivo.</label>
-                            <div class="form-text">Al activar esta opción el sistema almacenara la ubicación del dispositivo.</div>
+                            <p>Tipo de dispositivo</p>
+                            <select class="form-select @error('type') is-invalid @enderror" name="type" required>
+                                <option value="">SELECCIONAR</option>
+                                <option value="PULSO">PULSO</option>
+                                <option value="MOVIMIENTO">MOVIMIENTO</option>
+                                <option value="DISTANCIA">DISTANCIA</option>
+                              </select>
+                            
+                            <div class="form-text text-warning">Selecciona el tipo de dispositivo con cuidado, ya que la elección correcta es crucial para asegurar que los reportes se generen correctamente.</div>
                         </div>
                     </div>
                 </div>

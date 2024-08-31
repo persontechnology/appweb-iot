@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('valor');
             $table->string('descripcion');
             $table->string('color');
+            $table->boolean('notification')->default(false);
             $table->uuid('application_id');
             $table->timestamps();
         });

@@ -71,7 +71,8 @@ class DispositivoController extends Controller
             'join_eui' => [
                 'required',
                 'regex:/^[0-9a-fA-F]{16}$/'
-            ]
+            ],
+            'type'=>'required'
         ]);
 
         try {
@@ -91,6 +92,9 @@ class DispositivoController extends Controller
             $dis->join_eui=$request->join_eui;
             $dis->latitude=$request->latitude;
             $dis->longitude=$request->longitude;
+            $dis->type=$request->type;
+            $dis->save();
+
             $dis->save();
             $this->crearClaveApplicacion($request->dev_eui,$request->nwk_key);
             return redirect()->route('dispositivos.index')->with('success',$dis->name.', ingresado exitosamente.!');
@@ -168,7 +172,8 @@ class DispositivoController extends Controller
             'join_eui' => [
                 'required',
                 'regex:/^[0-9a-fA-F]{16}$/'
-            ]
+            ],
+            'type'=>'required'
         ]);
         
         try {
@@ -182,6 +187,7 @@ class DispositivoController extends Controller
             $dis->join_eui=$request->join_eui;
             $dis->latitude=$request->latitude;
             $dis->longitude=$request->longitude;
+            $dis->type=$request->type;
             $dis->save();
             
             $this->actualizarClaveApplicacion($dispositivoId,$request->nwk_key);

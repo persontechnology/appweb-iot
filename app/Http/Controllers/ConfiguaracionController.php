@@ -45,17 +45,21 @@ class ConfiguaracionController extends Controller
      */
     public function store(Request $request)
     {
+        
         $application=Application::find($request->application_id);
         return $application;
         $request->validate([
-            'valor'=>'required|string',
-            'descripcion'=>'required|string|max:255'
+            'valor' => 'required|integer|min:0|max:100',
+            'descripcion' => 'required|string|max:255',
+            'color' => 'required|string',
+            'notification' => 'boolean',
         ]);
         try {
             $configuracion=new Configuracion();
             $configuracion->valor=$request->valor;
             $configuracion->descripcion=$request->descripcion;
             $configuracion->color=$request->color;
+            $configuracion->notification=$request->notification;
             $configuracion->save();
 
             return redirect()->route('configuraciones.index')->with('success',$configuracion->valor.', ingresado exitosamente.!');

@@ -61,11 +61,9 @@ class GatewayController extends Controller
              //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
             
              if (isset($object['motion_status'])&& $object['motion_status']=="moving") {
-                Log::info('dsasdsa',[$request]);
-                error_log('si');
                    $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object,$request);
-             } else {
-                error_log('no');
+             } else if(isset($object['distance'])) {
+         
                 // Verificar si las alertas se activan con los datos del objeto
                 if ($this->verificarAlertas($object, $horario->alerta)) {
                     // Crear una nueva lectura
@@ -97,9 +95,7 @@ class GatewayController extends Controller
                         'ver_lectura_url'=>route('lecturas.show',$lectura->id),
                         'description'=>$dispositivo->description,
                         'tenant_id'=>$lectura->tenant_id
-                    );
-
-                    
+                    );                    
 
                     event(new NotificarDispositivoEvento($data));
                     // error_log('###########################################');
