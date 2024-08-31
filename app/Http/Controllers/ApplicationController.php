@@ -179,7 +179,6 @@ class ApplicationController extends Controller
             'valor'=>'required|string',
             'descripcion'=>'required|string|max:255',
             'application_id'=>'required',
-            'notification'=>'required',
         ]);
         try {
             $configuracion=new Configuracion();

@@ -52,14 +52,13 @@ class ConfiguaracionController extends Controller
             'valor' => 'required|integer|min:0|max:100',
             'descripcion' => 'required|string|max:255',
             'color' => 'required|string',
-            'notification' => 'boolean',
         ]);
         try {
             $configuracion=new Configuracion();
             $configuracion->valor=$request->valor;
             $configuracion->descripcion=$request->descripcion;
             $configuracion->color=$request->color;
-            $configuracion->notification=$request->notification;
+            $configuracion->notification=$request->notification??false;
             $configuracion->save();
 
             return redirect()->route('configuraciones.index')->with('success',$configuracion->valor.', ingresado exitosamente.!');
