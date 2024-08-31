@@ -90,8 +90,8 @@
 }
 
 .tank {
-    width: 100px;
-    height: 120px;
+    width: 90px;
+    height: 100px;
     background-color: #e0e0e0;
     border: 2px solid #000;
     position: relative;
