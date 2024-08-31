@@ -610,9 +610,9 @@
             const seriesData = lecturas.map(lectura => {
                 return [
                     new Date(lectura.data.time).getTime(),
-                    calcularPorcentajeLlenado(
-                        Number(lectura?.data?.object?.distance ?? 0) ?? 0,
-                        Number(aplicacion?.distance ?? 0))
+                    Number(calcularPorcentajeLlenado(
+                        Number(lectura?.data?.object?.distance ?? 0).toFixed(2) ?? 0,
+                        Number(aplicacion?.distance ?? 0)).toFixed(2))??0
 
                 ];
             });
@@ -628,7 +628,7 @@
                     name: '(%)',
                     data: seriesData,
                     tooltip: {
-                        valueSuffix: ' mm'
+                        valueSuffix: ' %'
                     }
                 }],
                 xAxis: {
