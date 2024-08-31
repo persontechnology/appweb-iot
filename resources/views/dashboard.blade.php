@@ -612,7 +612,7 @@
                     new Date(lectura.data.time).getTime(),
                     Number(calcularPorcentajeLlenado(
                         Number(lectura?.data?.object?.distance ?? 0).toFixed(2) ?? 0,
-                        Number(aplicacion?.distance ?? 0)).toFixed(2))??0
+                        Number(aplicacion?.distance ?? 0)).toFixed(2))
 
                 ];
             });
@@ -628,7 +628,7 @@
                     name: '(%)',
                     data: seriesData,
                     tooltip: {
-                        valueSuffix: ' %'
+                        valueSuffix: ' mm'
                     }
                 }],
                 xAxis: {
