@@ -606,44 +606,49 @@
         });
 
         function createChart(lecturas, aplicacion) {
-
             const seriesData = lecturas.map(lectura => {
-                return [
-                    new Date(lectura.data.time).getTime(),
-                    Number(calcularPorcentajeLlenado(
-                        Number(lectura?.data?.object?.distance ?? 0).toFixed(2) ?? 0,
-                        Number(aplicacion?.distance ?? 0)).toFixed(2))
+                const distance = Number(lectura?.data?.object?.distance ?? 0).toFixed(2);
+                const maxDistance = Number(aplicacion?.distance ?? 0);
+                const porcentajeLlenado = calcularPorcentajeLlenado(distance, maxDistance).toFixed(2);
 
+                return [
+                    new Date(lectura.data.time).getTime(), // Tiempo en milisegundos
+                    Number(porcentajeLlenado) // Porcentaje de llenado
                 ];
             });
             debugger;
+
             Highcharts.stockChart('grafico', {
                 rangeSelector: {
                     selected: 1
                 },
                 title: {
-                    text: ''
+                    text: 'Porcentaje de Llenado (%)'
                 },
                 series: [{
-                    name: '(%)',
+                    name: 'Llenado (%)',
                     data: seriesData,
                     tooltip: {
-                        valueSuffix: ' mm'
+                        valueSuffix: ' %' // Cambiado a porcentaje
                     }
                 }],
                 xAxis: {
                     type: 'datetime',
                     title: {
-                        text: ''
+                        text: 'Tiempo'
                     }
                 },
                 yAxis: {
                     title: {
-                        text: '(%)'
+                        text: 'Porcentaje (%)'
+                    },
+                    labels: {
+                        formatter: function() {
+                            return this.value + '%'; // Mostrar % en las etiquetas del eje Y
+                        }
                     }
                 }
             });
-
         }
     </script>
 @endpush

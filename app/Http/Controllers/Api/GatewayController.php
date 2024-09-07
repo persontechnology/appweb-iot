@@ -6,12 +6,14 @@ use App\Events\EnviarDispositivoEvent;
 use App\Events\LecturaGuardadoEvent;
 use App\Events\NotificarDispositivoEvento;
 use App\Http\Controllers\Controller;
+use App\Models\Application;
 use App\Models\Dispositivo;
 use App\Models\Horario;
 use App\Models\Lectura;
 use App\Models\PuntosLocalizacion;
 use App\Models\SensorData;
 use App\Notifications\EnviarEmailUsuariosAsignadosLectura;
+use App\Notifications\Lecturas\EnviarCorreoDistancia;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -58,8 +60,7 @@ class GatewayController extends Controller
             // consultar si el dispositivo tiene y tracking, si tiene tracking guadar PuntoLocalizacion.
             // caso contrario generamos lectura para los otros dispositivos
             $dev_eui=$deviceInfo['devEui'];
-             //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
-            
+  
              if (isset($object['motion_status'])&& $object['motion_status']=="moving") {
                    $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object,$request);
              } else if(isset($object['distance'])) {
@@ -74,16 +75,31 @@ class GatewayController extends Controller
                     // Enviar correos electrónicos a los usuarios asignados a la alerta si es necesario
                  
                     // $dispositivoTracking
-                    if ($lectura->alerta->puede_enviar_email) {
-                        $this->enviarEmailUsuariosAsignadosLectura($lectura);
+                    $dispositivo=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+                    $aplicacion=Application::with('configuraciones')->find($applicationId);
+                    if ($lectura->alerta->puede_enviar_email && $dispositivo && $aplicacion) {
+                        $configuraciones=collect($aplicacion->configuraciones??[]);
+                        $porcentajeLlenado=$this->calcularPorcentajeLlenado($object['distance'],$aplicacion->distance);
+                        $rangoLlenado=$this->determinarRangoLlenado($porcentajeLlenado,$configuraciones);
+                        Log::info('stancia',[$rangoLlenado]);
+                        if(isset($rangoLlenado['notification'])&&$rangoLlenado['notification']){
+
+                            Log::info('Listos para enviar notificaciones',[$aplicacion]);
+                            $dataDistance=[
+                                'rangoLlenado'=>$rangoLlenado,
+                                'lectura'=>$lectura,
+                                'porcentaje'=>$porcentajeLlenado,
+                            ];
+                            $this->enviarEmailUsuariosAsignadosLecturaDistancia($lectura,$rangoLlenado,$porcentajeLlenado);
+                        }
+                        
+
+                        Log::info('DIstancia',[$object['distance']]);
+                        //$this->enviarEmailUsuariosAsignadosLectura($lectura);
                     }
                  
                     
                     $dispositivo=$lectura->buscarDispositivoDevEui($deviceInfo['devEui']);
-                                        
-                    // Emitir un evento para notificar la lectura guardada en tiempo real
-                    // error_log('###########################################');
-
                     $data = array(
                         'dev_eui_hex'=>$dispositivo->dev_eui_hex,
                         'last_seen_at'=>$dispositivo->last_seen_at,
@@ -98,14 +114,12 @@ class GatewayController extends Controller
                     );                    
 
                     event(new NotificarDispositivoEvento($data));
-                    // error_log('###########################################');
-                    // event(new LecturaGuardadoEvent($data));
                 }
 
 
             }
-            
-        return "ok";
+            Log::info('fin');
+        return "okerr";
             
         } catch (\Exception $th) {
             return  $th->getMessage();
@@ -114,7 +128,30 @@ class GatewayController extends Controller
         }
     }
 
+//
+function calcularPorcentajeLlenado($nivelActual, $nivelMaximo) {
+    // Calcular el nivel invertido
+    $nivelInvertido = $nivelMaximo - $nivelActual;
 
+    // Calcular el porcentaje de llenado
+    $porcentajeLlenado = ($nivelInvertido / $nivelMaximo) * 100;
+
+    return $porcentajeLlenado;
+}
+
+function determinarRangoLlenado($porcentajeLlenado, $niveles) {
+    $rango = null;
+
+    // Recorrer los niveles para determinar el rango
+    foreach ($niveles as $nivel) {
+        if ($porcentajeLlenado <= $nivel['valor']) {
+            $rango = $nivel;
+            break;
+        }
+    }
+
+    return $rango;
+}
     // crear putos de localizacion para el gps o dispositivoa que tengan atributo tracking
     public function crearPuntosLocalizacion($dev_eui,$object,$request) {
         try {
@@ -241,18 +278,32 @@ class GatewayController extends Controller
         // Enviar correos electrónicos a los usuarios asignados a la alerta asociada a la lectura
         try {
             foreach ($lectura->alerta->alertaUsers as $alertaUser) {
-                error_log($alertaUser);
+                Log::info($alertaUser);
                 Queue::push(function ($job) use ($alertaUser, $lectura) {
-                    error_log('aqui esta la vrg');
-                    $alertaUser->user->notify(new EnviarEmailUsuariosAsignadosLectura($lectura));
+                    $alertaUser->user->notify(new EnviarEmailUsuariosAsignadosLectura($lectura,$alertaUser->alerta));
                     $job->delete();
                 });
             }
         } catch (\Throwable $th) {
-            error_log('EMAIL ERROR '.$th->getMessage());
+            Log::error('EMAIL ERROR '.$th->getMessage());
         }
     }
-
+    public function enviarEmailUsuariosAsignadosLecturaDistancia($lectura,$rangoLlenado,$porcentajeLlenado)
+    {
+        // error_log('entro a enviar email');
+        // Enviar correos electrónicos a los usuarios asignados a la alerta asociada a la lectura
+        try {
+            foreach ($lectura->alerta->alertaUsers as $alertaUser) {
+                Log::info($alertaUser);
+                Queue::push(function ($job) use ($alertaUser,$rangoLlenado,$porcentajeLlenado, ) {
+                     $alertaUser->user->notify(new EnviarCorreoDistancia($rangoLlenado,$porcentajeLlenado, $alertaUser->user));
+                    $job->delete();
+                }); 
+            }
+        } catch (\Throwable $th) {
+            Log::error('EMAIL ERROR '.$th->getMessage());
+        }
+    }
     public function crearLectura($dev_eui, $alerta_id, $request)
     {
         // Crear una nueva instancia de Lectura y guardarla en la base de datos
