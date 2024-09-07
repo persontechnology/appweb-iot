@@ -23,7 +23,6 @@ function updatePercentage(lecturasLatest, dispositivo) {
                 );
                 $("#estadoLector").text(rangoLlenado?.descripcion ?? "");
                 pintarNivelDeAgua(porcentajeLlenado,rangoLlenado?.color??"#000")
-                debugger;
             }
         }
     } catch (error) {
@@ -51,8 +50,6 @@ function pintarNivelDeAgua(porcentajeLlenado, color) {
 }
 
 // Ejemplo de uso
-const porcentajeLlenado = 88; // Nivel de llenado actual
-const color = "#4aa3df"; // Color del agua
 
 pintarNivelDeAgua(porcentajeLlenado, color);
 
@@ -66,17 +63,11 @@ waterLevel.textContent = `${porcentajeLlenado.toFixed(2)}%`;
 tank.appendChild(waterLevel);
 //
 function calcularPorcentajeLlenado(nivelActual, nivelMaximo) {
-    // Invertir el nivel: 0 es vacío, nivelMaximo es lleno
     const nivelInvertido = nivelMaximo - nivelActual;
-
-    // Convertir el nivel invertido a un porcentaje
     const porcentajeLlenado = (nivelInvertido / nivelMaximo) * 100;
-    console.log(porcentajeLlenado);
-
     return porcentajeLlenado;
 }
 
-// Función para determinar el rango de llenado basado en el porcentaje
 function determinarRangoLlenado(porcentajeLlenado, niveles) {
     let rango = null;
 
