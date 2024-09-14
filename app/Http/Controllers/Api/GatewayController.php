@@ -63,18 +63,13 @@ class GatewayController extends Controller
 
              //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
              if (isset($object['motion_status'])&& $object['motion_status']=="moving") {
-                   
-                   $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object,$request);
+                     $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object,$request);
              } else if(isset($object['distance'])) {
                 
          
                 // Verificar si las alertas se activan con los datos del objeto
                 if ($this->verificarAlertas($object, $horario->alerta)) {
-                    // Crear una nueva lectura
-                    Log::info("aqui funca");
                     $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
-
-                    $lecturaCreada=Lectura::find($lectura->id);
                     // Enviar correos electrónicos a los usuarios asignados a la alerta si es necesario
                  
                     // $dispositivoTracking
@@ -84,45 +79,24 @@ class GatewayController extends Controller
                         $configuraciones=collect($aplicacion->configuraciones??[]);
                         $porcentajeLlenado=$this->calcularPorcentajeLlenado($object['distance'],$aplicacion->distance);
                         $rangoLlenado=$this->determinarRangoLlenado($porcentajeLlenado,$configuraciones);
-                        Log::info('stancia',[$rangoLlenado]);
+                      
                         if(isset($rangoLlenado['notification'])&&$rangoLlenado['notification']){
-
-                            Log::info('Listos para enviar notificaciones',[$aplicacion]);
-                            $dataDistance=[
-                                'rangoLlenado'=>$rangoLlenado,
-                                'lectura'=>$lectura,
-                                'porcentaje'=>$porcentajeLlenado,
-                            ];
+                     
                             $this->enviarEmailUsuariosAsignadosLecturaDistancia($lectura,$rangoLlenado,$porcentajeLlenado);
                         }
-                        
-
-                        Log::info('DIstancia',[$object['distance']]);
-                        //$this->enviarEmailUsuariosAsignadosLectura($lectura);
-                    }
-                 
+                    
+                    }                 
                     
                     $dispositivo=$lectura->buscarDispositivoDevEui($deviceInfo['devEui']);
-                    $data = array(
-                        'dev_eui_hex'=>$dispositivo->dev_eui_hex,
-                        'last_seen_at'=>$dispositivo->last_seen_at,
-                        'name'=>$dispositivo->name,
-                        'battery_level'=>$dispositivo->battery_level,
-                        'use_tracking'=>$dispositivo->use_tracking,
-                        'created_at'=>$lectura->created_at,
-                        'id_lectura'=>$lectura->id,
-                        'ver_lectura_url'=>route('lecturas.show',$lectura->id),
-                        'description'=>$dispositivo->description,
-                        'tenant_id'=>$lectura->tenant_id
-                    );                    
-
-                    event(new NotificarDispositivoEvento($data));
+                    $this->sentReaTime($dispositivo,$lectura);
                 }
 
 
             }else if(isset($object['press'])){
                 if ($this->verificarAlertas($object, $horario->alerta)) {
-                    
+                    $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
+                    $dispositivo=$lectura->buscarDispositivoDevEui($deviceInfo['devEui']);
+                    $this->sentReaTime($dispositivo,$lectura);
                 }
             }
             Log::info('fin');
@@ -135,7 +109,25 @@ class GatewayController extends Controller
         }
     }
 
-//
+//ENVIAR DATOS A LAS NOTIFICACIONES
+function sentReaTime($dispositivo,$lectura){
+    $data = array(
+        'dev_eui_hex'=>$dispositivo->dev_eui_hex,
+        'last_seen_at'=>$dispositivo->last_seen_at,
+        'name'=>$dispositivo->name,
+        'battery_level'=>$dispositivo->battery_level,
+        'use_tracking'=>$dispositivo->use_tracking,
+        'created_at'=>$lectura->created_at,
+        'id_lectura'=>$lectura->id,
+        'ver_lectura_url'=>route('lecturas.show',$lectura->id),
+        'description'=>$dispositivo->description,
+        'tenant_id'=>$lectura->tenant_id
+    );                    
+
+    event(new NotificarDispositivoEvento($data));
+}
+
+//Calculos para la distancia
 function calcularPorcentajeLlenado($nivelActual, $nivelMaximo) {
     // Calcular el nivel invertido
     $nivelInvertido = $nivelMaximo - $nivelActual;
