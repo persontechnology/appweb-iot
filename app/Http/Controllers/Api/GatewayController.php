@@ -64,10 +64,8 @@ class GatewayController extends Controller
              //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
              if (isset($object['motion_status'])&& $object['motion_status']=="moving") {
                      $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object,$request);
-             } else if(isset($object['distance'])) {
-                
-         
-                // Verificar si las alertas se activan con los datos del objeto
+             } else if(isset($object['distance'])) {               
+                         // Verificar si las alertas se activan con los datos del objeto
                 if ($this->verificarAlertas($object, $horario->alerta)) {
                     $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
                     // Enviar correos electrónicos a los usuarios asignados a la alerta si es necesario
