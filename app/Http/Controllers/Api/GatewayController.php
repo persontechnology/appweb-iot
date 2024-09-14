@@ -63,7 +63,7 @@ class GatewayController extends Controller
             if (!$horarios && count($horarios)>0) {
                 throw new \Exception('NO EXISTE HORARIO PARA LA APLICACIÓN ' . $applicationId);
             }
-            
+
             // Verificar si las alertas se activan con los datos del objeto
              //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
              if (isset($object['motion_status'])&& $object['motion_status']=="moving") {
@@ -335,8 +335,11 @@ class GatewayController extends Controller
             ->whereHas('alerta', function ($query) use ($applicationId,$tipoDispositivoId) {
                 $query->where('estado', true)
                 ->where('application_id', $applicationId)
-                ->where('tipo_dispositivo_id',$tipoDispositivoId);
+                ->whereHas('tipoDispositivos', function ($query) use ($tipoDispositivoId) {
+                    $query->where('tipo_dispositivo_id',$tipoDispositivoId);
+                });
             })
+            
             ->get();
     }
 }
