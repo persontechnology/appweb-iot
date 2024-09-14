@@ -381,6 +381,7 @@
                 ultimaFecha = lecturas_latest?.created_at;
                 conversionFecha = lecturas_latest ? calcularDiferenciaTiempo(lecturas_latest.created_at) : ''
             }
+            debugger;
             overlaySection.html(`
         <div class="card-group" style="min-height: 140px;">
             <div class="card p-1">
@@ -407,7 +408,8 @@
                         <div class="fw-semibold">
                             ${conversionFecha}
                             <div class="text-muted text-small-card">
-                            ${ultimaFecha??''}    
+                                
+                            ${moment(ultimaFecha).tz('America/Guayaquil').format('YYYY-MM-DD HH:mm:ss')??''}    
                             </div>
                         </div>
                     </div>            
@@ -605,7 +607,10 @@
             $('#grafico').hide();
         });
 
+        let chart = null; // Variable global para almacenar la instancia del gráfico
+
         function createChart(lecturas, aplicacion) {
+            // Obtener los datos de las lecturas y calcular el porcentaje de llenado
             const seriesData = lecturas.map(lectura => {
                 const distance = Number(lectura?.data?.object?.distance ?? 0).toFixed(2);
                 const maxDistance = Number(aplicacion?.distance ?? 0);
@@ -616,9 +621,14 @@
                     Number(porcentajeLlenado) // Porcentaje de llenado
                 ];
             });
-            debugger;
 
-            Highcharts.stockChart('grafico', {
+            // Si ya existe un gráfico, destruirlo antes de crear uno nuevo
+            if (chart) {
+                chart.destroy();
+            }
+
+            // Crear el nuevo gráfico y almacenar la instancia en la variable `chart`
+            chart = Highcharts.stockChart('grafico', {
                 rangeSelector: {
                     selected: 1
                 },
