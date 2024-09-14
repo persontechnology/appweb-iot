@@ -60,15 +60,18 @@ class GatewayController extends Controller
             // consultar si el dispositivo tiene y tracking, si tiene tracking guadar PuntoLocalizacion.
             // caso contrario generamos lectura para los otros dispositivos
             $dev_eui=$deviceInfo['devEui'];
-  
+
+             //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
              if (isset($object['motion_status'])&& $object['motion_status']=="moving") {
+                   
                    $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object,$request);
              } else if(isset($object['distance'])) {
+                
          
                 // Verificar si las alertas se activan con los datos del objeto
                 if ($this->verificarAlertas($object, $horario->alerta)) {
                     // Crear una nueva lectura
-                    
+                    Log::info("aqui funca");
                     $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
 
                     $lecturaCreada=Lectura::find($lectura->id);

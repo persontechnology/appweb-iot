@@ -72,6 +72,40 @@
             <!-- Aquí se insertarán dinámicamente las tarjetas  style="display: none;"-->
         </div>
     </div>
+
+    <div id="modal_dashboard" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Lecturas</h5>
+              
+                    <select class="form-select form-select-lg mx-2">
+                        <option value="opt7">AÑO ACTUAL</option>
+                        <option value="opt8">AÑO ANTERIOR</option>
+                        <option value="opt1">MES ACTUAL</option>
+                        <option value="opt2">MES ANTERIOR</option>
+                        <option value="opt3">SEMANA ACTUAL</option>
+                        <option value="opt4">SEMANA ANTERIOR</option>
+                        <option value="opt5">HOY</option>
+                        <option value="opt6">AYER</option>
+                        
+                    </select>
+                    
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+    
+                <div class="modal-body">
+                    
+                </div>
+    
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary">Buscar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
 @endsection
 
 
@@ -426,10 +460,14 @@
             </div>
 
             <div class="card">
+                <div class="card-header d-flex align-items-center py-0">
+                    <div class="ms-auto my-auto">
+                        <button type="button" data-deveuihex="${dev_eui_hex}" onclick="abrirModal(this);" class="btn btn-primary">Lecturas</button>
+                    </div>
+                </div>
                 <div class="card-body m-0 p-0">             
                     <div>
                         <div id="grafico" style="height: 200px; min-width: 20px" class="none"></div>
-
                     </div>
                 
                 </div>
@@ -453,6 +491,11 @@
             }
         }
 
+        function abrirModal(arg){
+            var deveuihex=$(arg).data('deveuihex');
+            console.log(deveuihex)
+            $('#modal_dashboard').modal('show');
+        }
 
 
         function pintarDispositivo(dispositivo) {
