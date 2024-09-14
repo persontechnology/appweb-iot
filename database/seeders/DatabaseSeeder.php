@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\Permission;
 use App\Models\Tenant;
+use App\Models\TipoDispositivo;
 use Illuminate\Support\Str;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -65,6 +66,18 @@ class DatabaseSeeder extends Seeder
             $user->save();
         }
         $user->syncRoles($roleAdmin);
+
+
+        // tipos de dispositivos
+        $tiposDispositivos = array(
+            'Smart Button',
+            'Environment Monitoring Sensor',
+            'Tracking'
+        );
         
+        foreach ($tiposDispositivos as $tipoDispositivo) {
+            TipoDispositivo::firstOrCreate(['nombre' => $tipoDispositivo]);
+        }
+
     }
 }

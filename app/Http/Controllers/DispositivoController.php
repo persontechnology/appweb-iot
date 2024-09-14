@@ -10,6 +10,7 @@ use App\Models\Dispositivo;
 use App\Models\Lectura;
 use App\Models\PuntosLocalizacion;
 use App\Models\Tenant;
+use App\Models\TipoDispositivo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -37,6 +38,7 @@ class DispositivoController extends Controller
     {
         $tenant=Tenant::find(Auth::user()->tenant_id);
         $data = array(
+            'tipoDispositivos'=>TipoDispositivo::get(),
             'aplicaciones'=>$tenant->applications,
             'perfil_dispositivos'=>$tenant->deviceProfiles
         );
@@ -72,7 +74,7 @@ class DispositivoController extends Controller
                 'required',
                 'regex:/^[0-9a-fA-F]{16}$/'
             ],
-            'type'=>'required'
+            'tipo_dispositivo'=>'required'
         ]);
 
         try {
@@ -92,7 +94,8 @@ class DispositivoController extends Controller
             $dis->join_eui=$request->join_eui;
             $dis->latitude=$request->latitude;
             $dis->longitude=$request->longitude;
-            $dis->type=$request->type;
+            // $dis->type=$request->type;
+            $dis->tipo_dispositivo_id=$request->tipo_dispositivo;
             $dis->save();
 
             $dis->save();
@@ -151,7 +154,8 @@ class DispositivoController extends Controller
             'perfil_dispositivos'=>$tenant->deviceProfiles,
             'dis'=>$dispositivo,
             'nwk_key'=>$dk->nwk_key,
-            'dev_eui'=>$dispositivo->dev_eui
+            'dev_eui'=>$dispositivo->dev_eui,
+            'tipoDispositivos'=>TipoDispositivo::get()
         );
         return view('dispositivos.edit',$data);
     }
@@ -173,7 +177,7 @@ class DispositivoController extends Controller
                 'required',
                 'regex:/^[0-9a-fA-F]{16}$/'
             ],
-            'type'=>'required'
+            'tipo_dispositivo'=>'required'
         ]);
         
         try {
@@ -187,7 +191,8 @@ class DispositivoController extends Controller
             $dis->join_eui=$request->join_eui;
             $dis->latitude=$request->latitude;
             $dis->longitude=$request->longitude;
-            $dis->type=$request->type;
+            // $dis->type=$request->type;
+            $dis->tipo_dispositivo_id=$request->tipo_dispositivo;
             $dis->save();
             
             $this->actualizarClaveApplicacion($dispositivoId,$request->nwk_key);
