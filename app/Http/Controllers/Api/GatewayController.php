@@ -120,6 +120,10 @@ class GatewayController extends Controller
                 }
 
 
+            }else if(isset($object['press'])){
+                if ($this->verificarAlertas($object, $horario->alerta)) {
+                    
+                }
             }
             Log::info('fin');
         return "okerr";
