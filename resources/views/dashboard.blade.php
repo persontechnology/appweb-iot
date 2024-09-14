@@ -74,28 +74,17 @@
     </div>
 
     <div id="modal_dashboard" class="modal fade" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-full">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Lecturas</h5>
-              
-                    <select class="form-select form-select-lg mx-2">
-                        <option value="opt7">AÑO ACTUAL</option>
-                        <option value="opt8">AÑO ANTERIOR</option>
-                        <option value="opt1">MES ACTUAL</option>
-                        <option value="opt2">MES ANTERIOR</option>
-                        <option value="opt3">SEMANA ACTUAL</option>
-                        <option value="opt4">SEMANA ANTERIOR</option>
-                        <option value="opt5">HOY</option>
-                        <option value="opt6">AYER</option>
-                        
-                    </select>
-                    
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-    
-                <div class="modal-body">
                     
+                </div>
+                
+                <div class="modal-body">
+                    <x-filtro-por-fechas resultId="resultadoFiltroFechas" />
+
                 </div>
     
                 <div class="modal-footer">
@@ -118,10 +107,15 @@
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
     <script src="{{ asset('custom/js/general.js') }}"></script>
     <script src="{{ asset('custom/js/homeDashboard.js') }}"></script>
+    
+    <script src="{{ asset('assets/js/vendor/ui/moment/moment.min.js') }}"></script>
+
 @endpush
 
 
 @push('scriptsFooter')
+    
+
     <script>
         // Inicializa el mapa y añade una capa base
         const map = L.map('map').setView([0, 0], 2);
@@ -495,6 +489,7 @@
             $('#modal_dashboard').modal('show');
         }
 
+        
 
         function pintarDispositivo(dispositivo) {
             const listaDispositivos = $('#sidebar-dispositivos');
