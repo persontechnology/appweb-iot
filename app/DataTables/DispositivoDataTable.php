@@ -29,7 +29,9 @@ class DispositivoDataTable extends DataTable
                 
                 return view('dispositivos.action',['dis'=>$dis])->render();
             })
-            
+            ->editColumn('tipoDispositivo.nombre',function($dis){
+                return $dis->tipoDisposistivo->nombre??'';
+            })
             ->setRowId('name');
     }
 
@@ -47,6 +49,7 @@ class DispositivoDataTable extends DataTable
         })
         ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *")
         ->with('deviceprofile')
+        ->with('tipoDispositivo')
         ->with('application');
 
     }
@@ -79,6 +82,7 @@ class DispositivoDataTable extends DataTable
             Column::make('name')->title('Nombre'),
             Column::make('join_eui'),
             Column::make('battery_level')->title('%Batería'),
+            Column::make('tipoDispositivo.nombre')->title('Tipo dispositivo'),
             Column::make('deviceprofile.name')->title('Perfil dispositivo'),
             Column::make('application.name')->title('Aplicación'),
             Column::make('description')->title('Descripción'),

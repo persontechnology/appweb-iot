@@ -11,6 +11,8 @@
     <div class="card">
         <div class="card-header">Complete datos</div>
         <div class="card-body">
+
+            
             <div class="row">
 
                 <div class="col-lg-6">
@@ -140,18 +142,29 @@
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <div class="border rounded mb-3">
-                        <div class="form-check form-switch mb-2">
-                            <p>Tipo de dispositivo</p>
-                            <select class="form-select @error('type') is-invalid @enderror" name="type" required>
-                                <option value="">SELECCIONAR</option>
-                                <option value="PULSO">PULSO</option>
-                                <option value="MOVIMIENTO">MOVIMIENTO</option>
-                                <option value="DISTANCIA">DISTANCIA</option>
-                              </select>
+                    <div class="mb-3">
+                        @if ($tipoDispositivos->count()>0)
+                        <div class="form-floating form-control-feedback form-control-feedback-start">
+                            <div class="form-control-feedback-icon">
+                                <i class="ph ph-device-tablet"></i>
+                            </div>
                             
-                            <div class="form-text text-warning">Selecciona el tipo de dispositivo con cuidado, ya que la elección correcta es crucial para asegurar que los reportes se generen correctamente.</div>
+                            <select class="form-select @error('tipo_dispositivo') is-invalid @enderror" name="tipo_dispositivo" required>
+                                @foreach ($tipoDispositivos as $tipoDispositivo)
+                                <option value="{{ $tipoDispositivo->id }}" {{ old('tipo_dispositivo',$dis->tipoDispositivo->id??'')==$tipoDispositivo->id?'selected':'' }}>{{ $tipoDispositivo->nombre }}</option>
+                                @endforeach
+                            </select>
+
+                            <label>Tipo de dispositivo</label>
+
+                            @error('tipo_dispositivo')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
+                        @else
+                            @include('layouts.alert',['type'=>'danger','msg'=>'No existe tipo de dispositivos, por favor crear una.'])
+                        @endif
+                        
                     </div>
                 </div>
                 <div class="col-lg-12">

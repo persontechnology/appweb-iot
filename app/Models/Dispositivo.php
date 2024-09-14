@@ -88,5 +88,11 @@ class Dispositivo extends Model
       {
           return $this->hasOne(PuntosLocalizacion::class, 'dev_eui', 'dev_eui_hex')->latest();
       }
+
+      // un dispsitivo pertenece a un device profile
+    public function tipoDispositivo(): BelongsTo
+    {
+        return $this->belongsTo(TipoDispositivo::class);
+    }
     
 }
