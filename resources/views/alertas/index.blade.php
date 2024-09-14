@@ -20,7 +20,8 @@
         </div>
 
     </div>
-    @push('scriptsFooter')
-    {{ $dataTable->scripts() }}
-    @endpush
+   
 @endsection
+@push('scriptsFooter')
+{{ $dataTable->scripts() }}
+@endpush

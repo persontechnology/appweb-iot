@@ -12,6 +12,7 @@ use App\Models\Application;
 use App\Models\DeviceProfile;
 use App\Models\Horario;
 use App\Models\Tenant;
+use App\Models\TipoDispositivo;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,7 +37,8 @@ class AlertaController extends Controller
     {
         $tenant=Tenant::find(Auth::user()->tenant_id);
         $data = array(
-            'aplicaciones'=>$tenant->applications
+            'aplicaciones'=>$tenant->applications,
+            'tipoDispositivos'=>TipoDispositivo::get()
         );
         return view('alertas.create',$data);
     }
@@ -48,13 +50,15 @@ class AlertaController extends Controller
     {
          
         $request->validate([
-            'application_id'=>'required',
             'nombre' => [
                 'required',
-                Rule::unique('alertas','nombre')->where(function ($query) use ($request) {
+                Rule::unique('alertas', 'nombre')->where(function ($query) use ($request) {
                     return $query->where('application_id', $request->application_id);
                 }),
-            ]
+            ],
+            'application_id' => 'required',
+            'tipo_dispositivos' => 'required|array', // Asegúrate de que se seleccionen dispositivos
+            'tipo_dispositivos.*' => 'exists:tipo_dispositivos,id' // Asegúrate de que los dispositivos existan en la base de datos
         ]);
         
         $application=Application::find($request->application_id);
@@ -64,8 +68,8 @@ class AlertaController extends Controller
             DB::beginTransaction();
             $request['estado']=$request->estado?1:0;
             $request['puede_enviar_email']=$request->puede_enviar_email?1:0;
-            
             $alerta=Alerta::create($request->all());
+            $alerta->tipoDispositivos()->sync($request->input('tipo_dispositivos'));
             DB::commit();
             return redirect()->route('alertas.configuracion',['id'=>$alerta->id,'op'=>'inicio'])->with('success',$alerta->nombre.', ingresado exitosamente.!');
         } catch (\Throwable $th) {
@@ -174,9 +178,6 @@ class AlertaController extends Controller
             case 'horario':
                 return view('alertas.configuracion.horario',$data);
                 break;
-            case 'tipo':
-                return view('alertas.configuracion.tipo',$data);
-                break;
             case 'usuarios':
                 return $usuariosDataTable->with('alertaId',$id)->render('alertas.configuracion.usuarios',$data);
                 break;
@@ -242,29 +243,7 @@ class AlertaController extends Controller
     }
 
 
-    public function guardarTipo(Request $request) {
-        $alerta=Alerta::find($request->alerta_id);
-        $alertaTipo=new AlertaTipo();
-        $parametroSeparado = explode("=====", $request->parametro);
-        $alertaTipo->titulo=$parametroSeparado[1];
-        $alertaTipo->parametro=$parametroSeparado[0];
-        $alertaTipo->condicion=$request->condicion;
-        $alertaTipo->valor=$request->valor;
-        $alertaTipo->alerta_id=$request->alerta_id;
-        $alertaTipo->mensaje=$request->mensaje;
-        $alertaTipo->save();
-        return redirect()->route('alertas.configuracion',['id'=>$request->alerta_id,'op'=>'tipo'])->with('success','Tipo de alerta creado exitosamente.!');
-    }
 
-    public function eliminarTipo($idAlertaTipo){
-        $at=AlertaTipo::find($idAlertaTipo);
-        try {
-            $at->delete();
-            return redirect()->route('alertas.configuracion',['id'=>$at->alerta_id,'op'=>'tipo'])->with('success','Alerta Tipo eliminado.!');
-        } catch (\Throwable $th) {
-            return redirect()->route('alertas.configuracion',['id'=>$at->alerta_id,'op'=>'tipo'])->with('danger','Alerta Tipo no eliminado '.$th->getMessage());
-        }
-    }
 
 
 }

@@ -14,6 +14,13 @@
         @csrf
         <input type="hidden" name="alerta_id" value="{{ $alerta->id }}">
         <div class="card-body">
+
+            <p><strong>Tipo de dispositivo</strong></p>
+            <ul>
+            @foreach ($alerta->tipoDispositivos as $tipoDispositivo)
+                <li>{{ $tipoDispositivo->nombre }}</li>
+            @endforeach
+            </ul>
             <div class="row">
                 <div class="col-lg-12">
                     <div class="border p-3 rounded">

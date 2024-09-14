@@ -67,6 +67,8 @@ class AlertaDataTable extends DataTable
                   ->width(60)
                   ->addClass('text-center'),
             Column::make('nombre'),
+            
+            
             Column::make('application.name')->title('Applicación'),
             Column::make('estado'),
             Column::make('puede_enviar_email'),

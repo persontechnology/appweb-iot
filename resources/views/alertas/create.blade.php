@@ -27,10 +27,6 @@
                     </div>
                 </div>
 
-                
-
-               
-
                 <div class="col-lg-12">
                     <div class="mb-3">
                         @if ($aplicaciones->count()>0)
@@ -57,6 +53,33 @@
                         
                     </div>
                 </div>
+
+                 <!-- Tipo de Dispositivos -->
+                 <div class="col-lg-12">
+                    <div class="mb-3">
+                        @if ($tipoDispositivos->count() > 0)
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ph ph-grid-four"></i>
+                                </span>
+        
+                                <select class="form-control multiselect @error('tipo_dispositivos') is-invalid @enderror" name="tipo_dispositivos[]" multiple="multiple">
+                                    @foreach ($tipoDispositivos as $tipoDispositivo)
+                                        <option value="{{ $tipoDispositivo->id }}" {{ (collect(old('tipo_dispositivos'))->contains($tipoDispositivo->id)) ? 'selected' : '' }}>{{ $tipoDispositivo->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            @error('tipo_dispositivos')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        @else
+                            @include('layouts.alert', ['type' => 'danger', 'msg' => 'No existe tipo de dispositivos, por favor crear uno.'])
+                        @endif
+                    </div>
+                </div>
+
+                
 
 
                 <div class="col-lg-12">
@@ -89,4 +112,16 @@
 </form>
         
 @endsection
+
+@push('scriptsHeader')
+<script src="{{ asset('assets/js/vendor/forms/selects/bootstrap_multiselect.js') }}"></script>
+@endpush
+
+@push('scriptsFooter')
+<script>
+    $('.multiselect').multiselect();
+</script>
+@endpush
+
+
 

@@ -15,7 +15,8 @@ class Alerta extends Model
         'nombre',
         'estado',
         'application_id',
-        'puede_enviar_email'
+        'puede_enviar_email',
+        'tipo_dispositivo_id'
     ];
 
     protected static function booted()
@@ -74,19 +75,10 @@ class Alerta extends Model
 
     }
 
-
-    // una alerta tiene varios tipos de alertas
-
-    public function alertasTipos(): HasMany
+    // Relación muchos a muchos con TipoDispositivo
+    public function tipoDispositivos()
     {
-        return $this->hasMany(AlertaTipo::class);
-    }
-
-
-    // Define la relación uno a uno
-    public function alertaTipo()
-    {
-        return $this->hasOne(AlertaTipo::class);
+        return $this->belongsToMany(TipoDispositivo::class, 'alerta_tipo_dispositivos', 'alerta_id', 'tipo_dispositivo_id');
     }
 
     

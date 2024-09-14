@@ -1,5 +1,8 @@
 <div class="card-header d-sm-flex pt-sm-0 pb-0">
-    <h6 class="align-self-sm-center mb-sm-0">{{ $alerta->nombre }}</h6>
+
+    <p class="align-self-sm-center mb-sm-0">
+        <strong>Alerta: </strong> {{ $alerta->nombre }}
+    </p>
     <div class="ms-sm-auto">
         <ul class="nav nav-tabs nav-tabs-underline card-header-tabs mb-0">
             <li class="nav-item">
@@ -20,12 +23,7 @@
                     Horario
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="{{ route('alertas.configuracion',['id'=>$alerta->id,'op'=>'tipo']) }}" class="nav-link {{ $opcion=='tipo'?'active':''}}">
-                    <i class="ph ph-calendar me-2"></i>
-                    Tipo
-                </a>
-            </li>
+            
             <li class="nav-item">
                 <a href="{{ route('alertas.configuracion',['id'=>$alerta->id,'op'=>'lecturas']) }}" class="nav-link {{ $opcion=='lecturas'?'active':''}}">
                     <i class="ph ph-notebook me-2"></i>
