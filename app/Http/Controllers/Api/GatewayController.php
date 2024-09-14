@@ -51,11 +51,11 @@ class GatewayController extends Controller
 
             $dispositivo = Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
 
-
+            Log::info('ds',[$dispositivo]);
             if (!isset($dispositivo)) {
                 throw new \Exception('NO EXISTE DISPOSITIVO ' . $dev_eui);
             }
-
+            Log::info('dsw',[$dispositivo]);
             // Verificar el horario para la aplicación actual
             $horarios = $this->verificarHorario($applicationId,$dispositivo->tipo_dispositivo_id);
 
@@ -63,7 +63,7 @@ class GatewayController extends Controller
             if (!$horarios && count($horarios)>0) {
                 throw new \Exception('NO EXISTE HORARIO PARA LA APLICACIÓN ' . $applicationId);
             }
-            
+            Log::info('ds',[$dispositivo]);
             // Verificar si las alertas se activan con los datos del objeto
              //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
              if (isset($object['motion_status'])&& $object['motion_status']=="moving") {
