@@ -63,48 +63,40 @@ class GatewayController extends Controller
             if (!$horarios && count($horarios)>0) {
                 throw new \Exception('NO EXISTE HORARIO PARA LA APLICACIÓN ' . $applicationId);
             }
-
-
-
             
+            // Verificar si las alertas se activan con los datos del objeto
+             //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+             if (isset($object['motion_status'])&& $object['motion_status']=="moving") {
+                     $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object,$request);
+             } else if(isset($object['distance'])) {               
+                         // Verificar si las alertas se activan con los datos del objeto
+                // if ($this->verificarAlertas($object, $horario->alerta)) {
+                //     $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
+                //     // Enviar correos electrónicos a los usuarios asignados a la alerta si es necesario
 
-            //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+                //     // $dispositivoTracking
+                //     $dispositivo = Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+                //     $aplicacion = Application::with('configuraciones')->find($applicationId);
+                //     if ($lectura->alerta->puede_enviar_email && $dispositivo && $aplicacion) {
+                //         $configuraciones = collect($aplicacion->configuraciones ?? []);
+                //         $porcentajeLlenado = $this->calcularPorcentajeLlenado($object['distance'], $aplicacion->distance);
+                //         $rangoLlenado = $this->determinarRangoLlenado($porcentajeLlenado, $configuraciones);
 
+                //         if (isset($rangoLlenado['notification']) && $rangoLlenado['notification']) {
 
+                //             $this->enviarEmailUsuariosAsignadosLecturaDistancia($lectura, $rangoLlenado, $porcentajeLlenado);
+                //         }
+                //     }
 
-            if (isset($object['motion_status']) && $object['motion_status'] == "moving") {
-                $puntosLOcalizacion = $this->crearPuntosLocalizacion($dev_eui, $object, $request);
-            } else if (isset($object['distance'])) {
-
-
-                // Verificar si las alertas se activan con los datos del objeto
-                if ($this->verificarAlertas($object, $horario->alerta)) {
-                    $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
-                    // Enviar correos electrónicos a los usuarios asignados a la alerta si es necesario
-
-                    // $dispositivoTracking
-                    $dispositivo = Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
-                    $aplicacion = Application::with('configuraciones')->find($applicationId);
-                    if ($lectura->alerta->puede_enviar_email && $dispositivo && $aplicacion) {
-                        $configuraciones = collect($aplicacion->configuraciones ?? []);
-                        $porcentajeLlenado = $this->calcularPorcentajeLlenado($object['distance'], $aplicacion->distance);
-                        $rangoLlenado = $this->determinarRangoLlenado($porcentajeLlenado, $configuraciones);
-
-                        if (isset($rangoLlenado['notification']) && $rangoLlenado['notification']) {
-
-                            $this->enviarEmailUsuariosAsignadosLecturaDistancia($lectura, $rangoLlenado, $porcentajeLlenado);
-                        }
-                    }
-
-                    $dispositivo = $lectura->buscarDispositivoDevEui($deviceInfo['devEui']);
-                    $this->sentReaTime($dispositivo, $lectura);
-                }
+                //     $dispositivo = $lectura->buscarDispositivoDevEui($deviceInfo['devEui']);
+                //     $this->sentReaTime($dispositivo, $lectura);
+                // }
             } else if (isset($object['press'])) {
-                if ($this->verificarAlertas($object, $horario->alerta)) {
-                    $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
-                    $dispositivo = $lectura->buscarDispositivoDevEui($deviceInfo['devEui']);
-                    $this->sentReaTime($dispositivo, $lectura);
-                }
+                // if ($this->verificarAlertas($object, $horario->alerta)) {
+                //     $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
+                //     $dispositivo = $lectura->buscarDispositivoDevEui($deviceInfo['devEui']);
+                //     $this->sentReaTime($dispositivo, $lectura);
+                // }
             }
             Log::info('fin');
             return "okerr";

@@ -122,19 +122,6 @@ sidebar-main-resized
                         </span>
                     </a>
                 </li>
-
-                <li class="nav-item">
-                    <a href="{{ route('configuraciones.index') }}"
-                        class="nav-link {{ Route::is('configuraciones.*') ? 'active' : '' }}">
-                        <i class="ph ph-alarm"></i>
-                        <span>
-                            Configuración de distancia
-                        </span>
-                    </a>
-                </li>
-
-
-
                 <li class="nav-item">
                     <a href="{{ route('dispositivos.index') }}"
                         class="nav-link {{ Route::is('dispositivos.*') ? 'active' : '' }}">
