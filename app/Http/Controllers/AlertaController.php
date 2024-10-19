@@ -241,9 +241,4 @@ class AlertaController extends Controller
         }
         return redirect()->route('alertas.configuracion',['id'=>$alertaId,'op'=>'usuarios'])->with('success',$mensaje);
     }
-
-
-
-
-
 }
