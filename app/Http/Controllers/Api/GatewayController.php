@@ -6,6 +6,7 @@ use App\Events\EnviarDispositivoEvent;
 use App\Events\LecturaGuardadoEvent;
 use App\Events\NotificarDispositivoEvento;
 use App\Http\Controllers\Controller;
+use App\Models\Alerta;
 use App\Models\Application;
 use App\Models\Dispositivo;
 use App\Models\Horario;
@@ -51,19 +52,20 @@ class GatewayController extends Controller
 
             $dispositivo = Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
 
-            Log::info('ds',[$dispositivo]);
+            
             if (!isset($dispositivo)) {
                 throw new \Exception('NO EXISTE DISPOSITIVO ' . $dev_eui);
             }
-            Log::info('dsw',[$dispositivo]);
+           
             // Verificar el horario para la aplicación actual
             $horarios = $this->verificarHorario($applicationId,$dispositivo->tipo_dispositivo_id);
+            Log::info('incio',[count($horarios)]);
 
             // Verificar si existe un horario para la aplicación actual
-            if (!$horarios && count($horarios)>0) {
+            if (!$horarios && count($horarios)>=0) {
                 throw new \Exception('NO EXISTE HORARIO PARA LA APLICACIÓN ' . $applicationId);
             }
-            Log::info('ds',[$dispositivo]);
+            Log::info('ds',[$horarios]);
             // Verificar si las alertas se activan con los datos del objeto
              //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
              if (isset($object['motion_status'])&& $object['motion_status']=="moving") {
@@ -328,15 +330,17 @@ class GatewayController extends Controller
         $horaActual = Carbon::now()->format('H:i:s');
 
         // Buscar el horario activo para el día actual y la aplicación proporcionada
-        return Horario::where('numero_dia', $numeroDiaHoy)
+        return Alerta::where('estado', true)
+        ->whereHas('horarios', function ($query) use ($numeroDiaHoy,$horaActual) {
+            $query->where('numero_dia', $numeroDiaHoy)
             ->where('estado', true)
             ->whereTime('hora_apertura', '<=', $horaActual)
-            ->whereTime('hora_cierre', '>=', $horaActual)
-            ->whereHas('alerta', function ($query) use ($applicationId,$tipoDispositivoId) {
-                $query->where('estado', true)
-                ->where('application_id', $applicationId)
-                ->where('tipo_dispositivo_id',$tipoDispositivoId);
-            })
+            ->whereTime('hora_cierre', '>=', $horaActual);
+        })
+        ->whereHas('tipoDispositivos', function ($query) use ($tipoDispositivoId) {
+            $query->where('tipo_dispositivo_id',$tipoDispositivoId);
+        })
+        ->where('application_id', $applicationId)
             ->get();
     }
 }
