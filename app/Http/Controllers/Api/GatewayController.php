@@ -47,31 +47,51 @@ class GatewayController extends Controller
 
             // Obtener el ID de la aplicación del dispositivo
             $applicationId = $deviceInfo['applicationId'];
-        
+
             $dev_eui = $deviceInfo['devEui'];
 
-            $dispositivo = Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+            $dispositivo = Dispositivo::with(['tipoDispositivo'])->where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
 
-            
+
             if (!isset($dispositivo)) {
                 throw new \Exception('NO EXISTE DISPOSITIVO ' . $dev_eui);
             }
-           
+
             // Verificar el horario para la aplicación actual
-            $horarios = $this->verificarHorario($applicationId,$dispositivo->tipo_dispositivo_id);
-            Log::info('incio',[count($horarios)]);
+            $alertas = $this->verificarHorario($applicationId, $dispositivo->tipo_dispositivo_id) ?? [];
 
             // Verificar si existe un horario para la aplicación actual
-            if (!$horarios && count($horarios)>=0) {
+            if (count($alertas) < 1) {
+
                 throw new \Exception('NO EXISTE HORARIO PARA LA APLICACIÓN ' . $applicationId);
+
+                return "no existe horario";
             }
-            Log::info('ds',[$horarios]);
+
+            Log::info('dispositivo', [$dispositivo]);
+            $tipoDiposotivo = $dispositivo->tipoDispositivo;
+            if (isset($tipoDiposotivo)) {
+                Log::info("INGRESO COMPARACION DE TIPO");
+                if ($tipoDiposotivo->nombre == "Environment Monitoring Sensor") {
+                    Log::info("COMPARACION DE TIPO DISTANCIA");
+                    if (isset($object['distance'])) {
+                        $alerta = $alertas->first();
+                        Log::info("datos guuardar",[$deviceInfo['devEui'], $alerta['id'], $request]);
+                        $lectura = $this->crearLectura($deviceInfo['devEui'], $alerta['id'], $request);
+                    } else {
+                        Log::error('EN EL DISPOSITIVO TIPO DISTANCA MAL CONFIGURADO', [$dispositivo]);
+                    }
+                }
+            } else {
+                Log::error('EL DISPOSITIVO NO TIENE TIPO', [$dispositivo]);
+            }
+            return "biennn";
             // Verificar si las alertas se activan con los datos del objeto
-             //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
-             if (isset($object['motion_status'])&& $object['motion_status']=="moving") {
-                     $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object,$request);
-             } else if(isset($object['distance'])) {               
-                         // Verificar si las alertas se activan con los datos del objeto
+            //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+            if (isset($object['motion_status']) && $object['motion_status'] == "moving") {
+                $puntosLOcalizacion = $this->crearPuntosLocalizacion($dev_eui, $object, $request);
+            } else if (isset($object['distance'])) {
+                // Verificar si las alertas se activan con los datos del objeto
                 // if ($this->verificarAlertas($object, $horario->alerta)) {
                 //     $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
                 //     // Enviar correos electrónicos a los usuarios asignados a la alerta si es necesario
@@ -107,6 +127,18 @@ class GatewayController extends Controller
             // Capturar cualquier excepción y registrarla en los registros de errores
             error_log('OCURRIO UN ERROR: ' . $th->getMessage());
         }
+    }
+    //
+    function obtenerHoraio($alerta)
+    {
+
+        if (isset($alerta)) {
+            $horarios = collect($alerta['horarios']) ?? [];
+            if(isset($horarios) && count($horarios)>0){
+                return $horarios->first();
+            }
+        }
+        return null;
     }
 
     //ENVIAR DATOS A LAS NOTIFICACIONES
@@ -316,14 +348,14 @@ class GatewayController extends Controller
             $lectura->data = json_decode($request->getContent(), true);
             $lectura->tenant_id = $lectura->alerta->application->tenant_id;
             $lectura->save();
-            error_log('LECTURA CREADO');
+            Log::info('LECTURA CREADO');
             return $lectura;
         } catch (\Throwable $th) {
-            error_log('LECTURA NO CREADO ' . $th->getMessage());
+            Log::error('LECTURA NO CREADO ',[$th->getMessage()]);
         }
     }
 
-    public function verificarHorario($applicationId,$tipoDispositivoId)
+    public function verificarHorario($applicationId, $tipoDispositivoId)
     {
         // Obtener el número del día de la semana actual y la hora actual
         $numeroDiaHoy = date('N');
@@ -331,16 +363,19 @@ class GatewayController extends Controller
 
         // Buscar el horario activo para el día actual y la aplicación proporcionada
         return Alerta::where('estado', true)
-        ->whereHas('horarios', function ($query) use ($numeroDiaHoy,$horaActual) {
-            $query->where('numero_dia', $numeroDiaHoy)
-            ->where('estado', true)
-            ->whereTime('hora_apertura', '<=', $horaActual)
-            ->whereTime('hora_cierre', '>=', $horaActual);
-        })
-        ->whereHas('tipoDispositivos', function ($query) use ($tipoDispositivoId) {
-            $query->where('tipo_dispositivo_id',$tipoDispositivoId);
-        })
-        ->where('application_id', $applicationId)
+            ->with(['horarios' => function ($horarios) {
+                $horarios->where('estado', true);
+            }])
+            ->whereHas('horarios', function ($query) use ($numeroDiaHoy, $horaActual) {
+                $query->where('numero_dia', $numeroDiaHoy)
+                    ->where('estado', true)
+                    ->whereTime('hora_apertura', '<=', $horaActual)
+                    ->whereTime('hora_cierre', '>=', $horaActual);
+            })
+            ->whereHas('tipoDispositivos', function ($query) use ($tipoDispositivoId) {
+                $query->where('tipo_dispositivo_id', $tipoDispositivoId);
+            })
+            ->where('application_id', $applicationId)
             ->get();
     }
 }
