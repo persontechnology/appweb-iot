@@ -22,7 +22,10 @@ function updatePercentage(lecturasLatest, dispositivo) {
                     configuraciones
                 );
                 $("#estadoLector").text(rangoLlenado?.descripcion ?? "");
-                pintarNivelDeAgua(porcentajeLlenado,rangoLlenado?.color??"#000")
+                pintarNivelDeAgua(
+                    porcentajeLlenado,
+                    rangoLlenado?.color ?? "#000"
+                );
             }
         }
     } catch (error) {

@@ -40,7 +40,7 @@
             <!-- Online users -->
             <div class="sidebar-section">
                 <div class="sidebar-section-header border-bottom">
-                    <div class="form-control-feedback form-control-feedback-end">
+                    <div class="form-control-feedback form-control-feedback-end ml-2">
                         <input id="searchInput" type="search" class="form-control" placeholder="Buscar dispositivo..."
                             onkeyup="buscarDispositivos()">
 
@@ -48,11 +48,22 @@
                             <i class="ph-magnifying-glass opacity-50"></i>
                         </div>
                     </div>
+                    <div class="px-3">
+
+                        <button type="button" onclick="cargarDispositivos();" class="ml-2 btn btn-indigo rounded-pill p-2">
+                            <i class="ph-magnifying-glass opacity-50"></i>
+                            <div class="btn_load_dispositivos">
+                                <i class="ph-spinner spinner m-1"></i>
+                            </div>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="collapse show">
+                    <div class="btn_load_dispositivos text-center py-5 text-primary">
+                        <i style="font-size: 100px" class="ph-spinner spinner m-1"></i>
+                    </div>
                     <div class="sidebar-section-body" id="sidebar-dispositivos">
-
                     </div>
                 </div>
             </div>
@@ -68,7 +79,7 @@
     <div id="map-container">
         <div id="map"></div>
 
-        <div id="overlay-section" class="p-1">
+        <div id="overlay-section" class="p-1" style="display: none;">
             <!-- Aquí se insertarán dinámicamente las tarjetas  style="display: none;"-->
         </div>
     </div>
@@ -79,14 +90,14 @@
                 <div class="modal-header">
                     <h5 class="modal-title">Lecturas</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    
+
                 </div>
-                
+
                 <div class="modal-body">
                     <x-filtro-por-fechas resultId="resultadoFiltroFechas" />
 
                 </div>
-    
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="btn btn-primary">Buscar</button>
@@ -94,7 +105,6 @@
             </div>
         </div>
     </div>
-    
 @endsection
 
 
@@ -107,15 +117,11 @@
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
     <script src="{{ asset('custom/js/general.js') }}"></script>
     <script src="{{ asset('custom/js/homeDashboard.js') }}"></script>
-    
-    <script src="{{ asset('assets/js/vendor/ui/moment/moment.min.js') }}"></script>
 
 @endpush
 
 
 @push('scriptsFooter')
-    
-
     <script>
         // Inicializa el mapa y añade una capa base
         const map = L.map('map').setView([0, 0], 2);
@@ -133,15 +139,18 @@
         const markers = {};
 
         function cargarDispositivos() {
+            $('.btn_load_dispositivos').show();
             $.ajax({
                 type: 'GET',
                 url: "{{ route('buscar.dispositivos') }}",
                 success: function(response) {
                     actualizarMapaYLista(response);
                     actualizarListaDispositivos(response);
+                    $('.btn_load_dispositivos').hide();
                 },
                 error: function(xhr, status, error) {
                     console.error(`Error al cargar dispositivos: ${error}`);
+                    $('.btn_load_dispositivos').hide();
                 }
             });
         }
@@ -320,32 +329,33 @@
                     let estadoBadgetLectura = estadoBadgetDispositivo(puntos_localizacion_latest ?? lecturas_latest,
                         9);
                     // Construir la fila de la tabla
+
+
                     const row = `
-                <tr class="p-0 m-0 dispositivo-row" data-dev-eui-hex="${dev_eui_hex}">
-                    <td class="p-1 m-0 align-middle">
-                        <a class="fs-sm fw-bold text-decoration-none text-primary dispositivo-link" href="#">
-                            ${name}
-                        </a>
-                        <div class="fs-xs opacity-50">${dev_eui_hex}</div>
-                    </td>
-                    <td class="p-1 m-0 text-center align-middle">
-                        <div class="fs-sm">
-                            ${estadoLectura}
-                            
-                        </div>
-                    </td>
-                    <td class="p-1 m-0 text-center align-middle">
-                       <div class="d-flex align-items-center justify-content-between">
-                        <div class="fw-semibold" style="font-size:9px;">${estadoBadgetLectura}</div>
-                        </div>  
-                        <div class="d-flex align-items-center justify-content-between text-center">
-                            <div class="fw-semibold" style="font-size:9px;">
-                                ${conversionFecha}                            
-                            </div>
-                        </div>    
-                    </td>
-                </tr>
-            `;
+                        <tr class="p-0 m-0 dispositivo-row disabled" data-dev-eui-hex="${dev_eui_hex}" >
+                            <td class="p-1 m-0 align-middle">
+                                <a class="fs-sm fw-bold text-decoration-none text-primary dispositivo-link" href="#" tabindex="-1" aria-disabled="true">
+                                    ${name}
+                                </a>
+                                <div class="fs-xs opacity-50">${dev_eui_hex}</div>
+                            </td>
+                            <td class="p-1 m-0 text-center align-middle">
+                                <div class="fs-sm">
+                                    ${estadoLectura}
+                                </div>
+                            </td>
+                            <td class="p-1 m-0 text-center align-middle">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="fw-semibold" style="font-size:9px;">${estadoBadgetLectura}</div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between text-center">
+                                    <div class="fw-semibold" style="font-size:9px;">
+                                        ${conversionFecha}                            
+                                    </div>
+                                </div>    
+                            </td>
+                        </tr>
+                    `;
                     tbody.append(row);
 
                     // Asigna evento de clic al <tr> para guardar y resaltar el dispositivo seleccionado
@@ -393,12 +403,16 @@
                 description,
                 application
             } = dispositivo;
+            if (puntos_localizacion_latest === null && lecturas_latest === null) {
+                return;
+            }
             const overlaySection = $('#overlay-section');
             let estadoLectura = estadoDispositivo(puntos_localizacion_latest ?? lecturas_latest);
+            debugger;
             let estadoBadgetLectura = estadoBadgetDispositivo(puntos_localizacion_latest ?? lecturas_latest);
             let aplicacion = application ?? null;
             let sensor = sensorData(puntos_localizacion_latest ?? lecturas_latest) ?? '';
-
+            debugger;
             let ultimaFecha = '';
             let conversionFecha = '';
             if (puntos_localizacion_latest) {
@@ -409,7 +423,8 @@
                 ultimaFecha = lecturas_latest?.created_at;
                 conversionFecha = lecturas_latest ? calcularDiferenciaTiempo(lecturas_latest.created_at) : ''
             }
-            debugger;
+            debugger
+
             overlaySection.html(`
         <div class="card-group" style="min-height: 140px;">
             <div class="card p-1">
@@ -485,13 +500,13 @@
             }
         }
 
-        function abrirModal(arg){
-            var deveuihex=$(arg).data('deveuihex');
+        function abrirModal(arg) {
+            var deveuihex = $(arg).data('deveuihex');
             console.log(deveuihex)
             $('#modal_dashboard').modal('show');
         }
 
-        
+
 
         function pintarDispositivo(dispositivo) {
             const listaDispositivos = $('#sidebar-dispositivos');
@@ -643,6 +658,7 @@
             //buscarDispositivos();
             cargarDispositivos();
             $('#grafico').hide();
+            $('.btn_load_dispositivos').hide();
         });
 
         let chart = null; // Variable global para almacenar la instancia del gráfico

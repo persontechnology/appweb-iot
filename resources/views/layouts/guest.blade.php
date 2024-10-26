@@ -20,6 +20,8 @@
 
 	<!-- Theme JS files -->
 	<script src="{{ asset('assets/js/app.js') }}"></script>
+
+    <script src="{{ asset('assets/js/vendor/ui/moment/moment.min.js') }}"></script>
 	<!-- /theme JS files -->
 
 </head>
