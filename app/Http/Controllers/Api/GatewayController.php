@@ -76,11 +76,15 @@ class GatewayController extends Controller
                     Log::info("COMPARACION DE TIPO DISTANCIA");
                     if (isset($object['distance'])) {
                         $alerta = $alertas->first();
-                        Log::info("datos guuardar",[$deviceInfo['devEui'], $alerta['id'], $request]);
+                        Log::info("datos guuardar", [$deviceInfo['devEui'], $alerta['id'], $request]);
                         $lectura = $this->crearLectura($deviceInfo['devEui'], $alerta['id'], $request);
                     } else {
                         Log::error('EN EL DISPOSITIVO TIPO DISTANCA MAL CONFIGURADO', [$dispositivo]);
                     }
+                }
+                if (isset($object['battery'])) {
+                    $dispositivo->battery_level = $object['battery'];
+                    $dispositivo->save();
                 }
             } else {
                 Log::error('EL DISPOSITIVO NO TIENE TIPO', [$dispositivo]);
@@ -134,7 +138,7 @@ class GatewayController extends Controller
 
         if (isset($alerta)) {
             $horarios = collect($alerta['horarios']) ?? [];
-            if(isset($horarios) && count($horarios)>0){
+            if (isset($horarios) && count($horarios) > 0) {
                 return $horarios->first();
             }
         }
@@ -351,7 +355,7 @@ class GatewayController extends Controller
             Log::info('LECTURA CREADO');
             return $lectura;
         } catch (\Throwable $th) {
-            Log::error('LECTURA NO CREADO ',[$th->getMessage()]);
+            Log::error('LECTURA NO CREADO ', [$th->getMessage()]);
         }
     }
 
