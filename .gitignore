@@ -1,20 +1,45 @@
+# Composer
+/vendor
 /.phpunit.cache
-/node_modules
+.phpunit.result.cache
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Archivos de entorno
+.env
+.env.backup
+.env.production
+
+# Específico de Laravel
 /public/build
 /public/hot
 /public/storage
 /storage/*.key
-/vendor
-.env
-.env.backup
-.env.production
-.phpunit.result.cache
+
+# Homestead
 Homestead.json
 Homestead.yaml
+
+# Autenticación
 auth.json
-npm-debug.log
-yarn-error.log
-/.fleet
+
+# Configuración de IDE
 /.idea
 /.vscode
-.htaccess
+
+# Archivos del sistema y temporales
+/.fleet
+/.env.local
+
+# Archivos específicos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Depuración de Laravel
+/.storage
+
+# Archivos de logs y caché
+/storage/logs

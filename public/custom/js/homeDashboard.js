@@ -53,8 +53,10 @@ function pintarNivelDeAgua(porcentajeLlenado, color) {
 }
 
 // Ejemplo de uso
+if(porcentajeLlenado){
 
-pintarNivelDeAgua(porcentajeLlenado, color);
+    pintarNivelDeAgua(porcentajeLlenado, color);
+}
 
 const tank = document.getElementById("tank");
 const waterLevel = document.createElement("div");
