@@ -15,6 +15,15 @@ export default defineConfig({
             },
         },
     },
+    server: {
+        host: '0.0.0.0', // Permite conexiones externas en la red local
+        port: 5173, // Asegura que Vite use el puerto correcto
+        strictPort: true, // No cambia el puerto si está ocupado
+        hmr: {
+            host: '192.168.1.39', // Usa la IP de tu máquina
+            protocol: 'ws', // WebSocket sin cifrar (si usas HTTPS, cambia a 'wss')
+        },
+    },
     plugins: [
         laravel({
             input: ['resources/js/app.js', 'resources/css/app.css'],
