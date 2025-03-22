@@ -57,20 +57,20 @@
                  <!-- Tipo de Dispositivos -->
                  <div class="col-lg-12">
                     <div class="mb-3">
-                        @if ($tipoDispositivos->count() > 0)
+                        @if (isset($devicesProfiles) && $devicesProfiles->count() > 0)
                             <div class="input-group">
                                 <span class="input-group-text">
                                     <i class="ph ph-grid-four"></i>
                                 </span>
         
-                                <select class="form-control multiselect @error('tipo_dispositivos') is-invalid @enderror" name="tipo_dispositivos[]" multiple="multiple">
-                                    @foreach ($tipoDispositivos as $tipoDispositivo)
-                                        <option value="{{ $tipoDispositivo->id }}" {{ (collect(old('tipo_dispositivos'))->contains($tipoDispositivo->id)) ? 'selected' : '' }}>{{ $tipoDispositivo->nombre }}</option>
+                                <select class="form-control multiselect @error('devices_profiles') is-invalid @enderror" name="devices_profiles[]" multiple="multiple">
+                                    @foreach ($devicesProfiles as $deviceProfile)
+                                        <option value="{{ $deviceProfile->id }}" {{ (collect(old('devices_profiles'))->contains($deviceProfile->id)) ? 'selected' : '' }}>{{ $deviceProfile->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
 
-                            @error('tipo_dispositivos')
+                            @error('devices_profiles')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         @else

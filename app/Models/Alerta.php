@@ -6,17 +6,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Alerta extends Model
 {
     use HasFactory;
 
-    protected $fillable=[
+    protected $fillable = [
         'nombre',
         'estado',
         'application_id',
         'puede_enviar_email',
-        'tipo_dispositivo_id'
     ];
 
     protected static function booted()
@@ -69,17 +69,16 @@ class Alerta extends Model
         return $this->belongsTo(Application::class, 'application_id');
     }
 
-     // usuarios asignados en alertas para enviar correos
-     public function alertaUsers(){
+    // usuarios asignados en alertas para enviar correos
+    public function alertaUsers()
+    {
         return $this->hasMany(AlertaUser::class, 'alerta_id', 'id');
-
     }
 
     // Relación muchos a muchos con TipoDispositivo
-    public function tipoDispositivos()
-    {
-        return $this->belongsToMany(TipoDispositivo::class, 'alerta_tipo_dispositivos', 'alerta_id', 'tipo_dispositivo_id');
-    }
 
-    
+    public function deviceprofiles(): BelongsToMany
+    {
+        return $this->belongsToMany(DeviceProfile::class, 'alerta_device_profile', 'alerta_id', 'device_profile_id');
+    }
 }

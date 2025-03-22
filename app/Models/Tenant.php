@@ -10,15 +10,15 @@ class Tenant extends Model
 {
     use HasFactory;
 
-    protected $table='tenant';
+    protected $table = 'tenant';
     protected $primaryKey = 'id';
-    protected $keyType = 'string'; 
+    protected $keyType = 'string';
     public $incrementing = false;
 
     protected static function booted()
     {
         static::creating(function ($user) {
-            $user->id=Str::uuid();
+            $user->id = Str::uuid();
         });
     }
 
@@ -33,7 +33,7 @@ class Tenant extends Model
     public function users()
     {
         return $this->belongsToMany(User::class, 'tenant_user', 'tenant_id', 'user_id')
-        ->withTimestamps();
+            ->withTimestamps();
     }
 
     // tenant -> gateway
@@ -60,8 +60,4 @@ class Tenant extends Model
     {
         return $this->hasMany(Lectura::class, 'tenant_id');
     }
-
-    // tenant -> application -> device
-    
-    
 }

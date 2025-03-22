@@ -1,23 +1,23 @@
-import { defineConfig } from "vite";
-import laravel from "laravel-vite-plugin";
-import react from "@vitejs/plugin-react";
-import reactRefresh from "@vitejs/plugin-react-refresh";
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+import react from '@vitejs/plugin-react';
+import reactRefresh from '@vitejs/plugin-react-refresh';
 
 export default defineConfig({
     build: {
         manifest: true,
         rtl: true,
-        outDir: "public/build/",
+        outDir: 'public/build/',
         cssCodeSplit: true,
         rollupOptions: {
             output: {
-                entryFileNames: "js/" + "[name]" + ".js",
+                entryFileNames: 'js/' + '[name]' + '.js',
             },
         },
     },
     plugins: [
         laravel({
-            input: ["resources/js/app.js",'resources/css/app.css'],
+            input: ['resources/js/app.js', 'resources/css/app.css'],
             refresh: true,
         }),
         react(),
@@ -25,11 +25,11 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            events: "events",
+            events: 'events',
         },
     },
     define: {
-        "process.env": {
+        'process.env': {
             APP_URL: process.env.APP_URL,
         },
     },

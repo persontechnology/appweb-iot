@@ -4,14 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class AlertaTipoDispositivo extends Model
+class AlertasDevicesProfile extends Model
 {
     use HasFactory;
 
-    protected $fillable=[
+    protected $table = 'alerta_device_profile';
+    protected $fillable = [
         'alerta_id',
-        'tipo_dispositivo_id',
+        'device_profile_id',
     ];
 
 
@@ -22,10 +24,8 @@ class AlertaTipoDispositivo extends Model
     }
 
     // Relación con TipoDispositivo
-    public function tipoDispositivo()
+    public function deviceprofile(): BelongsTo
     {
-        return $this->belongsTo(TipoDispositivo::class);
+        return $this->belongsTo(DeviceProfile::class, 'device_profile_id');
     }
-    
-    
 }

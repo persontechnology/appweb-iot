@@ -1,5 +1,3 @@
-import 'bootstrap';
-
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
  * to our Laravel back-end. This library automatically handles sending the
@@ -10,6 +8,49 @@ import axios from 'axios';
 window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+import Echo from 'laravel-echo';
+
+import Pusher from 'pusher-js';
+window.Pusher = Pusher;
+console.log('PUSHER_APP_KEY:', import.meta.env.VITE_PUSHER_APP_KEY);
+console.log('PUSHER_HOST:', import.meta.env.VITE_PUSHER_HOST);
+console.log('PUSHER_PORT:', import.meta.env.VITE_PUSHER_PORT);
+console.log('PUSHER_SCHEME:', import.meta.env.VITE_PUSHER_SCHEME);
+
+// Pusher.logToConsole = true;
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: import.meta.env.VITE_PUSHER_APP_KEY,
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER ?? 'mt1',
+    wsHost: import.meta.env.VITE_PUSHER_HOST ?? 'localhost', // Cambiado aquí
+    wsPort: import.meta.env.VITE_PUSHER_PORT ?? 6001, // Asegúrate de que el puerto sea correcto
+    wssPort: import.meta.env.VITE_PUSHER_PORT ?? 443,
+    forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
+    enabledTransports: ['ws', 'wss'],
+});
+
+window.Echo.channel('canal-notificar-dispositivo').listen(
+    'NotificarDispositivoEvento',
+    (e) => {
+        let dispositivo = e.dispositivo;
+        // esta en dashbora
+        let tenant_id = window.Laravel.tenant_id;
+
+        if (tenant_id == dispositivo.tenant_id) {
+            // esta en app
+            anadirLecturaNotificacionHeader(dispositivo);
+            try {
+                cargarDispositivos();
+            } catch (error) {}
+            // esta en dashboard
+            if (typeof buscarYcentrarMarketPorDispositivo === 'function') {
+                buscarYcentrarMarketPorDispositivo(dispositivo);
+                pintarDispositivo(dispositivo);
+            }
+        }
+    },
+);
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
@@ -26,7 +67,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     broadcaster: 'pusher',
 //     key: import.meta.env.VITE_PUSHER_APP_KEY,
 //     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER ?? 'mt1',
-//     wsHost: import.meta.env.VITE_PUSHER_HOST ?? `ws-${import.meta.env.VITE_PUSHER_APP_CLUSTER}.pusher.com`,
+//     wsHost: import.meta.env.VITE_PUSHER_HOST ? import.meta.env.VITE_PUSHER_HOST : ws-${import.meta.env.VITE_PUSHER_APP_CLUSTER}.pusher.com,
 //     wsPort: import.meta.env.VITE_PUSHER_PORT ?? 80,
 //     wssPort: import.meta.env.VITE_PUSHER_PORT ?? 443,
 //     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',

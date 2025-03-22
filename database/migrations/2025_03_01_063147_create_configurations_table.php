@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('alerta_tipo_dispositivos', function (Blueprint $table) {
+        Schema::create('configurations', function (Blueprint $table) {
             $table->id();
+            $table->uuid('device_profile_id');
+            $table->uuid('application_id');
             $table->timestamps();
-            $table->foreignId('alerta_id')->constrained('alertas');
-            $table->foreignId('tipo_dispositivo_id')->constrained('tipo_dispositivos');
 
+            $table->foreign('device_profile_id')->references('id')->on('device_profile')->onDelete('cascade');
+            $table->foreign('application_id')->references('id')->on('application')->onDelete('cascade');
         });
     }
 
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('alerta_tipo_dispositivos');
+        Schema::dropIfExists('configurations');
     }
 };

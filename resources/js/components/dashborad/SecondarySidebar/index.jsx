@@ -1,65 +1,60 @@
-import axios from "axios";
-import React, { useEffect, useMemo, useState } from "react"; // Asegúrate de importar StrictMode desde React
-import { Menu, MenuItem, Sidebar, SubMenu } from "react-pro-sidebar";
-import { Button, Input, Table } from "reactstrap";
-import LoadingComponent from "../../loadingComponent";
-import ItemTable from "./ItemTable";
+import React, { useMemo, useState } from 'react';
+import { Col, Input, Row, Table } from 'reactstrap';
+import ItemTable from './ItemTable';
+import { on } from '../../../../../node_modules/leaflet/src/dom/DomEvent';
 
-const SecondarySidebar = ({ loading, devices }) => {
-    // Estado para manejar el colapso de las secciones
-    const [isSearchCollapsed, setIsSearchCollapsed] = useState(false);
+const SecondarySidebar = ({
+    loading,
+    devices,
+    devicesSelected,
+    changeDevicesSelected,
+    changeDeviceSelected,
+    handleOptionsSelected,
+    optionSelected,
+    cargarDispositivos,
+}) => {
     const [isNavCollapsed, setIsNavCollapsed] = useState(false);
-    // Estado para manejar el término de búsqueda
-    const [searchTerm, setSearchTerm] = useState("");
+    const [searchTerm, setSearchTerm] = useState('');
 
-    // Función para manejar el cambio en el input de búsqueda
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
     };
 
-    // Filtrado de dispositivos basado en el término de búsqueda
     const filteredDevices = useMemo(() => {
         if (!searchTerm) return devices;
         return devices.filter((device) =>
-            device.name.toLowerCase().includes(searchTerm.toLowerCase())
+            device.name.toLowerCase().includes(searchTerm.toLowerCase()),
         );
     }, [searchTerm, devices]);
-    console.log(filteredDevices);
 
     return (
         <div
-            className={`sidebar  sidebar-secondary sidebar-expand-lg ${
-                isNavCollapsed ? "sidebar-collapsed" : ""
-            }`}
-        >
+            className={`sidebar sidebar-secondary sidebar-expand-lg ${isNavCollapsed ? 'sidebar-collapsed' : ''}`}>
             {/* Expand button */}
             <button
                 type="button"
                 onClick={() => setIsNavCollapsed(!isNavCollapsed)}
-                className={`btn btn-sidebar-expand sidebar-control sidebar-secondary-toggle h-100
-                }`}
-            >
+                className="btn btn-sidebar-expand sidebar-control sidebar-secondary-toggle h-100">
                 <i className="ph-caret-right"></i>
             </button>
-            {/* /expand button */}
-            {/* Sidebar content */}
+
             <div className="sidebar-content sidebarInter">
                 {/* Header */}
-                <div className="sidebar-section sidebar-section-body d-flex align-items-center pb-0">
-                    <h5 className="mb-0">DISPOSITIVOS</h5>
-                    <div className="ms-auto">
+                <div className="sidebar-section sidebar-section-body d-flex align-items-center pb-0 mb-0">
+                    <p className="mb-0 text-small fw-bold m-0 p-0">
+                        DISPOSITIVOS
+                    </p>
+                    <div className="ms-auto m-0 p-0">
                         <button
                             type="button"
                             onClick={() => setIsNavCollapsed(!isNavCollapsed)}
-                            className="btn btn-light border-transparent btn-icon rounded-pill btn-sm sidebar-control sidebar-secondary-toggle d-none d-lg-inline-flex"
-                        >
+                            className="btn btn-light border-transparent btn-icon rounded-pill btn-xs sidebar-control sidebar-secondary-toggle d-none d-lg-inline-flex">
                             <i className="ph-arrows-left-right"></i>
                         </button>
 
                         <button
                             type="button"
-                            className="btn btn-light border-transparent btn-icon rounded-pill btn-sm sidebar-mobile-secondary-toggle d-lg-none"
-                        >
+                            className="btn btn-light border-transparent btn-icon rounded-pill btn-sm sidebar-mobile-secondary-toggle d-lg-none">
                             <i className="ph-x"></i>
                         </button>
                     </div>
@@ -69,18 +64,34 @@ const SecondarySidebar = ({ loading, devices }) => {
                 {/* Sidebar search */}
                 <div className="sidebar-section">
                     <div id="sidebar_secondary_search">
-                        <div className="sidebar-section-body">
-                            <div className="form-control-feedback form-control-feedback-end">
-                                <Input
-                                    type="search"
-                                    value={searchTerm}
-                                    onChange={handleSearchChange}
-                                    placeholder="Buscar dispositivo..."
-                                />
-                                <div className="form-control-feedback-icon">
-                                    <i className="ph-magnifying-glass opacity-50"></i>
-                                </div>
-                            </div>
+                        <div className="sidebar-section-body p-1 pb-2">
+                            <Row>
+                                <Col md={8}>
+                                    <div className="form-control-feedback form-control-feedback-end">
+                                        <Input
+                                            bsSize="sm"
+                                            type="search"
+                                            value={searchTerm}
+                                            onChange={handleSearchChange}
+                                            placeholder="Buscar dispositivo..."
+                                        />
+                                        <div className="form-control-feedback-icon">
+                                            <i className="ph-magnifying-glass opacity-50"></i>
+                                        </div>
+                                    </div>
+                                </Col>
+                                <Col md={4}>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            cargarDispositivos();
+                                        }}
+                                        title="Actualizar lista"
+                                        className="btn btn-primary btn-sm border-transparent btn-icon rounded-pill float-end me-3">
+                                        <i className="ph ph-arrow-clockwise"></i>
+                                    </button>
+                                </Col>
+                            </Row>
                         </div>
                     </div>
                 </div>
@@ -91,13 +102,51 @@ const SecondarySidebar = ({ loading, devices }) => {
                     {filteredDevices && filteredDevices.length > 0 ? (
                         <Table>
                             <tbody>
+                                <tr className="bg-dark-200">
+                                    <td className="align-middle p-0 m-0">
+                                        <div className="d-flex align-items-center p-0 m-0">
+                                            <div className="d-inline-block me-2">
+                                                <Input
+                                                    type="checkbox"
+                                                    checked={
+                                                        devicesSelected.length ===
+                                                        filteredDevices.length
+                                                    }
+                                                    onChange={(e) => {
+                                                        changeDevicesSelected(
+                                                            e.target.checked,
+                                                        );
+                                                    }}
+                                                />
+                                            </div>
+                                            <div className="d-inline-block me-2">
+                                                <i className="ph-eye"></i>
+                                            </div>
+                                            <div>
+                                                <p className="text-body m-0 p-0 fw-semibold letter-icon-title"></p>
+                                                <div className="text-muted fs-xs"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
                                 {filteredDevices.map((device) => (
-                                    <ItemTable key={`item-${device?.dev_eui}`} item={device} />
+                                    <ItemTable
+                                        key={`item-${device?.dev_eui}`}
+                                        item={device}
+                                        handleOptionsSelected={
+                                            handleOptionsSelected
+                                        }
+                                        devicesSelected={devicesSelected}
+                                        changeDeviceSelected={
+                                            changeDeviceSelected
+                                        }
+                                        optionSelected={optionSelected}
+                                    />
                                 ))}
                             </tbody>
                         </Table>
                     ) : (
-                        <p>no existe</p>
+                        <p>No existen dispositivos</p>
                     )}
                 </div>
                 {/* /sub navigation */}

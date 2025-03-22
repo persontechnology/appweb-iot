@@ -11,13 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('configuracions', function (Blueprint $table) {
+        Schema::create('notification_settings', function (Blueprint $table) {
             $table->id();
             $table->integer('valor');
             $table->string('descripcion');
             $table->string('color');
             $table->boolean('notification')->default(false);
+            $table->jsonb('notification_types')->nullable();
+            $table->jsonb('device_mode')->nullable();
+
             $table->uuid('application_id');
+            $table->uuid('device_profile_id');
+            $table->foreign('device_profile_id')->references('id')->on('device_profile')->onDelete('cascade');
+
             $table->timestamps();
         });
     }
@@ -27,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('configuracions');
+        Schema::dropIfExists('notification_settings');
     }
 };

@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Events\EnviarDispositivoEvent;
-use App\Events\LecturaGuardadoEvent;
+
 use App\Events\NotificarDispositivoEvento;
 use App\Http\Controllers\Controller;
 use App\Models\Alerta;
@@ -29,9 +28,6 @@ class GatewayController extends Controller
     public function sensor(Request $request)
     {
         //crear datos del sensor 
-
-        error_log($request);
-
         $this->guardarDatosSensor($request);
         // error_log($request);
         try {
@@ -50,46 +46,83 @@ class GatewayController extends Controller
 
             $dev_eui = $deviceInfo['devEui'];
 
-            $dispositivo = Dispositivo::with(['tipoDispositivo'])->where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+            $dispositivo = Dispositivo::with(['deviceprofile'])->where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
 
 
             if (!isset($dispositivo)) {
+                Log::info('NO EXISTE DISPOSITIVO ' . $dev_eui);
+
                 throw new \Exception('NO EXISTE DISPOSITIVO ' . $dev_eui);
             }
-
+            $dispositivoDeviceprofileName = $dispositivo->deviceprofile->name;
+            if (!isset($dispositivoDeviceprofileName)) {
+                Log::info('NO EXISTE DISPOSITIVO PROFILE ' . $dev_eui);
+                throw new \Exception('NO EXISTE DISPOSITIVO PROFILE ' . $dev_eui);
+            }
             // Verificar el horario para la aplicación actual
-            $alertas = $this->verificarHorario($applicationId, $dispositivo->tipo_dispositivo_id) ?? [];
+            $alerta = $this->verificarHorario($applicationId, $dispositivoDeviceprofileName) ?? null;
 
             // Verificar si existe un horario para la aplicación actual
-            if (count($alertas) < 1) {
+            if (!isset($alerta)) {
 
+                Log::info('NO EXISTE HORARIO PARA LA APLICACIÓN ' . $applicationId);
                 throw new \Exception('NO EXISTE HORARIO PARA LA APLICACIÓN ' . $applicationId);
-
-                return "no existe horario";
+                return;
             }
-
-            Log::info('dispositivo', [$dispositivo]);
-            $tipoDiposotivo = $dispositivo->tipoDispositivo;
-            if (isset($tipoDiposotivo)) {
-                Log::info("INGRESO COMPARACION DE TIPO");
-                if ($tipoDiposotivo->nombre == "Environment Monitoring Sensor") {
-                    Log::info("COMPARACION DE TIPO DISTANCIA");
+            $aplicacion = Application::with('configuraciones.rules')->find($applicationId);
+            $configuration = $aplicacion->configuraciones->where('device_profile_id', $dispositivo->deviceprofile->id)->first();
+            if (!isset($configuration) && !isset($configuration->rules)) {
+                Log::info('NO EXISTE CONFIGURACIONES PARA LA APLICACIÓN ' . $applicationId);
+                throw new \Exception('NO EXISTE CONFIGURACIONES PARA LA APLICACIÓN ' . $applicationId);
+                return;
+            }
+            $rules = $configuration->rules;
+            $deviceprofile = $dispositivo->deviceprofile->name;
+            //return $object;
+            switch ($deviceprofile) {
+                case 'Distancia':
                     if (isset($object['distance'])) {
-                        $alerta = $alertas->first();
-                        Log::info("datos guuardar", [$deviceInfo['devEui'], $alerta['id'], $request]);
+
                         $lectura = $this->crearLectura($deviceInfo['devEui'], $alerta['id'], $request);
                     } else {
                         Log::error('EN EL DISPOSITIVO TIPO DISTANCA MAL CONFIGURADO', [$dispositivo]);
                     }
-                }
-                if (isset($object['battery'])) {
-                    $dispositivo->battery_level = $object['battery'];
-                    $dispositivo->save();
-                }
-            } else {
-                Log::error('EL DISPOSITIVO NO TIENE TIPO', [$dispositivo]);
+                    break;
+                case 'Button':
+                    if (isset($object['press'])) {
+                        $rulesEvent = $rules->pluck('event');
+                        if ($rulesEvent->contains($object['press'])) {
+                            Log::info("datos guuardar", [$deviceInfo['devEui'], $alerta['id']]);
+                            $lectura = $this->crearLectura($deviceInfo['devEui'], $alerta['id'], $request);
+                            $this->sentReaTime($dispositivo, $lectura);
+                        }
+                    } else {
+                        Log::error('EN EL DISPOSITIVO TIPO BOTON MAL CONFIGURADO', [$dispositivo]);
+                    }
+                    break;
+                case 'GPS':
+                    if (isset($object['latitude']) && isset($object['longitude'])) {
+                        $puntosLOcalizacion = $this->crearPuntosLocalizacion($dev_eui, $object, $request);
+                    }
+                    break;
+                case 'Bateria':
+                    if (isset($object['battery'])) {
+                        $dispositivo->battery_level = $object['battery'];
+                        $dispositivo->save();
+                    }
+                    break;
+                default:
+                    Log::error('EL DISPOSITIVO NO TIENE TIPO', [$dispositivo]);
+                    break;
+                    if (isset($object['battery'])) {
+                        $dispositivo->battery_level = $object['battery'];
+                        $dispositivo->save();
+                    }
             }
+
             return "biennn";
+
+
             // Verificar si las alertas se activan con los datos del objeto
             //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
             if (isset($object['motion_status']) && $object['motion_status'] == "moving") {
@@ -260,19 +293,7 @@ class GatewayController extends Controller
         $sensorData->data = json_decode($request->getContent(), true);;
         $sensorData->save();
     }
-    private function verificarAlertas($object, $alerta)
-    {
 
-
-        // Recorrer todos los tipos de alerta asociados a la alerta actual
-        foreach ($alerta->alertasTipos as $alertaTipo) {
-            // Verificar si alguna condición coincide con los datos del objeto
-            if ($this->verificarCondicion($object, $alertaTipo)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private function verificarCondicion($object, $alertaTipo)
     {
@@ -314,6 +335,7 @@ class GatewayController extends Controller
         // error_log('entro a enviar email');
         // Enviar correos electrónicos a los usuarios asignados a la alerta asociada a la lectura
         try {
+            Log::info('ENTRO A ENVIAR EMAIL');
             foreach ($lectura->alerta->alertaUsers as $alertaUser) {
                 Log::info($alertaUser);
                 Queue::push(function ($job) use ($alertaUser, $lectura) {
@@ -349,6 +371,7 @@ class GatewayController extends Controller
             $lectura = new Lectura();
             $lectura->dev_eui = $dev_eui;
             $lectura->alerta_id = $alerta_id;
+            $lectura->estado = 1;
             $lectura->data = json_decode($request->getContent(), true);
             $lectura->tenant_id = $lectura->alerta->application->tenant_id;
             $lectura->save();
@@ -359,27 +382,28 @@ class GatewayController extends Controller
         }
     }
 
-    public function verificarHorario($applicationId, $tipoDispositivoId)
+    public function verificarHorario($applicationId, $dispositivoDeviceprofileName)
     {
-        // Obtener el número del día de la semana actual y la hora actual
         $numeroDiaHoy = date('N');
         $horaActual = Carbon::now()->format('H:i:s');
-
-        // Buscar el horario activo para el día actual y la aplicación proporcionada
         return Alerta::where('estado', true)
-            ->with(['horarios' => function ($horarios) {
-                $horarios->where('estado', true);
-            }])
+            ->with([
+                'horarios' => function ($horarios) {
+                    $horarios->where('estado', true);
+                },
+                'deviceprofiles'
+            ])
+
             ->whereHas('horarios', function ($query) use ($numeroDiaHoy, $horaActual) {
                 $query->where('numero_dia', $numeroDiaHoy)
                     ->where('estado', true)
                     ->whereTime('hora_apertura', '<=', $horaActual)
                     ->whereTime('hora_cierre', '>=', $horaActual);
             })
-            ->whereHas('tipoDispositivos', function ($query) use ($tipoDispositivoId) {
-                $query->where('tipo_dispositivo_id', $tipoDispositivoId);
+            ->whereHas('deviceprofiles', function ($query) use ($dispositivoDeviceprofileName) {
+                $query->where('name', $dispositivoDeviceprofileName);
             })
             ->where('application_id', $applicationId)
-            ->get();
+            ->first();
     }
 }

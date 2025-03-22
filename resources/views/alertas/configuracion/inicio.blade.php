@@ -15,11 +15,16 @@
         <input type="hidden" name="alerta_id" value="{{ $alerta->id }}">
         <div class="card-body">
 
-            <p><strong>Tipo de dispositivo</strong></p>
+            <p><strong>Perfiles de dispositivos</strong></p>
             <ul>
-            @foreach ($alerta->tipoDispositivos as $tipoDispositivo)
-                <li>{{ $tipoDispositivo->nombre }}</li>
+               
+            @if (count($alerta->deviceprofiles)>0)
+            @foreach ($alerta->deviceprofiles as $tipoDispositivo)
+                <li>{{ $tipoDispositivo->name }}</li>
             @endforeach
+            @else
+                <li>No hay perfiles de dispositivos asignados</li>
+            @endif
             </ul>
             <div class="row">
                 <div class="col-lg-12">
