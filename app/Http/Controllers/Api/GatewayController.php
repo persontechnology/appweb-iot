@@ -28,83 +28,83 @@ class GatewayController extends Controller
     public function sensor(Request $request)
     {
         //crear datos del sensor 
-
-        error_log($request);
-
-        $this->guardarDatosSensor($request);
+        event(new NotificarDispositivoEvento(['ok']));
         // error_log($request);
-        try {
-            // Obtener la información del dispositivo y del objeto de la solicitud
-            $deviceInfo = $request->json('deviceInfo');
-            $object = $request->json('object');
 
-            // Verificar si se recibieron los datos del dispositivo y del objeto
-            if (!$deviceInfo || !$object) {
-                throw new \Exception('NO EXISTE DEVICE INFO O OBJECT');
-                Log::info('NO EXISTE DEVICE INFO O OBJECT');
-            }
+        // $this->guardarDatosSensor($request);
+        // // error_log($request);
+        // try {
+        //     // Obtener la información del dispositivo y del objeto de la solicitud
+        //     $deviceInfo = $request->json('deviceInfo');
+        //     $object = $request->json('object');
 
-            // Obtener el ID de la aplicación del dispositivo
-            $applicationId = $deviceInfo['applicationId'];
+        //     // Verificar si se recibieron los datos del dispositivo y del objeto
+        //     if (!$deviceInfo || !$object) {
+        //         throw new \Exception('NO EXISTE DEVICE INFO O OBJECT');
+        //         Log::info('NO EXISTE DEVICE INFO O OBJECT');
+        //     }
+
+        //     // Obtener el ID de la aplicación del dispositivo
+        //     $applicationId = $deviceInfo['applicationId'];
         
-            $dev_eui = $deviceInfo['devEui'];
+        //     $dev_eui = $deviceInfo['devEui'];
 
-            $dispositivo = Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+        //     $dispositivo = Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
 
 
-            if (!isset($dispositivo)) {
-                throw new \Exception('NO EXISTE DISPOSITIVO ' . $dev_eui);
-            }
+        //     if (!isset($dispositivo)) {
+        //         throw new \Exception('NO EXISTE DISPOSITIVO ' . $dev_eui);
+        //     }
+            
+        //     // Verificar el horario para la aplicación actual
+        //     $horarios = $this->verificarHorario($applicationId,$dispositivo->tipo_dispositivo_id);
 
-            // Verificar el horario para la aplicación actual
-            $horarios = $this->verificarHorario($applicationId,$dispositivo->tipo_dispositivo_id);
+        //     // Verificar si existe un horario para la aplicación actual
+        //     if (!$horarios && count($horarios)>0) {
+        //         throw new \Exception('NO EXISTE HORARIO PARA LA APLICACIÓN ' . $applicationId);
+        //     }
 
-            // Verificar si existe un horario para la aplicación actual
-            if (!$horarios && count($horarios)>0) {
-                throw new \Exception('NO EXISTE HORARIO PARA LA APLICACIÓN ' . $applicationId);
-            }
+        //     // Verificar si las alertas se activan con los datos del objeto
+        //      //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+        //      if (isset($object['motion_status'])&& $object['motion_status']=="moving") {
+        //              $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object,$request);
+        //      } else if(isset($object['distance'])) {               
+        //                  // Verificar si las alertas se activan con los datos del objeto
+        //         // if ($this->verificarAlertas($object, $horario->alerta)) {
+        //         //     $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
+        //         //     // Enviar correos electrónicos a los usuarios asignados a la alerta si es necesario
 
-            // Verificar si las alertas se activan con los datos del objeto
-             //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
-             if (isset($object['motion_status'])&& $object['motion_status']=="moving") {
-                     $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object,$request);
-             } else if(isset($object['distance'])) {               
-                         // Verificar si las alertas se activan con los datos del objeto
-                // if ($this->verificarAlertas($object, $horario->alerta)) {
-                //     $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
-                //     // Enviar correos electrónicos a los usuarios asignados a la alerta si es necesario
+        //         //     // $dispositivoTracking
+        //         //     $dispositivo = Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+        //         //     $aplicacion = Application::with('configuraciones')->find($applicationId);
+        //         //     if ($lectura->alerta->puede_enviar_email && $dispositivo && $aplicacion) {
+        //         //         $configuraciones = collect($aplicacion->configuraciones ?? []);
+        //         //         $porcentajeLlenado = $this->calcularPorcentajeLlenado($object['distance'], $aplicacion->distance);
+        //         //         $rangoLlenado = $this->determinarRangoLlenado($porcentajeLlenado, $configuraciones);
 
-                //     // $dispositivoTracking
-                //     $dispositivo = Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
-                //     $aplicacion = Application::with('configuraciones')->find($applicationId);
-                //     if ($lectura->alerta->puede_enviar_email && $dispositivo && $aplicacion) {
-                //         $configuraciones = collect($aplicacion->configuraciones ?? []);
-                //         $porcentajeLlenado = $this->calcularPorcentajeLlenado($object['distance'], $aplicacion->distance);
-                //         $rangoLlenado = $this->determinarRangoLlenado($porcentajeLlenado, $configuraciones);
+        //         //         if (isset($rangoLlenado['notification']) && $rangoLlenado['notification']) {
 
-                //         if (isset($rangoLlenado['notification']) && $rangoLlenado['notification']) {
+        //         //             $this->enviarEmailUsuariosAsignadosLecturaDistancia($lectura, $rangoLlenado, $porcentajeLlenado);
+        //         //         }
+        //         //     }
 
-                //             $this->enviarEmailUsuariosAsignadosLecturaDistancia($lectura, $rangoLlenado, $porcentajeLlenado);
-                //         }
-                //     }
-
-                //     $dispositivo = $lectura->buscarDispositivoDevEui($deviceInfo['devEui']);
-                //     $this->sentReaTime($dispositivo, $lectura);
-                // }
-            } else if (isset($object['press'])) {
-                // if ($this->verificarAlertas($object, $horario->alerta)) {
-                //     $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
-                //     $dispositivo = $lectura->buscarDispositivoDevEui($deviceInfo['devEui']);
-                //     $this->sentReaTime($dispositivo, $lectura);
-                // }
-            }
-            Log::info('fin');
-            return "okerr";
-        } catch (\Exception $th) {
-            return  $th->getMessage();
-            // Capturar cualquier excepción y registrarla en los registros de errores
-            error_log('OCURRIO UN ERROR: ' . $th->getMessage());
-        }
+        //         //     $dispositivo = $lectura->buscarDispositivoDevEui($deviceInfo['devEui']);
+        //         //     $this->sentReaTime($dispositivo, $lectura);
+        //         // }
+        //     } else if (isset($object['press'])) {
+        //         // if ($this->verificarAlertas($object, $horario->alerta)) {
+        //         //     $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
+        //         //     $dispositivo = $lectura->buscarDispositivoDevEui($deviceInfo['devEui']);
+        //         //     $this->sentReaTime($dispositivo, $lectura);
+        //         // }
+        //     }
+        //     Log::info('fin');
+        //     return "okerr";
+        // } catch (\Exception $th) {
+        //     return  $th->getMessage();
+        //     // Capturar cualquier excepción y registrarla en los registros de errores
+        //     error_log('OCURRIO UN ERROR: ' . $th->getMessage());
+        // }
     }
 
     //ENVIAR DATOS A LAS NOTIFICACIONES
