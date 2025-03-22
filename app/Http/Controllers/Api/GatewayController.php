@@ -157,8 +157,6 @@ class GatewayController extends Controller
                 //     $this->sentReaTime($dispositivo, $lectura);
                 // }
             }
-            Log::info('fin');
-            return "okerr";
         } catch (\Exception $th) {
             return  $th->getMessage();
             // Capturar cualquier excepción y registrarla en los registros de errores
@@ -371,7 +369,6 @@ class GatewayController extends Controller
             $lectura = new Lectura();
             $lectura->dev_eui = $dev_eui;
             $lectura->alerta_id = $alerta_id;
-            $lectura->estado = 1;
             $lectura->data = json_decode($request->getContent(), true);
             $lectura->tenant_id = $lectura->alerta->application->tenant_id;
             $lectura->save();

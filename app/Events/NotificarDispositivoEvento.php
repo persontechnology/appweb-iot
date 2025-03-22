@@ -45,9 +45,4 @@ class NotificarDispositivoEvento implements ShouldBroadcast
      *
      * @return string
      */
-    public function broadcastAs()
-    {
-        // Asegúrate de que este nombre coincida con lo que estás escuchando en el frontend
-        return 'NotificarDispositivoEvento';
-    }
 }

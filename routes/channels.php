@@ -16,7 +16,9 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
-
+Broadcast::channel('canal-notificar-dispositivo', function ($user) {
+    return true;  // Devuelve `true` o una condición que verifique si el usuario puede escuchar este canal
+});
 //
 
 
