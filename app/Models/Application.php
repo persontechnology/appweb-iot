@@ -13,7 +13,7 @@ class Application extends Model
 {
     use HasFactory;
 
-    protected $table='application';
+    protected $table = 'application';
     protected $primaryKey = 'id';
     protected $keyType = 'string';
     public $incrementing = false;
@@ -22,7 +22,7 @@ class Application extends Model
         'created_at' => 'datetime',
     ];
 
-    protected $fillable=[
+    protected $fillable = [
         'tenant_id',
         'name',
         'description',
@@ -33,14 +33,14 @@ class Application extends Model
     protected static function booted()
     {
         static::creating(function ($application) {
-            $application->id=Str::uuid();
+            $application->id = Str::uuid();
         });
     }
 
-     // una aplicacion esta en un tenant
+    // una aplicacion esta en un tenant
     public function tenant(): BelongsTo
     {
-    return $this->belongsTo(Tenant::class, 'tenant_id');
+        return $this->belongsTo(Tenant::class, 'tenant_id');
     }
 
     // formateando fecha
@@ -54,8 +54,12 @@ class Application extends Model
     {
         return $this->hasMany(Dispositivo::class, 'application_id');
     }
+    public function notificationSettings(): HasMany
+    {
+        return $this->hasMany(NotificationSetting::class, 'application_id')->orderBy('valor');
+    }
     public function configuraciones(): HasMany
     {
-        return $this->hasMany(Configuracion::class, 'application_id')->orderBy('valor');
+        return $this->hasMany(Configuration::class, 'application_id');
     }
 }

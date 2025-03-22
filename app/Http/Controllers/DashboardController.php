@@ -16,19 +16,20 @@ use PDF;
 
 class DashboardController extends Controller
 {
-    public function index() {
-        
+    public function index()
+    {
 
-        
-        $dispositivos=Dispositivo::whereHas('application', function ($query) {
+
+
+        $dispositivos = Dispositivo::whereHas('application', function ($query) {
             $query->whereHas('tenant', function ($query) {
                 $query->where('id', Auth::user()->tenant_id);
             });
-        })->with(['deviceprofile:id,name,description','puntosLocalizacion','lecturas','lecturasLatest'])
-        ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *")
-        ->get();
-        $data = array('dispositivos'=>$dispositivos);
-        return view('dashboard',$data);
+        })->with(['deviceprofile:id,name,description', 'puntosLocalizacion', 'lecturas', 'lecturasLatest'])
+            ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *")
+            ->get();
+        $data = array('dispositivos' => $dispositivos);
+        return view('dashboard', $data);
     }
 
     public function buscarDispositivo(Request $request)
@@ -36,25 +37,25 @@ class DashboardController extends Controller
         $query = $request->get('query');
 
         // Realiza la búsqueda de dispositivos según el query
-        $dispositivos=Dispositivo::whereHas('application', function ($query) {
+        $dispositivos = Dispositivo::whereHas('application', function ($query) {
             $query->whereHas('tenant', function ($query) {
                 $query->where('id', Auth::user()->tenant_id);
             });
-        })->with(['deviceprofile:id,name,description','puntosLocalizacion','lecturas','lecturasLatest','puntosLocalizacionLatest','application.configuraciones'])
-        ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *");
-        if(isset($query)){
-            $dispositivos=$dispositivos->when($query, function ($query, $search) {
+        })->with([
+            'deviceprofile:id,name,description',
+            'puntosLocalizacion',
+            'lecturasLatest',
+            'puntosLocalizacionLatest',
+            'application'
+        ])
+            ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *");
+        if (isset($query)) {
+            $dispositivos = $dispositivos->when($query, function ($query, $search) {
                 return $query->where(DB::raw("encode(dev_eui, 'hex')"), 'like', "%$search%");
             });
         }
-        $dispositivos=$dispositivos->get();
-     
+        $dispositivos = $dispositivos->get();
+
         return response()->json($dispositivos);
     }
-
- 
-
-
-
-
 }

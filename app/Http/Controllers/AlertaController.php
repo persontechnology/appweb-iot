@@ -35,12 +35,13 @@ class AlertaController extends Controller
      */
     public function create()
     {
-        $tenant=Tenant::find(Auth::user()->tenant_id);
+        $tenant = Tenant::find(Auth::user()->tenant_id);
         $data = array(
-            'aplicaciones'=>$tenant->applications,
-            'tipoDispositivos'=>TipoDispositivo::get()
+            'aplicaciones' => $tenant->applications,
+            'devicesProfiles' => $tenant->deviceProfiles,
         );
-        return view('alertas.create',$data);
+
+        return view('alertas.create', $data);
     }
 
     /**
@@ -48,7 +49,7 @@ class AlertaController extends Controller
      */
     public function store(Request $request)
     {
-         
+
         $request->validate([
             'nombre' => [
                 'required',
@@ -57,24 +58,28 @@ class AlertaController extends Controller
                 }),
             ],
             'application_id' => 'required',
-            'tipo_dispositivos' => 'required|array', // Asegúrate de que se seleccionen dispositivos
-            'tipo_dispositivos.*' => 'exists:tipo_dispositivos,id' // Asegúrate de que los dispositivos existan en la base de datos
+            'devices_profiles' => 'required|array', // Asegúrate de que se seleccionen dispositivos
         ]);
-        
-        $application=Application::find($request->application_id);
-        Gate::authorize('crearAlerta',$application);
+
+        $application = Application::find($request->application_id);
+        Gate::authorize('crearAlerta', $application);
 
         try {
             DB::beginTransaction();
-            $request['estado']=$request->estado?1:0;
-            $request['puede_enviar_email']=$request->puede_enviar_email?1:0;
-            $alerta=Alerta::create($request->all());
-            $alerta->tipoDispositivos()->sync($request->input('tipo_dispositivos'));
+            $request['estado'] = $request->estado ? 1 : 0;
+            $request['puede_enviar_email'] = $request->puede_enviar_email ? 1 : 0;
+            $alerta = Alerta::create($request->all());
+            if($request->devices_profiles){
+                foreach ($request->devices_profiles as $device_profile_id) {
+                    $alerta->deviceprofiles()->attach($device_profile_id);
+                }
+            }
+            //$alerta->deviceprofiles()->sync($request->input('devices_profiles'));
             DB::commit();
-            return redirect()->route('alertas.configuracion',['id'=>$alerta->id,'op'=>'inicio'])->with('success',$alerta->nombre.', ingresado exitosamente.!');
+            return redirect()->route('alertas.configuracion', ['id' => $alerta->id, 'op' => 'inicio'])->with('success', $alerta->nombre . ', ingresado exitosamente.!');
         } catch (\Throwable $th) {
             DB::rollback();
-            return back()->with('danger', 'Error.! '.$th->getMessage())->withInput();
+            return back()->with('danger', 'Error.! ' . $th->getMessage())->withInput();
         }
     }
 
@@ -84,11 +89,10 @@ class AlertaController extends Controller
     public function show(Alerta $alerta)
     {
         $data = array(
-            'alerta'=>$alerta,
-            'horarios'=>$alerta->horarios()->orderBy('id')->get()
+            'alerta' => $alerta,
+            'horarios' => $alerta->horarios()->orderBy('id')->get()
         );
-        return view('alertas.show',$data);
-    
+        return view('alertas.show', $data);
     }
 
     /**
@@ -114,17 +118,17 @@ class AlertaController extends Controller
     {
         try {
             $alerta->delete();
-            return redirect()->route('alertas.index')->with('success','Alerta eliminado');
+            return redirect()->route('alertas.index')->with('success', 'Alerta eliminado');
         } catch (\Throwable $th) {
-            return redirect()->route('alertas.index')->with('danger','Alerta no eliminado '.$th->getMessage());
+            return redirect()->route('alertas.index')->with('danger', 'Alerta no eliminado ' . $th->getMessage());
         }
     }
 
 
     public function actualizarHorario(Request $request)
     {
-        $alerta=Alerta::find($request->alerta_id);
-        Gate::authorize('editarHorario',$alerta);
+        $alerta = Alerta::find($request->alerta_id);
+        Gate::authorize('editarHorario', $alerta);
         foreach ($request->horarios as $id => $datos) {
             $horario = Horario::findOrFail($id);
 
@@ -135,12 +139,12 @@ class AlertaController extends Controller
 
                 // Si el estado es verdadero, validamos las horas de apertura y cierre
                 if ($estado) {
-                    
+
                     $request->validate([
                         "horarios.$id.hora_apertura" => 'required',
                         "horarios.$id.hora_cierre" => 'required',
                     ]);
-                    
+
                     // Actualizar las horas de apertura y cierre
                     $horario->hora_apertura = $datos['hora_apertura'] ?? null;
                     $horario->hora_cierre = $datos['hora_cierre'] ?? null;
@@ -158,33 +162,34 @@ class AlertaController extends Controller
             $horario->save();
         }
 
-        return redirect()->route('alertas.configuracion',['id'=>$alerta->id,'op'=>'horario'])->with('success','Horario actualizado.!');
+        return redirect()->route('alertas.configuracion', ['id' => $alerta->id, 'op' => 'horario'])->with('success', 'Horario actualizado.!');
     }
 
 
-    public function inicio(UsuariosDataTable $usuariosDataTable,LecturaDataTable $lecturaDatatable, $id,$op) {
-        
-        $alerta=Alerta::findOrFail($id);
+    public function inicio(UsuariosDataTable $usuariosDataTable, LecturaDataTable $lecturaDatatable, $id, $op)
+    {
+
+        $alerta = Alerta::with(['deviceprofiles'])->findOrFail($id);
         $data = array(
-            'alerta'=>$alerta,
-            'horarios'=>$alerta->horarios()->orderBy('numero_dia')->get(),
-            'opcion'=>$op
+            'alerta' => $alerta,
+            'horarios' => $alerta->horarios()->orderBy('numero_dia')->get(),
+            'opcion' => $op
         );
 
         switch ($op) {
             case 'inicio':
-                return view('alertas.configuracion.inicio',$data);
+                return view('alertas.configuracion.inicio', $data);
                 break;
             case 'horario':
-                return view('alertas.configuracion.horario',$data);
+                return view('alertas.configuracion.horario', $data);
                 break;
             case 'usuarios':
-                return $usuariosDataTable->with('alertaId',$id)->render('alertas.configuracion.usuarios',$data);
+                return $usuariosDataTable->with('alertaId', $id)->render('alertas.configuracion.usuarios', $data);
                 break;
             case 'lecturas':
-                return $lecturaDatatable->with('alertaId',$id)->render('alertas.configuracion.lecturas',$data);
+                return $lecturaDatatable->with('alertaId', $id)->render('alertas.configuracion.lecturas', $data);
                 break;
-            
+
             default:
                 return abort(404);
                 break;
@@ -193,31 +198,33 @@ class AlertaController extends Controller
 
 
 
-    public function actualizarEstado(Request $request) {
-        $alerta=Alerta::find($request->alerta_id);
-        $alerta->estado=$request->estado?1:0;
-        $alerta->puede_enviar_email=$request->puede_enviar_email?1:0;
+    public function actualizarEstado(Request $request)
+    {
+        $alerta = Alerta::find($request->alerta_id);
+        $alerta->estado = $request->estado ? 1 : 0;
+        $alerta->puede_enviar_email = $request->puede_enviar_email ? 1 : 0;
         $alerta->save();
-        return redirect()->route('alertas.configuracion',['id'=>$alerta->id,'op'=>'inicio'])->with('success','Estado de alerta actualizado.!');
+        return redirect()->route('alertas.configuracion', ['id' => $alerta->id, 'op' => 'inicio'])->with('success', 'Estado de alerta actualizado.!');
     }
 
 
-    public function actualizarUsuarios(Request $request)  {
+    public function actualizarUsuarios(Request $request)
+    {
         $request->validate([
             'usuarios' => 'nullable|array', // La entrada de usuarios puede ser un array o null
             'usuarios.*' => 'exists:user,id', // Verifica que cada usuario exista en la tabla usuarios
         ]);
 
-        
+
         $alertaId = $request->input('alerta_id');
 
         $usuarios = $request->input('usuarios', []);
         foreach ($usuarios as $usuarioId) {
             // Verificar si ya existe un registro para este usuario y alerta_id en alerta_user
             $registroExistente = AlertaUser::where('user_id', $usuarioId)
-                                            ->where('alerta_id', $alertaId)
-                                            ->exists();
-    
+                ->where('alerta_id', $alertaId)
+                ->exists();
+
             // Si no existe, crear un nuevo registro
             if (!$registroExistente) {
                 $alertaUser = new AlertaUser();
@@ -227,23 +234,19 @@ class AlertaController extends Controller
             }
         }
 
-        return redirect()->route('alertas.configuracion',['id'=>$alertaId,'op'=>'usuarios'])->with('success','Usuarios actualizado.!');
+        return redirect()->route('alertas.configuracion', ['id' => $alertaId, 'op' => 'usuarios'])->with('success', 'Usuarios actualizado.!');
     }
 
 
-    public function eliminarUsuario($alertaId,$userId)  {
-        $mensaje='Usuario eliminado.!';
+    public function eliminarUsuario($alertaId, $userId)
+    {
+        $mensaje = 'Usuario eliminado.!';
         try {
-            $alertaUser=AlertaUser::where(['alerta_id'=>$alertaId,'user_id'=>$userId])->first();
+            $alertaUser = AlertaUser::where(['alerta_id' => $alertaId, 'user_id' => $userId])->first();
             $alertaUser->delete();
         } catch (\Throwable $th) {
-            $mensaje=$th->getMessage();
+            $mensaje = $th->getMessage();
         }
-        return redirect()->route('alertas.configuracion',['id'=>$alertaId,'op'=>'usuarios'])->with('success',$mensaje);
+        return redirect()->route('alertas.configuracion', ['id' => $alertaId, 'op' => 'usuarios'])->with('success', $mensaje);
     }
-
-
-
-
-
 }

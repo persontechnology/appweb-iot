@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class DeviceProfile extends Model
 {
@@ -27,9 +27,13 @@ class DeviceProfile extends Model
     }
 
 
-    // un gateway esta en un tenant
+    // un gateway esta en un tenant 
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class, 'tenant_id');
+    }
+    public function configuration(): HasOne
+    {
+        return $this->hasOne(Configuration::class, 'device_profile_id');
     }
 }

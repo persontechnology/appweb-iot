@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Events\EnviarDispositivoEvent;
-use App\Events\LecturaGuardadoEvent;
+
 use App\Events\NotificarDispositivoEvento;
 use App\Http\Controllers\Controller;
+use App\Models\Alerta;
 use App\Models\Application;
 use App\Models\Dispositivo;
 use App\Models\Horario;
@@ -27,84 +27,19 @@ class GatewayController extends Controller
 {
     public function sensor(Request $request)
     {
-        //crear datos del sensor 
         event(new NotificarDispositivoEvento(['ok']));
-        // error_log($request);
+    }
+    //
+    function obtenerHoraio($alerta)
+    {
 
-        // $this->guardarDatosSensor($request);
-        // // error_log($request);
-        // try {
-        //     // Obtener la información del dispositivo y del objeto de la solicitud
-        //     $deviceInfo = $request->json('deviceInfo');
-        //     $object = $request->json('object');
-
-        //     // Verificar si se recibieron los datos del dispositivo y del objeto
-        //     if (!$deviceInfo || !$object) {
-        //         throw new \Exception('NO EXISTE DEVICE INFO O OBJECT');
-        //         Log::info('NO EXISTE DEVICE INFO O OBJECT');
-        //     }
-
-        //     // Obtener el ID de la aplicación del dispositivo
-        //     $applicationId = $deviceInfo['applicationId'];
-        
-        //     $dev_eui = $deviceInfo['devEui'];
-
-        //     $dispositivo = Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
-
-
-        //     if (!isset($dispositivo)) {
-        //         throw new \Exception('NO EXISTE DISPOSITIVO ' . $dev_eui);
-        //     }
-            
-        //     // Verificar el horario para la aplicación actual
-        //     $horarios = $this->verificarHorario($applicationId,$dispositivo->tipo_dispositivo_id);
-
-        //     // Verificar si existe un horario para la aplicación actual
-        //     if (!$horarios && count($horarios)>0) {
-        //         throw new \Exception('NO EXISTE HORARIO PARA LA APLICACIÓN ' . $applicationId);
-        //     }
-
-        //     // Verificar si las alertas se activan con los datos del objeto
-        //      //$dispositivoTracking=Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
-        //      if (isset($object['motion_status'])&& $object['motion_status']=="moving") {
-        //              $puntosLOcalizacion=$this->crearPuntosLocalizacion($dev_eui,$object,$request);
-        //      } else if(isset($object['distance'])) {               
-        //                  // Verificar si las alertas se activan con los datos del objeto
-        //         // if ($this->verificarAlertas($object, $horario->alerta)) {
-        //         //     $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
-        //         //     // Enviar correos electrónicos a los usuarios asignados a la alerta si es necesario
-
-        //         //     // $dispositivoTracking
-        //         //     $dispositivo = Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
-        //         //     $aplicacion = Application::with('configuraciones')->find($applicationId);
-        //         //     if ($lectura->alerta->puede_enviar_email && $dispositivo && $aplicacion) {
-        //         //         $configuraciones = collect($aplicacion->configuraciones ?? []);
-        //         //         $porcentajeLlenado = $this->calcularPorcentajeLlenado($object['distance'], $aplicacion->distance);
-        //         //         $rangoLlenado = $this->determinarRangoLlenado($porcentajeLlenado, $configuraciones);
-
-        //         //         if (isset($rangoLlenado['notification']) && $rangoLlenado['notification']) {
-
-        //         //             $this->enviarEmailUsuariosAsignadosLecturaDistancia($lectura, $rangoLlenado, $porcentajeLlenado);
-        //         //         }
-        //         //     }
-
-        //         //     $dispositivo = $lectura->buscarDispositivoDevEui($deviceInfo['devEui']);
-        //         //     $this->sentReaTime($dispositivo, $lectura);
-        //         // }
-        //     } else if (isset($object['press'])) {
-        //         // if ($this->verificarAlertas($object, $horario->alerta)) {
-        //         //     $lectura = $this->crearLectura($deviceInfo['devEui'], $horario->alerta_id, $request);
-        //         //     $dispositivo = $lectura->buscarDispositivoDevEui($deviceInfo['devEui']);
-        //         //     $this->sentReaTime($dispositivo, $lectura);
-        //         // }
-        //     }
-        //     Log::info('fin');
-        //     return "okerr";
-        // } catch (\Exception $th) {
-        //     return  $th->getMessage();
-        //     // Capturar cualquier excepción y registrarla en los registros de errores
-        //     error_log('OCURRIO UN ERROR: ' . $th->getMessage());
-        // }
+        if (isset($alerta)) {
+            $horarios = collect($alerta['horarios']) ?? [];
+            if (isset($horarios) && count($horarios) > 0) {
+                return $horarios->first();
+            }
+        }
+        return null;
     }
 
     //ENVIAR DATOS A LAS NOTIFICACIONES
@@ -222,19 +157,7 @@ class GatewayController extends Controller
         $sensorData->data = json_decode($request->getContent(), true);;
         $sensorData->save();
     }
-    private function verificarAlertas($object, $alerta)
-    {
 
-
-        // Recorrer todos los tipos de alerta asociados a la alerta actual
-        foreach ($alerta->alertasTipos as $alertaTipo) {
-            // Verificar si alguna condición coincide con los datos del objeto
-            if ($this->verificarCondicion($object, $alertaTipo)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private function verificarCondicion($object, $alertaTipo)
     {
@@ -276,6 +199,7 @@ class GatewayController extends Controller
         // error_log('entro a enviar email');
         // Enviar correos electrónicos a los usuarios asignados a la alerta asociada a la lectura
         try {
+            Log::info('ENTRO A ENVIAR EMAIL');
             foreach ($lectura->alerta->alertaUsers as $alertaUser) {
                 Log::info($alertaUser);
                 Queue::push(function ($job) use ($alertaUser, $lectura) {
@@ -311,35 +235,39 @@ class GatewayController extends Controller
             $lectura = new Lectura();
             $lectura->dev_eui = $dev_eui;
             $lectura->alerta_id = $alerta_id;
+            $lectura->estado = 1;
             $lectura->data = json_decode($request->getContent(), true);
             $lectura->tenant_id = $lectura->alerta->application->tenant_id;
             $lectura->save();
-            error_log('LECTURA CREADO');
+            Log::info('LECTURA CREADO');
             return $lectura;
         } catch (\Throwable $th) {
-            error_log('LECTURA NO CREADO ' . $th->getMessage());
+            Log::error('LECTURA NO CREADO ', [$th->getMessage()]);
         }
     }
 
-    public function verificarHorario($applicationId,$tipoDispositivoId)
+    public function verificarHorario($applicationId, $dispositivoDeviceprofileName)
     {
-        // Obtener el número del día de la semana actual y la hora actual
         $numeroDiaHoy = date('N');
         $horaActual = Carbon::now()->format('H:i:s');
+        return Alerta::where('estado', true)
+            ->with([
+                'horarios' => function ($horarios) {
+                    $horarios->where('estado', true);
+                },
+                'deviceprofiles'
+            ])
 
-        // Buscar el horario activo para el día actual y la aplicación proporcionada
-        return Horario::where('numero_dia', $numeroDiaHoy)
-            ->where('estado', true)
-            ->whereTime('hora_apertura', '<=', $horaActual)
-            ->whereTime('hora_cierre', '>=', $horaActual)
-            ->whereHas('alerta', function ($query) use ($applicationId,$tipoDispositivoId) {
-                $query->where('estado', true)
-                ->where('application_id', $applicationId)
-                ->whereHas('tipoDispositivos', function ($query) use ($tipoDispositivoId) {
-                    $query->where('tipo_dispositivo_id',$tipoDispositivoId);
-                });
+            ->whereHas('horarios', function ($query) use ($numeroDiaHoy, $horaActual) {
+                $query->where('numero_dia', $numeroDiaHoy)
+                    ->where('estado', true)
+                    ->whereTime('hora_apertura', '<=', $horaActual)
+                    ->whereTime('hora_cierre', '>=', $horaActual);
             })
-            
-            ->get();
+            ->whereHas('deviceprofiles', function ($query) use ($dispositivoDeviceprofileName) {
+                $query->where('name', $dispositivoDeviceprofileName);
+            })
+            ->where('application_id', $applicationId)
+            ->first();
     }
 }

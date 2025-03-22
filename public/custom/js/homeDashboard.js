@@ -22,7 +22,10 @@ function updatePercentage(lecturasLatest, dispositivo) {
                     configuraciones
                 );
                 $("#estadoLector").text(rangoLlenado?.descripcion ?? "");
-                pintarNivelDeAgua(porcentajeLlenado,rangoLlenado?.color??"#000")
+                pintarNivelDeAgua(
+                    porcentajeLlenado,
+                    rangoLlenado?.color ?? "#000"
+                );
             }
         }
     } catch (error) {
@@ -50,8 +53,10 @@ function pintarNivelDeAgua(porcentajeLlenado, color) {
 }
 
 // Ejemplo de uso
+if(porcentajeLlenado){
 
-pintarNivelDeAgua(porcentajeLlenado, color);
+    pintarNivelDeAgua(porcentajeLlenado, color);
+}
 
 const tank = document.getElementById("tank");
 const waterLevel = document.createElement("div");

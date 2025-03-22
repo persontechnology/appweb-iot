@@ -6,13 +6,16 @@ use App\DataTables\ApplicationDataTable;
 use App\Events\LecturaGuardadoEvent;
 use App\Models\Application;
 use App\Models\ApplicationIntegration;
-use App\Models\Configuracion;
+use App\Models\Configuration;
+use App\Models\DeviceProfile;
+use App\Models\NotificationSetting;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 
 
@@ -32,9 +35,9 @@ class ApplicationController extends Controller
     public function create()
     {
         $data = array(
-            'tenants'=>Tenant::get()
+            'tenants' => Tenant::get()
         );
-        return view('aplicaciones.create',$data);
+        return view('aplicaciones.create', $data);
     }
 
     /**
@@ -46,42 +49,43 @@ class ApplicationController extends Controller
         $request->validate([
             'nombre' => [
                 'required',
-                Rule::unique('application','name')->where(function ($query) use ($request) {
+                Rule::unique('application', 'name')->where(function ($query) use ($request) {
                     return $query->where('tenant_id', Auth::user()->tenant_id);
                 }),
             ]
         ]);
-        
+
 
         try {
-            $aplication=new Application();
-            $aplication->name=$request->nombre;
-            $aplication->description=$request->descripcion;
-            $aplication->tenant_id=Auth::user()->tenant_id;
-            $aplication->tags=json_encode(new \stdClass);
-            $aplication->mqtt_tls_cert=null;
+            $aplication = new Application();
+            $aplication->name = $request->nombre;
+            $aplication->description = $request->descripcion;
+            $aplication->tenant_id = Auth::user()->tenant_id;
+            $aplication->tags = json_encode(new \stdClass);
+            $aplication->mqtt_tls_cert = null;
             $aplication->save();
 
             $this->crearIntegracionAplicacion($aplication->id);
-            
 
-            return redirect()->route('applicaciones.index')->with('success',$aplication->name.', ingresado exitosamente.!');
+
+            return redirect()->route('applicaciones.index')->with('success', $aplication->name . ', ingresado exitosamente.!');
         } catch (\Throwable $th) {
-            return back()->with('danger', 'Error.! '.$th->getMessage());
+            return back()->with('danger', 'Error.! ' . $th->getMessage());
         }
     }
 
 
-    public function crearIntegracionAplicacion($applicationId){
+    public function crearIntegracionAplicacion($applicationId)
+    {
         try {
-            $ai=new ApplicationIntegration();
-            $ai->application_id=$applicationId;
-            $ai->kind='Http';
+            $ai = new ApplicationIntegration();
+            $ai->application_id = $applicationId;
+            $ai->kind = 'Http';
             $ai->configuration = [
                 "Http" => [
                     "json" => true,
                     "headers" => (object) [],
-                    "event_endpoint_url" => url('/')."/api/sensor-data"
+                    "event_endpoint_url" => url('/') . "/api/sensor-data"
                 ]
             ];
             $ai->save();
@@ -97,7 +101,7 @@ class ApplicationController extends Controller
      */
     public function show($applicationId)
     {
-        
+
         return $applicationId;
     }
 
@@ -106,14 +110,14 @@ class ApplicationController extends Controller
      */
     public function edit($applicationId)
     {
-        $application= Application::find($applicationId);
-        Gate ::authorize('editar', $application);
+        $application = Application::find($applicationId);
+        Gate::authorize('editar', $application);
         $data = array(
-            'application'=>$application,
-            'tenants'=>Tenant::get()
+            'application' => $application,
+            'tenants' => Tenant::get()
         );
 
-        return view('aplicaciones.edit',$data);
+        return view('aplicaciones.edit', $data);
     }
 
     /**
@@ -131,18 +135,18 @@ class ApplicationController extends Controller
             ],
         ]);
 
-        
-        $aplication= Application::find($applicationId);
-        Gate ::authorize('editar', $aplication);
+
+        $aplication = Application::find($applicationId);
+        Gate::authorize('editar', $aplication);
         try {
-            $aplication->name=$request->nombre;
-            $aplication->description=$request->descripcion;
+            $aplication->name = $request->nombre;
+            $aplication->description = $request->descripcion;
             // $aplication->tenant_id=$request->tenant_id;
             $aplication->save();
 
-            return redirect()->route('applicaciones.index')->with('success',$aplication->name.', actualizado exitosamente.!');
+            return redirect()->route('applicaciones.index')->with('success', $aplication->name . ', actualizado exitosamente.!');
         } catch (\Throwable $th) {
-            return back()->with('danger', 'Error.! '.$th->getMessage());
+            return back()->with('danger', 'Error.! ' . $th->getMessage());
         }
     }
 
@@ -151,59 +155,81 @@ class ApplicationController extends Controller
      */
     public function destroy($applicationId)
     {
-        try {    
-            $aplication= Application::find($applicationId);
-            Gate ::authorize('eliminar', $aplication);
+        try {
+            $aplication = Application::find($applicationId);
+            Gate::authorize('eliminar', $aplication);
             Application::find($applicationId)->delete();
-            return redirect()->route('applicaciones.index')->with('success','Aplicación eliminado.!');
+            return redirect()->route('applicaciones.index')->with('success', 'Aplicación eliminado.!');
         } catch (\Throwable $th) {
-            return redirect()->route('applicaciones.index')->with('warning','Aplicación no eliminado.!'.$th->getMessage());
+            return redirect()->route('applicaciones.index')->with('warning', 'Aplicación no eliminado.!' . $th->getMessage());
         }
     }
 
-    public function getConfiguracionesDistancia($applicationId)
+    public function getConfiguraciones($applicationId)
     {
-        $application= Application::find($applicationId);
-        $configuraciones= Configuracion::orderBy('valor');
+        $application = Application::find($applicationId);
+        $devicesProfiles = DeviceProfile::with(['configuration'])->where("tenant_id", Auth::user()->tenant_id)->get();
+        $configuraciones = NotificationSetting::orderBy('valor');
 
-        if(isset($application)){
-            $configuraciones=$configuraciones->where('application_id',$applicationId);
+        if (isset($application)) {
+            $configuraciones = $configuraciones->where('application_id', $applicationId);
         }
-        $configuraciones=$configuraciones->get();
-        return view('aplicaciones.configuraciones',['configuraciones'=>$configuraciones, 'application'=>$application,]);
+        $configuraciones = $configuraciones->get();
+        foreach ($devicesProfiles as $deviceProfile) {
+            $config = Configuration::where('application_id', $applicationId)
+                ->where('device_profile_id', $deviceProfile->id)
+                ->first();
+
+            if (!$config) {
+                // Si no existe una configuración, la creamos
+                $configuration = new Configuration();
+                $configuration->application_id = $applicationId;
+                $configuration->device_profile_id = $deviceProfile->id;
+                $configuration->save();
+            }
+        }
+        $devicesProfiles = DeviceProfile::with([
+            'configuration' => function ($query){
+                $query->with(['rules']);
+            }
+        ])
+            ->where("tenant_id", Auth::user()
+                ->tenant_id)
+            ->get();
+        //eturn $devicesProfiles;
+        return view('aplicaciones.configuraciones', ['configuraciones' => $configuraciones, 'application' => $application, 'devicesProfiles' => $devicesProfiles]);
     }
     public function storeConfiguraciones(Request $request)
     {
-           
+
         $request->validate([
-            'valor'=>'required|string',
-            'descripcion'=>'required|string|max:255',
-            'application_id'=>'required',
+            'valor' => 'required|string',
+            'descripcion' => 'required|string|max:255',
+            'application_id' => 'required',
+            'device_profile_id' => 'required',
         ]);
         try {
-            $configuracion=new Configuracion();
-            $configuracion->valor=$request->valor;
-            $configuracion->descripcion=$request->descripcion;
-            $configuracion->color=$request->color;
-            $configuracion->application_id=$request->application_id;
-            $configuracion->notification=$request->notification;
+            $configuracion = new NotificationSetting();
+            $configuracion->valor = $request->valor;
+            $configuracion->descripcion = $request->descripcion;
+            $configuracion->color = $request->color;
+            $configuracion->application_id = $request->application_id;
+            $configuracion->notification = $request->notification;
 
             $configuracion->save();
 
-            return redirect()->route('configuraciones.distancia',[$request->application_id])->with('success',$configuracion->valor.', ingresado exitosamente.!');
+            return redirect()->route('configuraciones.distancia', [$request->application_id])->with('success', $configuracion->valor . ', ingresado exitosamente.!');
         } catch (\Throwable $th) {
-            return back()->with('danger', 'Error.! '.$th->getMessage())->withInput();
+            return back()->with('danger', 'Error.! ' . $th->getMessage())->withInput();
         }
     }
-    public function deleteConfiguraciones(Configuracion $configuracion)
+    public function deleteConfiguraciones(NotificationSetting $notificationSetting)
     {
-        
         try {
-          
-            $configuracion->delete();
-            return redirect()->route('configuraciones.distancia',[$configuracion->application_id])->with('success',$configuracion->valor.', ingresado exitosamente.!');
+            $notificationSetting->delete();
+            return redirect()->route('configuraciones.distancia', [$notificationSetting->application_id])->with('success', $notificationSetting->valor . ', ingresado exitosamente.!');
         } catch (\Throwable $th) {
-            return back()->with('danger', 'Error.! '.$th->getMessage())->withInput();
+            return back()->with('danger', 'Error.! ' . $th->getMessage())->withInput();
         }
     }
 
@@ -211,20 +237,20 @@ class ApplicationController extends Controller
     {
         $request->validate([
             // 'tenant_id' => 'required',
-            'distance'=>'required',
-            'application_id'=>'required'
+            'distance' => 'required',
+            'application_id' => 'required'
         ]);
 
-        
-        $aplication= Application::find($request->application_id);
-        Gate ::authorize('editar', $aplication);
+
+        $aplication = Application::find($request->application_id);
+        Gate::authorize('editar', $aplication);
         try {
-            $aplication->distance=$request->distance;
+            $aplication->distance = $request->distance;
             $aplication->save();
 
-            return redirect()->route('configuraciones.distancia',[$request->application_id])->with('success',$aplication->name.', actualizado exitosamente.!');
+            return redirect()->route('configuraciones.aplications', [$request->application_id])->with('success', $aplication->name . ', actualizado exitosamente.!');
         } catch (\Throwable $th) {
-            return back()->with('danger', 'Error.! '.$th->getMessage());
+            return back()->with('danger', 'Error.! ' . $th->getMessage());
         }
     }
 }

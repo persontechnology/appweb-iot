@@ -64,7 +64,7 @@ class Dispositivo extends Model
 
      public function lecturasLatest()
      {
-         return $this->hasOne(Lectura::class, 'dev_eui', 'dev_eui_hex')->latest();
+         return $this->hasOne(Lectura::class, 'dev_eui', 'dev_eui_hex')->latest('id');
      }
 
     // un dispositivo pertenece a una aplicacion
