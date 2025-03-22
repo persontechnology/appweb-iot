@@ -1,75 +1,72 @@
-/**
- * We'll load the axios HTTP library which allows us to easily issue requests
- * to our Laravel back-end. This library automatically handles sending the
- * CSRF token as a header based on the value of the "XSRF" token cookie.
- */
-
-import axios from 'axios';
-window.axios = axios;
-
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-
 import Echo from 'laravel-echo';
-
 import Pusher from 'pusher-js';
+
+// 🔹 Habilitar logs en consola para depuración
+Pusher.logToConsole = true;
 window.Pusher = Pusher;
+
+// 🔹 Verificar si las variables de entorno están cargadas
 console.log('PUSHER_APP_KEY:', import.meta.env.VITE_PUSHER_APP_KEY);
 console.log('PUSHER_HOST:', import.meta.env.VITE_PUSHER_HOST);
 console.log('PUSHER_PORT:', import.meta.env.VITE_PUSHER_PORT);
 console.log('PUSHER_SCHEME:', import.meta.env.VITE_PUSHER_SCHEME);
 
-// Pusher.logToConsole = true;
+// 🔹 Configuración de Laravel Echo con Pusher
 window.Echo = new Echo({
     broadcaster: 'pusher',
     key: import.meta.env.VITE_PUSHER_APP_KEY,
-    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER ?? 'mt1',
-    wsHost: import.meta.env.VITE_PUSHER_HOST ?? 'localhost', // Cambiado aquí
-    wsPort: import.meta.env.VITE_PUSHER_PORT ?? 6001, // Asegúrate de que el puerto sea correcto
-    wssPort: import.meta.env.VITE_PUSHER_PORT ?? 443,
-    forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
-    enabledTransports: ['ws', 'wss'],
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+    forceTLS: true,
 });
 
-window.Echo.channel('canal-notificar-dispositivo').listen(
-    'NotificarDispositivoEvento',
-    (e) => {
-        let dispositivo = e.dispositivo;
-        // esta en dashbora
-        let tenant_id = window.Laravel.tenant_id;
 
-        if (tenant_id == dispositivo.tenant_id) {
-            // esta en app
-            anadirLecturaNotificacionHeader(dispositivo);
-            try {
-                cargarDispositivos();
-            } catch (error) {}
-            // esta en dashboard
-            if (typeof buscarYcentrarMarketPorDispositivo === 'function') {
-                buscarYcentrarMarketPorDispositivo(dispositivo);
-                pintarDispositivo(dispositivo);
-            }
+// 🔹 Estado para controlar la reproducción del sonido
+let isSoundPlaying = false;
+
+// 🔹 Función para reproducir el sonido con control de reproducción
+const playAlarmSound = () => {
+    if (isSoundPlaying) {
+        console.log('⚠️ El sonido ya está en reproducción.');
+        return; // No hacer nada si el sonido ya se está reproduciendo
+    }
+
+    isSoundPlaying = true;
+    const audio = new Audio('http://209.126.85.168/sound/alert.mp3'); // Ruta del archivo en "public/sounds/"
+
+    audio
+        .play()
+        .then(() => {
+            console.log('🔊 Sonido reproducido con éxito');
+            isSoundPlaying = false; // Restablecer el estado después de la reproducción
+        })
+        .catch((error) => {
+            console.error('🔊 Error al reproducir el sonido:', error);
+            isSoundPlaying = false; // Restablecer el estado si hay un error
+        });
+};
+
+// 🔹 Suscripción al canal y escucha del evento
+window.Echo.channel('canal-notificar-dispositivo')
+    .subscribed(() => {
+        console.log(
+            '✔️ Suscripción exitosa al canal "canal-notificar-dispositivo"',
+        );
+    })
+    .listen('.NotificarDispositivoEvento', (e) => {
+        // Verifica si se recibió el dispositivo
+        if (!e.dispositivo) {
+            console.log('⚠️ No se ha recibido el dispositivo.');
+            return;
         }
-    },
-);
-
-/**
- * Echo exposes an expressive API for subscribing to channels and listening
- * for events that are broadcast by Laravel. Echo and event broadcasting
- * allows your team to easily build robust real-time web applications.
- */
-
-// import Echo from 'laravel-echo';
-
-// import Pusher from 'pusher-js';
-// window.Pusher = Pusher;
-
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: import.meta.env.VITE_PUSHER_APP_KEY,
-//     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER ?? 'mt1',
-//     wsHost: import.meta.env.VITE_PUSHER_HOST ? import.meta.env.VITE_PUSHER_HOST : ws-${import.meta.env.VITE_PUSHER_APP_CLUSTER}.pusher.com,
-//     wsPort: import.meta.env.VITE_PUSHER_PORT ?? 80,
-//     wssPort: import.meta.env.VITE_PUSHER_PORT ?? 443,
-//     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
-//     enabledTransports: ['ws', 'wss'],
-// });
+        let dispositivo = e.dispositivo;
+        let tenant_id = window.Laravel.tenant_id;
+        // Verifica si el dispositivo pertenece al tenant actual
+        if (tenant_id === dispositivo.tenant_id) {
+            playAlarmSound();
+        } else {
+            console.log('⚠️ Dispositivo no pertenece a este tenant.');
+        }
+    })
+    .error((err) => {
+        console.log('❌ Error al suscribirse al canal:', err);
+    });

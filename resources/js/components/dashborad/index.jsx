@@ -3,7 +3,8 @@ import axios from 'axios';
 import Map from './map';
 import SecondarySidebar from './SecondarySidebar';
 import ModalReadings from './modalReading';
-import { Card, CardBody } from 'reactstrap';
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js'; // Importar Pusher
 import DeviceSelected from './deviceSelected';
 const Dashboard = () => {
     const [deviceData, setDeviceData] = useState({
@@ -78,8 +79,68 @@ const Dashboard = () => {
         }
     };
 
+    // Función para manejar la suscripción a Laravel Echo
+    const subscribeToDeviceChannel = () => {
+        const echo = new Echo({
+            broadcaster: 'pusher',
+            key: import.meta.env.VITE_PUSHER_APP_KEY,
+            cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+            forceTLS: true,
+        });
+
+        // Suscripción al canal de dispositivos
+        echo.channel('canal-notificar-dispositivo')
+            .subscribed(() => {
+                console.log(
+                    '✔️ Suscripción exitosa al canal "canal-notificar-dispositivo"',
+                );
+            })
+            .listen('.NotificarDispositivoEvento', (e) => {
+                console.log('📢 Evento recibido:', e);
+                if (!e.dispositivo) {
+                    console.log('⚠️ No se ha recibido el dispositivo.');
+                    return;
+                }
+
+                // Verifica si el dispositivo pertenece al tenant actual
+                const dispositivo = e.dispositivo;
+                const tenant_id = window.Laravel.tenant_id;
+
+                if (tenant_id === dispositivo.tenant_id) {
+                    console.log('✅ Dispositivo pertenece al tenant actual.');
+
+                    // Actualiza el estado con el dispositivo recibido
+                    setDeviceData((prevState) => ({
+                        ...prevState,
+                        devices: [dispositivo, ...prevState.devices], // Añadir el dispositivo al principio de la lista
+                    }));
+                    cargarDispositivos();
+                } else {
+                    console.log('⚠️ Dispositivo no pertenece a este tenant.');
+                }
+            })
+            .error((err) => {
+                console.log('❌ Error al suscribirse al canal:', err);
+            });
+    };
+
+    useEffect(() => {
+        // Cargar los dispositivos al montar el componente
+        cargarDispositivos();
+
+        // Suscribirse al canal de Echo
+        subscribeToDeviceChannel();
+
+        // Limpiar la suscripción al desmontar el componente
+        return () => {
+            if (window.Echo) {
+                window.Echo.disconnect();
+                console.log('🚫 Desconectado de Echo');
+            }
+        };
+    }, []); // El array vacío asegura que esto se ejecute solo al montar y desmontar el componente
+
     const handleOptionsSelected = (type, device) => {
-        debugger;
         switch (type) {
             case 'Reading':
                 setModalReadings({
@@ -99,7 +160,6 @@ const Dashboard = () => {
         }
     };
     const loadDeriver = () => {
-        debugger;
         cargarDispositivos();
     };
     useEffect(() => {
