@@ -1,27 +1,33 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import react from '@vitejs/plugin-react';
-import reactRefresh from '@vitejs/plugin-react-refresh';
 
 export default defineConfig({
     build: {
         manifest: true,
-        rtl: true,
         outDir: 'public/build/',
         cssCodeSplit: true,
         rollupOptions: {
+            input: 'resources/js/app.js',
             output: {
-                entryFileNames: 'js/' + '[name]' + '.js',
+                entryFileNames: 'js/[name].js',
+                chunkFileNames: 'js/[name].js',
+                assetFileNames: ({ name }) => {
+                    if (name && name.endsWith('.css')) {
+                        return 'css/[name]';
+                    }
+                    return 'assets/[name]';
+                },
             },
         },
     },
     server: {
-        host: '0.0.0.0', // Permite conexiones externas en la red local
-        port: 5173, // Asegura que Vite use el puerto correcto
-        strictPort: true, // No cambia el puerto si está ocupado
+        host: '0.0.0.0',
+        port: 5173,
+        strictPort: true,
         hmr: {
-            host: '192.168.1.39', // Usa la IP de tu máquina
-            protocol: 'ws', // WebSocket sin cifrar (si usas HTTPS, cambia a 'wss')
+            host: '192.168.1.39', // reemplaza con la IP local de tu máquina
+            protocol: 'ws',
         },
     },
     plugins: [
@@ -30,7 +36,6 @@ export default defineConfig({
             refresh: true,
         }),
         react(),
-        reactRefresh(),
     ],
     resolve: {
         alias: {
