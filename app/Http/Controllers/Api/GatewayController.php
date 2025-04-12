@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\NotificarDispositivoEvento;
+use App\Events\NotificarLecturaDispositivoEvento;
 use App\Http\Controllers\Controller;
 use App\Models\Alerta;
 use App\Models\Application;
@@ -28,6 +29,7 @@ class GatewayController extends Controller
     {
         //crear datos del sensor 
         $this->guardarDatosSensor($request);
+        Log::info('ENTRO A GATEWAY');
         // error_log($request);
         try {
             // Obtener la información del dispositivo y del objeto de la solicitud
@@ -36,8 +38,8 @@ class GatewayController extends Controller
 
             // Verificar si se recibieron los datos del dispositivo y del objeto
             if (!$deviceInfo || !$object) {
-                throw new \Exception('NO EXISTE DEVICE INFO O OBJECT');
                 Log::info('NO EXISTE DEVICE INFO O OBJECT');
+                throw new \Exception('NO EXISTE DEVICE INFO O OBJECT');
             }
 
             // Obtener el ID de la aplicación del dispositivo
@@ -45,7 +47,13 @@ class GatewayController extends Controller
 
             $dev_eui = $deviceInfo['devEui'];
 
-            $dispositivo = Dispositivo::with(['deviceprofile'])->where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+            $dispositivo = Dispositivo::with([
+                'deviceprofile',
+                'puntosLocalizacion',
+                'lecturasLatest',
+                'puntosLocalizacionLatest',
+                'application'
+            ])->where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
 
 
             if (!isset($dispositivo)) {
@@ -77,12 +85,21 @@ class GatewayController extends Controller
             }
             $rules = $configuration->rules;
             $deviceprofile = $dispositivo->deviceprofile->name;
+            Log::info('DISPOSITIVO', [$dispositivo->dev_eui, $deviceprofile]);
             //return $object;
             switch ($deviceprofile) {
                 case 'Distancia':
                     if (isset($object['distance'])) {
-
+                        if (isset($object['battery'])) {
+                            Log::info('DISTANCIA Y BATERIA', [$object['distance'], $object['battery']]);
+                            Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))
+                                ->update([
+                                    'battery_level' => $object['battery'],
+                                ]);
+                        }
                         $lectura = $this->crearLectura($deviceInfo['devEui'], $alerta['id'], $request);
+                        $this->sentReaTime($dispositivo);
+                        Log::info("datos guuardar distancia", [$deviceInfo['devEui'], $alerta['id']]);
                     } else {
                         Log::error('EN EL DISPOSITIVO TIPO DISTANCA MAL CONFIGURADO', [$dispositivo]);
                     }
@@ -91,9 +108,9 @@ class GatewayController extends Controller
                     if (isset($object['press'])) {
                         $rulesEvent = $rules->pluck('event');
                         if ($rulesEvent->contains($object['press'])) {
-                            Log::info("datos guuardar", [$deviceInfo['devEui'], $alerta['id']]);
+
                             $lectura = $this->crearLectura($deviceInfo['devEui'], $alerta['id'], $request);
-                            $this->sentReaTime($dispositivo, $lectura);
+                            $this->sentReaTime($dispositivo);
                         }
                     } else {
                         Log::error('EN EL DISPOSITIVO TIPO BOTON MAL CONFIGURADO', [$dispositivo]);
@@ -101,6 +118,8 @@ class GatewayController extends Controller
                     break;
                 case 'GPS':
                     if (isset($object['latitude']) && isset($object['longitude'])) {
+                        Log::info("datos guuardar gps", [$deviceInfo['devEui'], $alerta['id']]);
+                        $lectura = $this->crearLectura($deviceInfo['devEui'], $alerta['id'], $request);
                         $puntosLOcalizacion = $this->crearPuntosLocalizacion($dev_eui, $object, $request);
                     }
                     break;
@@ -158,6 +177,7 @@ class GatewayController extends Controller
             }
         } catch (\Exception $th) {
             return  $th->getMessage();
+            Log::error('ERROR EN EL GATEWAY', [$th->getMessage()]);
             // Capturar cualquier excepción y registrarla en los registros de errores
             error_log('OCURRIO UN ERROR: ' . $th->getMessage());
         }
@@ -176,22 +196,9 @@ class GatewayController extends Controller
     }
 
     //ENVIAR DATOS A LAS NOTIFICACIONES
-    function sentReaTime($dispositivo, $lectura)
+    function sentReaTime($dispositivo)
     {
-        $data = array(
-            'dev_eui_hex' => $dispositivo->dev_eui_hex,
-            'last_seen_at' => $dispositivo->last_seen_at,
-            'name' => $dispositivo->name,
-            'battery_level' => $dispositivo->battery_level,
-            'use_tracking' => $dispositivo->use_tracking,
-            'created_at' => $lectura->created_at,
-            'id_lectura' => $lectura->id,
-            'ver_lectura_url' => route('lecturas.show', $lectura->id),
-            'description' => $dispositivo->description,
-            'tenant_id' => $lectura->tenant_id
-        );
-
-        event(new NotificarDispositivoEvento($data));
+        event(new NotificarDispositivoEvento($dispositivo));
     }
 
     //Calculos para la distancia

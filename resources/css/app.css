@@ -64,3 +64,19 @@
     margin: 0 !important; /* Elimina el margin */
     font-size: 11px; /* Tamaño de fuente 9px */
 }
+@keyframes titilar {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.titilar {
+    animation: titilar 1s infinite;
+    color: red; /* Opcional: cambia el color mientras titila */
+}

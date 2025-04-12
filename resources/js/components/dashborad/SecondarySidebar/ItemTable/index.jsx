@@ -67,6 +67,55 @@ const ItemTable = ({
                 return <i class="ph ph-x-square"></i>;
         }
     };
+    const transformBatteryLevel = (level) => {
+        const getBatteryClass = () => {
+            if (level <= 25) return 'text-danger';
+            if (level <= 50) return 'text-warning';
+            if (level <= 75) return 'text-info';
+            return 'text-success';
+        };
+
+        const getBatteryIcon = () => {
+            if (level <= 25) return 'ph-battery-low';
+            if (level <= 50) return 'ph-battery-medium';
+            if (level <= 75) return 'ph-battery-high';
+            return 'ph-battery-full';
+        };
+
+        const isBatteryAlert = item?.battery_alert_level > level;
+
+        return (
+            <span>
+                {level ? (
+                    <span
+                        className={`${getBatteryClass()} text-bold text-center`}>
+                        <span className="d-flex text-center justify-content-center">
+                            <i
+                                className={`ph ${getBatteryIcon()} me-1`}
+                                style={{ fontSize: '12px' }}></i>
+                            {isBatteryAlert && (
+                                <i
+                                    className="ph ph-warning text-danger titilar"
+                                    style={{ fontSize: '12px' }}></i>
+                            )}
+                        </span>
+                        {level}%
+                    </span>
+                ) : (
+                    <span className="text-muted text-bold text-center ">
+                        <span className="d-flex text-center justify-content-center">
+                            <i
+                                style={{ fontSize: '12px' }}
+                                className="ph ph-battery-warning-vertical"></i>
+                            <i
+                                style={{ fontSize: '12px' }}
+                                className="ph ph-warning"></i>
+                        </span>
+                    </span>
+                )}
+            </span>
+        );
+    };
 
     function sumarHoras(fecha, horas) {
         const nuevaFecha = new Date(fecha);
@@ -98,11 +147,24 @@ const ItemTable = ({
                         <p className="text-body m-0 p-0  fw-semibold letter-icon-title">
                             {item.name}
                         </p>
-                        <div className="text-muted ">{item?.description}</div>
+                        <div
+                            style={{ fontSize: 9 }}
+                            className="text-muted m-0 p-0">
+                            {item?.description}
+                        </div>
+                        <div
+                            style={{ fontSize: 9 }}
+                            className="fw-semibold text-primary m-0 p-0">
+                            <span
+                                className="d-inline-block text-truncate"
+                                style={{ maxWidth: '60px' }}>
+                                {item?.dev_eui}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </td>
-            <td className="align-middle p-2 m-2">
+            <td className="align-middle p-0 m-0">
                 {item?.lecturas_latest && item?.lecturas_latest !== null ? (
                     <div>
                         <p
@@ -123,6 +185,11 @@ const ItemTable = ({
                         {'No hay lecturas'}
                     </span>
                 )}
+            </td>
+            <td
+                style={{ fontSize: 9 }}
+                className="align-middle p-0 m-0 text-center">
+                {transformBatteryLevel(item?.battery_level)}
             </td>
             <td className="align-middle p-2 m-2">
                 <span

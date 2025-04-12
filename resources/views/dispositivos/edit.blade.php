@@ -1,249 +1,296 @@
 @extends('layouts.app')
 @section('breadcrumbs')
-{{-- {{ Breadcrumbs::render('categoria-gateway.create') }} --}}
+    {{-- {{ Breadcrumbs::render('categoria-gateway.create') }} --}}
 @endsection
 
 @section('content')
 
-<form action="{{ route('dispositivos.update',$dev_eui) }}" method="POST" enctype="multipart/form-data">
-    @csrf
-    @method('PUT')
-    <div class="card">
-        <div class="card-header">Complete datos</div>
-        <div class="card-body">
+    <form action="{{ route('dispositivos.update', $dev_eui) }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
+        <div class="card">
+            <div class="card-header">Complete datos</div>
+            <div class="card-body">
 
-            
-            <div class="row">
 
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-file-text"></i>
+                <div class="row">
+
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <div class="form-floating form-control-feedback form-control-feedback-start">
+                                <div class="form-control-feedback-icon">
+                                    <i class="ph ph-file-text"></i>
+                                </div>
+                                <input type="text" name="nombre" value="{{ old('nombre', $dis->name) }}"
+                                    class="form-control @error('nombre') is-invalid @enderror" autofocus placeholder=""
+                                    required>
+                                <label>Nombre</label>
+                                @error('nombre')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
-                            <input type="text" name="nombre" value="{{ old('nombre',$dis->name) }}" class="form-control @error('nombre') is-invalid @enderror" autofocus placeholder="" required>
-                            <label>Nombre</label>
-                            @error('nombre')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
                         </div>
                     </div>
-                </div>
 
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-chat-text"></i>
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <div class="form-floating form-control-feedback form-control-feedback-start">
+                                <div class="form-control-feedback-icon">
+                                    <i class="ph ph-chat-text"></i>
+                                </div>
+                                <textarea name="descripcion" class="form-control @error('descripcion') is-invalid @enderror" placeholder="" required>{{ old('descripcion', $dis->description) }}</textarea>
+                                <label>Descripción</label>
+                                @error('descripcion')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
-                            <textarea name="descripcion" class="form-control @error('descripcion') is-invalid @enderror" placeholder="" required>{{ old('descripcion',$dis->description) }}</textarea>
-                            <label>Descripción</label>
-                            @error('descripcion')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
                         </div>
                     </div>
-                </div>
 
-               
 
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        @if ($aplicaciones->count()>0)
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-presentation-chart"></i>
+
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            @if ($aplicaciones->count() > 0)
+                                <div class="form-floating form-control-feedback form-control-feedback-start">
+                                    <div class="form-control-feedback-icon">
+                                        <i class="ph ph-presentation-chart"></i>
+                                    </div>
+
+                                    <select class="form-select @error('application_id') is-invalid @enderror"
+                                        name="application_id" required>
+                                        @foreach ($aplicaciones as $app)
+                                            <option value="{{ $app->id }}"
+                                                {{ old('application_id', $dis->application_id) == $app->id ? 'selected' : '' }}>
+                                                {{ $app->name }}</option>
+                                        @endforeach
+                                    </select>
+
+                                    <label>Aplicaciones</label>
+
+                                    @error('application_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            @else
+                                @include('layouts.alert', [
+                                    'type' => 'danger',
+                                    'msg' => 'No existe Aplicaciones, por favor crear una.',
+                                ])
+                            @endif
+
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            @if ($perfil_dispositivos->count() > 0)
+                                <div class="form-floating form-control-feedback form-control-feedback-start">
+                                    <div class="form-control-feedback-icon">
+                                        <i class="ph ph-device-tablet"></i>
+                                    </div>
+
+                                    <select class="form-select @error('device_profile_id') is-invalid @enderror"
+                                        name="device_profile_id" required>
+                                        @foreach ($perfil_dispositivos as $pd)
+                                            <option value="{{ $pd->id }}"
+                                                {{ old('device_profile_id', $dis->device_profile_id) == $pd->id ? 'selected' : '' }}>
+                                                {{ $pd->name }}</option>
+                                        @endforeach
+                                    </select>
+
+                                    <label>Perfil de dispositivo</label>
+
+                                    @error('device_profile_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            @else
+                                @include('layouts.alert', [
+                                    'type' => 'danger',
+                                    'msg' => 'No existe perfil de sispositivos, por favor crear una.',
+                                ])
+                            @endif
+
+                        </div>
+                    </div>
+
+
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <div class="form-floating form-control-feedback form-control-feedback-start">
+                                <div class="form-control-feedback-icon">
+                                    <i class="ph ph-keyboard"></i>
+                                </div>
+                                <input type="text" disabled name="dev_eui" value="{{ old('dev_eui', $dev_eui) }}"
+                                    class="form-control @error('dev_eui') is-invalid @enderror" placeholder="" required>
+                                <label>Dispositivo EUI (EUI64)</label>
+                                @error('dev_eui')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
-                            
-                            <select class="form-select @error('application_id') is-invalid @enderror" name="application_id" required>
-                                @foreach ($aplicaciones as $app)
-                                <option value="{{ $app->id }}" {{ old('application_id',$dis->application_id)==$app->id?'selected':'' }}>{{ $app->name }}</option>
-                                @endforeach
-                            </select>
-
-                            <label>Aplicaciones</label>
-
-                            @error('application_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
                         </div>
-                        @else
-                            @include('layouts.alert',['type'=>'danger','msg'=>'No existe Aplicaciones, por favor crear una.'])
-                        @endif
-                        
                     </div>
-                </div>
 
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        @if ($perfil_dispositivos->count()>0)
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-device-tablet"></i>
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <div class="form-floating form-control-feedback form-control-feedback-start">
+                                <div class="form-control-feedback-icon">
+                                    <i class="ph ph-timer"></i>
+                                </div>
+                                <input type="text" name="join_eui" value="{{ old('join_eui', $dis->join_eui) }}"
+                                    class="form-control @error('join_eui') is-invalid @enderror" placeholder="" required>
+                                <label>Join EUI (EUI64)</label>
+                                @error('join_eui')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
-                            
-                            <select class="form-select @error('device_profile_id') is-invalid @enderror" name="device_profile_id" required>
-                                @foreach ($perfil_dispositivos as $pd)
-                                <option value="{{ $pd->id }}" {{ old('device_profile_id',$dis->device_profile_id)==$pd->id?'selected':'' }}>{{ $pd->name }}</option>
-                                @endforeach
-                            </select>
-
-                            <label>Perfil de dispositivo</label>
-
-                            @error('device_profile_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
                         </div>
-                        @else
-                            @include('layouts.alert',['type'=>'danger','msg'=>'No existe perfil de sispositivos, por favor crear una.'])
-                        @endif
-                        
                     </div>
-                </div>
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <div class="form-floating form-control-feedback form-control-feedback-start">
+                                <div class="form-control-feedback-icon">
+                                    <i class="ph ph-percent"></i>
+                                </div>
+                                <input type="number" name="battery_alert_level"
+                                    value="{{ old('battery_alert_level', $dis->battery_alert_level) }}"
+                                    class="form-control @error('battery_alert_level') is-invalid @enderror"
+                                    placeholder="Ingrese el porcentaje de bateria" required>
+                                <label>Porcentaje de bateria para notificar</label>
 
-
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-keyboard"></i>
+                                @error('battery_alert_level')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
-                            <input type="text" disabled name="dev_eui" value="{{ old('dev_eui',$dev_eui) }}" class="form-control @error('dev_eui') is-invalid @enderror" placeholder="" required>
-                            <label>Dispositivo EUI (EUI64)</label>
-                            @error('dev_eui')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
                         </div>
                     </div>
-                </div>
-
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-timer"></i>
+                    <div class="col-lg-6">
+                        <div class="border p-3 rounded mb-3">
+                            <div class="mb-2">
+                                <input type="checkbox" name="use_tracking" id="dc_li_u"
+                                    {{ old('use_tracking', $dis->use_tracking) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="use_tracking">Activar seguimiento (Tracking) del
+                                    dispositivo.</label>
+                                <div class="form-text">Al activar esta opción el sistema almacenara la ubicación del
+                                    dispositivo.</div>
                             </div>
-                            <input type="text" name="join_eui" value="{{ old('join_eui',$dis->join_eui) }}" class="form-control @error('join_eui') is-invalid @enderror" placeholder="" required>
-                            <label>Join EUI (EUI64)</label>
-                            @error('join_eui')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
                         </div>
                     </div>
-                </div>
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            @if ($tipoDispositivos->count() > 0)
+                                <div class="form-floating form-control-feedback form-control-feedback-start">
+                                    <div class="form-control-feedback-icon">
+                                        <i class="ph ph-device-tablet"></i>
+                                    </div>
 
-                <div class="col-lg-6">
-                    <div class="border p-3 rounded mb-3">
-                        <div class="mb-2">
-                            <input type="checkbox" name="use_tracking" id="dc_li_u" {{ old('use_tracking',$dis->use_tracking) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="use_tracking" >Activar seguimiento (Tracking) del dispositivo.</label>
-                            <div class="form-text">Al activar esta opción el sistema almacenara la ubicación del dispositivo.</div>
+                                    <select class="form-select @error('tipo_dispositivo') is-invalid @enderror"
+                                        name="tipo_dispositivo" required>
+                                        @foreach ($tipoDispositivos as $tipoDispositivo)
+                                            <option value="{{ $tipoDispositivo->id }}"
+                                                {{ old('tipo_dispositivo', $dis->tipoDispositivo->id ?? '') == $tipoDispositivo->id ? 'selected' : '' }}>
+                                                {{ $tipoDispositivo->nombre }}</option>
+                                        @endforeach
+                                    </select>
+
+                                    <label>Tipo de dispositivo</label>
+
+                                    @error('tipo_dispositivo')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            @else
+                                @include('layouts.alert', [
+                                    'type' => 'danger',
+                                    'msg' => 'No existe tipo de dispositivos, por favor crear una.',
+                                ])
+                            @endif
+
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="mb-3">
-                        @if ($tipoDispositivos->count()>0)
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-device-tablet"></i>
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <div class="form-floating form-control-feedback form-control-feedback-start">
+                                <div class="form-control-feedback-icon">
+                                    <i class="ph ph-timer"></i>
+                                </div>
+                                <input type="text" name="nwk_key" value="{{ old('nwk_key', $nwk_key) }}"
+                                    class="form-control @error('nwk_key') is-invalid @enderror" placeholder="" required>
+                                <label>Clave de aplicación (MSB)</label>
+                                <div class="form-text">
+                                    Para dispositivos LoRaWAN 1.0. En caso de que su dispositivo sea compatible con LoRaWAN
+                                    1.1, actualice primero el perfil del dispositivo.
+                                </div>
+                                @error('nwk_key')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
-                            
-                            <select class="form-select @error('tipo_dispositivo') is-invalid @enderror" name="tipo_dispositivo" required>
-                                @foreach ($tipoDispositivos as $tipoDispositivo)
-                                <option value="{{ $tipoDispositivo->id }}" {{ old('tipo_dispositivo',$dis->tipoDispositivo->id??'')==$tipoDispositivo->id?'selected':'' }}>{{ $tipoDispositivo->nombre }}</option>
-                                @endforeach
-                            </select>
-
-                            <label>Tipo de dispositivo</label>
-
-                            @error('tipo_dispositivo')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
                         </div>
-                        @else
-                            @include('layouts.alert',['type'=>'danger','msg'=>'No existe tipo de dispositivos, por favor crear una.'])
-                        @endif
-                        
                     </div>
-                </div>
-                <div class="col-lg-12">
-                    <div class="mb-3">
-                        <div class="form-floating form-control-feedback form-control-feedback-start">
-                            <div class="form-control-feedback-icon">
-                                <i class="ph ph-timer"></i>
+
+                    <div class="col-lg-12">
+                        <div class="border p-3 rounded">
+                            <div class="form-check form-switch mb-2">
+                                <input type="checkbox" class="form-check-input" name="is_disabled" id="sc_ls_c">
+                                <label class="form-check-label" for="sc_ls_c">El dispositivo está deshabilitado</label>
+                                <div class="form-text">Se ignorarán las tramas de enlace ascendente recibidas y las
+                                    solicitudes de unión.</div>
                             </div>
-                            <input type="text" name="nwk_key" value="{{ old('nwk_key',$nwk_key) }}" class="form-control @error('nwk_key') is-invalid @enderror" placeholder="" required>
-                            <label>Clave de aplicación (MSB)</label>
-                            <div class="form-text">
-                                Para dispositivos LoRaWAN 1.0. En caso de que su dispositivo sea compatible con LoRaWAN 1.1, actualice primero el perfil del dispositivo.
-                            </div>
-                            @error('nwk_key')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
                         </div>
                     </div>
-                </div>
 
-                <div class="col-lg-12">
-                    <div class="border p-3 rounded">
-                        <div class="form-check form-switch mb-2">
-                            <input type="checkbox" class="form-check-input" name="is_disabled" id="sc_ls_c">
-                            <label class="form-check-label" for="sc_ls_c" >El dispositivo está deshabilitado</label>
-                            <div class="form-text">Se ignorarán las tramas de enlace ascendente recibidas y las solicitudes de unión.</div>
-                        </div>
+                    <div class="col-lg-12">
+                        <h2>Ubicación del dispositivo</h2>
+                        <div id="map"></div>
+                        <input type="hidden" name="latitude" value="{{ $dis->latitude }}" id="latitude">
+                        <input type="hidden" name="longitude" value="{{ $dis->longitude }}" id="longitude">
                     </div>
-                </div>
 
-                <div class="col-lg-12">
-                    <h2>Ubicación del dispositivo</h2>
-                    <div id="map"></div>
-                    <input type="hidden" name="latitude" value="{{ $dis->latitude }}" id="latitude">
-                    <input type="hidden" name="longitude" value="{{ $dis->longitude }}" id="longitude">
-                </div>
 
+                </div>
+            </div>
+            <div class="card-footer text-muted">
+                <button class="btn btn-primary" type="submit">Guardar</button>
+                <a href="{{ route('gateways.index') }}" class="btn btn-danger">Cancelar</a>
 
             </div>
         </div>
-        <div class="card-footer text-muted">
-            <button class="btn btn-primary" type="submit">Guardar</button>
-            <a href="{{ route('gateways.index') }}" class="btn btn-danger">Cancelar</a>
-            
-        </div>
-    </div>
-    
-</form>
-        
+
+    </form>
+
 @endsection
 
 
 @push('scriptsHeader')
-<style>
-    #map { height: 480px; }
-</style>
+    <style>
+        #map {
+            height: 480px;
+        }
+    </style>
 @endpush
 @push('scriptsFooter')
-<script>
-    $(document).ready(function () {
+    <script>
+        $(document).ready(function() {
 
-        var coordenadas=[$('#latitude').val(), $('#longitude').val()];
+            var coordenadas = [$('#latitude').val(), $('#longitude').val()];
 
-        var map = L.map('map').setView(coordenadas, 8);
+            var map = L.map('map').setView(coordenadas, 8);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        var market=L.marker(coordenadas,{
-            title:'Ubicación de gateway',
-            draggable:true
-        }).addTo(map);
+            var market = L.marker(coordenadas, {
+                title: 'Ubicación de gateway',
+                draggable: true
+            }).addTo(map);
 
-        market.on('dragend', function(event) {
-            var marker = event.target;
-            var position = marker.getLatLng();
-            $('#latitude').val(position.lat);
-            $('#longitude').val(position.lng);
-            
+            market.on('dragend', function(event) {
+                var marker = event.target;
+                var position = marker.getLatLng();
+                $('#latitude').val(position.lat);
+                $('#longitude').val(position.lng);
+
+            });
         });
-    });
- </script>
+    </script>
 @endpush

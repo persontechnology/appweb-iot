@@ -4,13 +4,6 @@ import Pusher from 'pusher-js';
 // 🔹 Habilitar logs en consola para depuración
 Pusher.logToConsole = true;
 window.Pusher = Pusher;
-
-// 🔹 Verificar si las variables de entorno están cargadas
-console.log('PUSHER_APP_KEY:', import.meta.env.VITE_PUSHER_APP_KEY);
-console.log('PUSHER_HOST:', import.meta.env.VITE_PUSHER_HOST);
-console.log('PUSHER_PORT:', import.meta.env.VITE_PUSHER_PORT);
-console.log('PUSHER_SCHEME:', import.meta.env.VITE_PUSHER_SCHEME);
-
 // 🔹 Configuración de Laravel Echo con Pusher
 window.Echo = new Echo({
     broadcaster: 'pusher',
@@ -18,7 +11,6 @@ window.Echo = new Echo({
     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
     forceTLS: true,
 });
-
 
 // 🔹 Estado para controlar la reproducción del sonido
 let isSoundPlaying = false;
@@ -47,12 +39,9 @@ const playAlarmSound = () => {
 
 // 🔹 Suscripción al canal y escucha del evento
 window.Echo.channel('canal-notificar-dispositivo')
-    .subscribed(() => {
-        console.log(
-            '✔️ Suscripción exitosa al canal "canal-notificar-dispositivo"',
-        );
-    })
+    .subscribed(() => {})
     .listen('.NotificarDispositivoEvento', (e) => {
+        console.log('⚠️ ingresooo');
         // Verifica si se recibió el dispositivo
         if (!e.dispositivo) {
             console.log('⚠️ No se ha recibido el dispositivo.');

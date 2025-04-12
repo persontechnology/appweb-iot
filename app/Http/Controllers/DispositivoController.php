@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 
 class DispositivoController extends Controller
 {
@@ -95,6 +96,8 @@ class DispositivoController extends Controller
             $dis->join_eui = $request->join_eui;
             $dis->latitude = $request->latitude;
             $dis->longitude = $request->longitude;
+            $dis->battery_alert_level = $request->battery_alert_level;
+
             // $dis->type=$request->type;
             $dis->tipo_dispositivo_id = $request->tipo_dispositivo;
             $dis->save();
@@ -152,7 +155,7 @@ class DispositivoController extends Controller
             'perfil_dispositivos' => $tenant->deviceProfiles,
             'dis' => $dispositivo,
             'nwk_key' => $dk->nwk_key,
-            'dev_eui' => $dispositivo->dev_eui,
+            'dev_eui' => $dispositivoId,
             'tipoDispositivos' => TipoDispositivo::get()
         );
         return view('dispositivos.edit', $data);
@@ -161,9 +164,11 @@ class DispositivoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $dispositivoId)
+    public function update(Request $request, $dev_eui)
     {
-        $dis = Dispositivo::where('dev_eui', DB::raw("decode('$dispositivoId', 'hex')"))->first();
+
+        $dis = Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))->first();
+        Log::info('DispositivoController@update', ['dis' => $dis]);
         Gate::authorize('editar', $dis);
         $tenant = Tenant::find(Auth::user()->tenant_id);
         $misApplicationsIds = $tenant->applications->pluck('id')->toArray();
@@ -175,26 +180,27 @@ class DispositivoController extends Controller
                 'required',
                 'regex:/^[0-9a-fA-F]{16}$/'
             ],
-            'tipo_dispositivo' => 'required'
+            'tipo_dispositivo' => 'required',
+            'battery_alert_level' => 'required|numeric|min:0|max:100',
         ]);
 
         try {
 
-            $dis->application_id = $request->application_id;
-            $dis->device_profile_id = $request->device_profile_id;
-            $dis->name = $request->nombre;
-            $dis->description = $request->descripcion;
-            $dis->is_disabled = $request->is_disabled ? 1 : 0;
-            $dis->use_tracking = $request->use_tracking ? 1 : 0;
-            $dis->join_eui = $request->join_eui;
-            $dis->latitude = $request->latitude;
-            $dis->longitude = $request->longitude;
-            // $dis->type=$request->type;
-            $dis->tipo_dispositivo_id = $request->tipo_dispositivo;
-            $dis->save();
-
-            $this->actualizarClaveApplicacion($dispositivoId, $request->nwk_key);
-            return redirect()->route('dispositivos.index')->with('success', $dis->name . ', actualizado exitosamente.!');
+            $dis = Dispositivo::where('dev_eui', DB::raw("decode('$dev_eui', 'hex')"))
+                ->update([
+                    'application_id' => $request->application_id,
+                    'device_profile_id' => $request->device_profile_id,
+                    'name' => $request->nombre,
+                    'description' => $request->descripcion,
+                    'is_disabled' => $request->is_disabled ? 1 : 0,
+                    'use_tracking' => $request->use_tracking ? 1 : 0,
+                    'latitude' => $request->latitude,
+                    'longitude' => $request->longitude,
+                    'battery_alert_level' => $request->battery_alert_level ?? 10,
+                    'tipo_dispositivo_id' => $request->tipo_dispositivo
+                ]);
+            $this->actualizarClaveApplicacion($dev_eui, $request->nwk_key);
+            return redirect()->route('dispositivos.index')->with('success', 'actualizado exitosamente.!');
         } catch (\Throwable $th) {
             return back()->with('danger', 'Error.! ' . $th->getMessage())->withInput();
         }

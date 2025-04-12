@@ -54,7 +54,7 @@ class DashboardController extends Controller
                 return $query->where(DB::raw("encode(dev_eui, 'hex')"), 'like', "%$search%");
             });
         }
-        $dispositivos = $dispositivos->get();
+        $dispositivos = $dispositivos->orderBy('name')->get();
 
         return response()->json($dispositivos);
     }

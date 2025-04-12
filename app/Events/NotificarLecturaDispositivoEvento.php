@@ -9,7 +9,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class NotificarDispositivoEvento implements ShouldBroadcast
+class NotificarLecturaDispositivoEvento implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -36,7 +36,7 @@ class NotificarDispositivoEvento implements ShouldBroadcast
     public function broadcastOn()
     {
         // Canal en el que se emitirá el evento
-        return new Channel('canal-notificar-dispositivo');
+        return new Channel('canal-lectura-notificar-dispositivo');
     }
 
     /**
@@ -46,6 +46,6 @@ class NotificarDispositivoEvento implements ShouldBroadcast
      */
     public function broadcastAs()
     {
-        return 'NotificarDispositivoEvento';  // Asegúrate de que el nombre coincida
+        return 'NotificarLecturaDispositivoEvento';  // Asegúrate de que el nombre coincida
     }
 }

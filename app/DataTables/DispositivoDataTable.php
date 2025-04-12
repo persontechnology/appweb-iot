@@ -25,12 +25,12 @@ class DispositivoDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('action', function($dis){
-                
-                return view('dispositivos.action',['dis'=>$dis])->render();
+            ->addColumn('action', function ($dis) {
+
+                return view('dispositivos.action', ['dis' => $dis])->render();
             })
-            ->editColumn('tipo_dispositivo_id',function($dis){
-                return $dis->tipoDispositivo->nombre??'';
+            ->editColumn('tipo_dispositivo_id', function ($dis) {
+                return $dis->tipoDispositivo->nombre ?? '';
             })
             ->setRowId('name');
     }
@@ -40,18 +40,17 @@ class DispositivoDataTable extends DataTable
      */
     public function query(Dispositivo $model): QueryBuilder
     {
-        
-        return $model->newQuery()
-        ->whereHas('application', function ($query) {
-            $query->whereHas('tenant', function ($query) {
-                $query->where('id', Auth::user()->tenant_id);
-            });
-        })
-        ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *")
-        ->with('deviceprofile')
-        ->with('tipoDispositivo')
-        ->with('application');
 
+        return $model->newQuery()
+            ->whereHas('application', function ($query) {
+                $query->whereHas('tenant', function ($query) {
+                    $query->where('id', Auth::user()->tenant_id);
+                });
+            })
+            ->selectRaw("encode(dev_eui, 'hex') as dev_eui_hex, *")
+            ->with('deviceprofile')
+            ->with('tipoDispositivo')
+            ->with('application');
     }
 
     /**
@@ -60,10 +59,10 @@ class DispositivoDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('dispositivo-table')
-                    ->columns($this->getColumns())
-                    ->minifiedAjax()
-                    ->parameters($this->getBuilderParameters());
+            ->setTableId('dispositivo-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
+            ->parameters($this->getBuilderParameters());
     }
 
     /**
@@ -73,23 +72,24 @@ class DispositivoDataTable extends DataTable
     {
         return [
             Column::computed('action')
-                  ->exportable(false)
-                  ->printable(false)
-                  ->width(60)
-                  ->title('Acción')
-                  ->addClass('text-center'),
-            Column::make('dev_eui'),      
+                ->exportable(false)
+                ->printable(false)
+                ->width(60)
+                ->title('Acción')
+                ->addClass('text-center'),
+            Column::make('dev_eui'),
             Column::make('name')->title('Nombre'),
             Column::make('join_eui'),
             Column::make('battery_level')->title('%Batería'),
+            Column::make('battery_alert_level')->title('%ALERTA BATERIA'),
             Column::make('tipo_dispositivo_id')->title('Tipo dispositivo'),
             Column::make('deviceprofile.name')->title('Perfil dispositivo'),
             Column::make('application.name')->title('Aplicación'),
             Column::make('description')->title('Descripción'),
-            
-            
-            
-            
+
+
+
+
         ];
     }
 

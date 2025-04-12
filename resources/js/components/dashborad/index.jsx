@@ -6,6 +6,7 @@ import ModalReadings from './modalReading';
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js'; // Importar Pusher
 import DeviceSelected from './deviceSelected';
+import { prepareDevices } from '../../helpers/prepareDevices';
 const Dashboard = () => {
     const [deviceData, setDeviceData] = useState({
         devices: [],
@@ -13,7 +14,7 @@ const Dashboard = () => {
         loader: false,
     });
     const [deviceDataSelected, setDeviceDataSelected] = useState({
-        diver: null,
+        device: null,
         view: false,
     });
     const [modalReadings, setModalReadings] = useState({
@@ -36,7 +37,7 @@ const Dashboard = () => {
                 ...prevState,
                 devices: response?.data ?? [],
                 devicesSelected:
-                    response?.data?.map((diver) => diver?.dev_eui) ?? [],
+                    response?.data?.map((device) => device?.dev_eui) ?? [],
                 loader: false,
             }));
         } catch (error) {
@@ -53,7 +54,7 @@ const Dashboard = () => {
             setDeviceData((prevState) => ({
                 ...prevState,
                 devicesSelected:
-                    deviceData?.devices?.map((diver) => diver?.dev_eui) ?? [],
+                    deviceData?.devices?.map((device) => device?.dev_eui) ?? [],
             }));
         } else {
             setDeviceData((prevState) => ({
@@ -61,21 +62,36 @@ const Dashboard = () => {
                 devicesSelected: [],
             }));
         }
+        setDeviceDataSelected({
+            device: null,
+            view: false,
+        });
     };
-    const changeDeviceSelected = (target, diver) => {
+    const changeDeviceSelected = (target, device) => {
         if (target) {
             setDeviceData((prevState) => ({
                 ...prevState,
-                devicesSelected: [...prevState.devicesSelected, diver?.dev_eui],
+                devicesSelected: [
+                    ...prevState.devicesSelected,
+                    device?.dev_eui,
+                ],
             }));
+            setDeviceDataSelected({
+                device: device,
+                view: true,
+            });
         } else {
             let filteredDevices = deviceData.devicesSelected.filter(
-                (item) => item !== diver?.dev_eui,
+                (item) => item !== device?.dev_eui,
             );
             setDeviceData((prevState) => ({
                 ...prevState,
                 devicesSelected: filteredDevices ?? [],
             }));
+            setDeviceDataSelected({
+                device: null,
+                view: false,
+            });
         }
     };
 
@@ -89,14 +105,13 @@ const Dashboard = () => {
         });
 
         // Suscripción al canal de dispositivos
-        echo.channel('canal-notificar-dispositivo')
+        echo.channel('canal-lectura-notificar-dispositivo')
             .subscribed(() => {
                 console.log(
                     '✔️ Suscripción exitosa al canal "canal-notificar-dispositivo"',
                 );
             })
-            .listen('.NotificarDispositivoEvento', (e) => {
-                console.log('📢 Evento recibido:', e);
+            .listen('.NotificarLecturaDispositivoEvento', (e) => {
                 if (!e.dispositivo) {
                     console.log('⚠️ No se ha recibido el dispositivo.');
                     return;
@@ -105,6 +120,7 @@ const Dashboard = () => {
                 // Verifica si el dispositivo pertenece al tenant actual
                 const dispositivo = e.dispositivo;
                 const tenant_id = window.Laravel.tenant_id;
+                console.log(dispositivo);
 
                 if (tenant_id === dispositivo.tenant_id) {
                     console.log('✅ Dispositivo pertenece al tenant actual.');
@@ -162,9 +178,11 @@ const Dashboard = () => {
     const loadDeriver = () => {
         cargarDispositivos();
     };
-    useEffect(() => {
-        cargarDispositivos();
-    }, []);
+    const filteredDevices = deviceData.devices.filter((item) =>
+        deviceData.devicesSelected.includes(item.dev_eui),
+    );
+
+    const devicesForMap = prepareDevices(filteredDevices);
 
     return (
         <div className="App ashboardd2">
@@ -181,11 +199,8 @@ const Dashboard = () => {
 
             <div className="content p-1" style={{ position: 'relative' }}>
                 <Map
-                    devices={
-                        deviceData.devices.filter((item) =>
-                            deviceData.devicesSelected.includes(item.dev_eui),
-                        ) ?? []
-                    }
+                    devices={devicesForMap}
+                    optionSelected={deviceDataSelected}
                 />
                 {deviceDataSelected.view && (
                     <DeviceSelected
