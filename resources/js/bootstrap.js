@@ -19,6 +19,7 @@ window.Echo = new Echo({
     forceTLS: true,
 });
 
+
 // 🔹 Estado para controlar la reproducción del sonido
 let isSoundPlaying = false;
 
@@ -30,7 +31,7 @@ const playAlarmSound = () => {
     }
 
     isSoundPlaying = true;
-    const audio = new Audio('http://192.168.1.39:8000/sound/alert.mp3'); // Ruta del archivo en "public/sounds/"
+    const audio = new Audio('http://209.126.85.168/sound/alert.mp3'); // Ruta del archivo en "public/sounds/"
 
     audio
         .play()

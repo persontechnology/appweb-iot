@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-
 use App\Events\NotificarDispositivoEvento;
 use App\Http\Controllers\Controller;
 use App\Models\Alerta;

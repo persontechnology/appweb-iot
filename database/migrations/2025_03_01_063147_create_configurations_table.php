@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreign('application_id')->references('id')->on('application')->onDelete('cascade');
         });
     }
-
+    
     /**
      * Reverse the migrations.
      */
